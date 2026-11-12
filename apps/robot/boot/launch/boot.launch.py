@@ -28,8 +28,8 @@ from robot_machines.machine import load_machine, machine_names
 def fleet_zenoh_router_config_override():
     endpoints = [
         f'"tcp/{host.hostname}.local:{ZENOH_ROUTER_PORT}"'
-        for name in machine_names()
-        for host in load_machine(name).system.hosts]
+        for robot_name in machine_names()
+        for host in load_machine(robot_name).system.hosts]
     return f'connect/endpoints=[{",".join(endpoints)}]'
 
 

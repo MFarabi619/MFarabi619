@@ -18,7 +18,7 @@ from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN, TF_REMAPS, write_parameter_overrides_file
 from robot_boot.zenoh_router import ensure_zenoh_router
 
-NAV2_SERVERS = (
+GPS_NAVIGATION_NAV2_SERVERS = (
     ('nav2_controller', 'controller_server'),
     ('nav2_planner', 'planner_server'),
     ('nav2_bt_navigator', 'bt_navigator'),
@@ -46,7 +46,7 @@ def gps_navigation(
     })
     param_files = [params_file, scan_overrides_file] + ([overrides_file] if overrides_file else [])
     bl.wait_for_service(f'{robot_namespace}/fromLL', timeout=FROM_LL_TIMEOUT_SECONDS)
-    for package, server in NAV2_SERVERS:
+    for package, server in GPS_NAVIGATION_NAV2_SERVERS:
         parameters = {}
         remaps = dict(TF_REMAPS)
         if server == 'bt_navigator':

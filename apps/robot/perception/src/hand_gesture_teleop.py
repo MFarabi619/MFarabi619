@@ -51,8 +51,8 @@ class HandGestureTeleop(Node):
 
         self.is_enabled = self.declare_parameter('start_enabled', False).value
         self.candidate = None
-        self.candidate_count = 0
-        self.committed = STOP
+        self.candidate_frames = 0
+        self.committed_velocity = STOP
 
         self.create_service(SetBool, '~/enable', self.on_enable)
         self.cmd_vel_publisher = self.create_publisher(
@@ -65,9 +65,9 @@ class HandGestureTeleop(Node):
 
     def on_enable(self, request, response):
         self.is_enabled = request.data
-        if not request.data and self.committed != STOP:
-            self.committed = STOP
-            self.publish_twist(self.committed)
+        if not request.data and self.committed_velocity != STOP:
+            self.committed_velocity = STOP
+            self.publish_twist(self.committed_velocity)
         response.success = True
         response.message = 'enabled' if request.data else 'disabled'
         return response
@@ -79,21 +79,21 @@ class HandGestureTeleop(Node):
         gesture = self.confident_gesture(message)
         if gesture is None:
             self.candidate = None
-            self.candidate_count = 0
-            self.committed = STOP
-            self.publish_twist(self.committed)
+            self.candidate_frames = 0
+            self.committed_velocity = STOP
+            self.publish_twist(self.committed_velocity)
             return
         if gesture == self.candidate:
-            self.candidate_count += 1
+            self.candidate_frames += 1
         else:
             self.candidate = gesture
-            self.candidate_count = 1
-        if self.candidate_count >= self.commit_frames:
+            self.candidate_frames = 1
+        if self.candidate_frames >= self.commit_frames:
             linear, angular = GESTURE_DIRECTIONS[gesture]
-            self.committed = (
+            self.committed_velocity = (
                 linear * self.forward_speed_meters_per_second,
                 angular * self.angular_speed_radians_per_second)
-        self.publish_twist(self.committed)
+        self.publish_twist(self.committed_velocity)
 
     def confident_gesture(self, message):
         best_gesture = None
@@ -109,10 +109,10 @@ class HandGestureTeleop(Node):
         return best_gesture
 
     def on_watchdog(self):
-        if self.committed == STOP:
+        if self.committed_velocity == STOP:
             return
-        self.committed = STOP
-        self.publish_twist(self.committed)
+        self.committed_velocity = STOP
+        self.publish_twist(self.committed_velocity)
 
     def publish_twist(self, velocity):
         message = TwistStamped()

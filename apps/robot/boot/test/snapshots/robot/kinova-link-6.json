@@ -116,7 +116,7 @@
     {
       "executable": "kinova_link6_bridge_node",
       "kind": "node",
-      "name": "kinova_link6_bridge_node",
+      "name": null,
       "namespace": "/",
       "package": "robot_manipulation",
       "remaps": {
@@ -553,7 +553,7 @@
         "scan_time": 0.06666666666666667
       },
       "kind": "include",
-      "launchfile": "pointcloud_to_laserscan.launch.py",
+      "launchfile": "point_cloud_to_laserscan.launch.py",
       "namespace": "/",
       "package": "robot_boot",
       "subdir": null
@@ -562,7 +562,7 @@
       "executable": "pointcloud_to_laserscan_node",
       "kind": "node",
       "max_respawns": -1,
-      "name": "camera_0_pointcloud_to_laserscan",
+      "name": "camera_0_point_cloud_to_laserscan",
       "namespace": "/",
       "package": "pointcloud_to_laserscan",
       "params": {
@@ -600,8 +600,8 @@
       "package": "robot_perception",
       "params": {
         "camera_info_topic": "sensors/camera_0/color/camera_info",
-        "cloud_topic": "sensors/camera_0/depth/points",
-        "overlay_topic": "perception/collision/overlay"
+        "overlay_topic": "perception/collision/overlay",
+        "point_cloud_topic": "sensors/camera_0/depth/points"
       },
       "remaps": {
         "/tf": "tf",

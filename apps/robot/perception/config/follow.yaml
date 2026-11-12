@@ -7,6 +7,7 @@
   ros__parameters:
     standoff_distance_meters: 1.5
     max_missing_frames: 24
+    reacquire_angular_decay: 0.85
     max_forward_speed_meters_per_second: 2.0
     max_angular_speed_radians_per_second: 2.0
     max_backward_speed_meters_per_second: 2.0

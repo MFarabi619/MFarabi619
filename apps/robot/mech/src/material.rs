@@ -2,12 +2,12 @@ use std::collections::HashMap;
 
 use cadrum::{Color, Solid};
 
-const ALUMINUM_DENSITY_KG_PER_M3: f64 = 2700.0;
-const STEEL_DENSITY_KG_PER_M3: f64 = 7850.0;
-const PLYWOOD_DENSITY_KG_PER_M3: f64 = 600.0;
-const RUBBER_DENSITY_KG_PER_M3: f64 = 1200.0;
-const PLASTIC_DENSITY_KG_PER_M3: f64 = 1140.0;
-const SLA_BATTERY_DENSITY_KG_PER_M3: f64 = 2400.0;
+const ALUMINUM_DENSITY_KILOGRAMS_PER_CUBIC_METER: f64 = 2700.0;
+const STEEL_DENSITY_KILOGRAMS_PER_CUBIC_METER: f64 = 7850.0;
+const PLYWOOD_DENSITY_KILOGRAMS_PER_CUBIC_METER: f64 = 600.0;
+const RUBBER_DENSITY_KILOGRAMS_PER_CUBIC_METER: f64 = 1200.0;
+const PLASTIC_DENSITY_KILOGRAMS_PER_CUBIC_METER: f64 = 1140.0;
+const SLA_BATTERY_DENSITY_KILOGRAMS_PER_CUBIC_METER: f64 = 2400.0;
 
 const PLYWOOD_COLOR: [u8; 3] = [0xc8, 0xa0, 0x6e];
 const ALUMINUM_COLOR: [u8; 3] = [0xb0, 0xb3, 0xb8];
@@ -67,14 +67,14 @@ impl Material {
         }
     }
 
-    pub const fn density_kg_per_m3(self) -> f64 {
+    pub const fn density_kilograms_per_cubic_meter(self) -> f64 {
         match self {
-            Material::Aluminum | Material::AnodizedAluminum => ALUMINUM_DENSITY_KG_PER_M3,
-            Material::Steel => STEEL_DENSITY_KG_PER_M3,
-            Material::BlackPlastic | Material::GrayPlastic => PLASTIC_DENSITY_KG_PER_M3,
-            Material::Plywood => PLYWOOD_DENSITY_KG_PER_M3,
-            Material::Rubber => RUBBER_DENSITY_KG_PER_M3,
-            Material::SlaBattery => SLA_BATTERY_DENSITY_KG_PER_M3,
+            Material::Aluminum | Material::AnodizedAluminum => ALUMINUM_DENSITY_KILOGRAMS_PER_CUBIC_METER,
+            Material::Steel => STEEL_DENSITY_KILOGRAMS_PER_CUBIC_METER,
+            Material::BlackPlastic | Material::GrayPlastic => PLASTIC_DENSITY_KILOGRAMS_PER_CUBIC_METER,
+            Material::Plywood => PLYWOOD_DENSITY_KILOGRAMS_PER_CUBIC_METER,
+            Material::Rubber => RUBBER_DENSITY_KILOGRAMS_PER_CUBIC_METER,
+            Material::SlaBattery => SLA_BATTERY_DENSITY_KILOGRAMS_PER_CUBIC_METER,
         }
     }
 

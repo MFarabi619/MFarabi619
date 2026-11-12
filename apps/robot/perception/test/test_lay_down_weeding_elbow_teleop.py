@@ -132,7 +132,7 @@ def test_a_single_displaced_frame_does_not_commit(
 def test_an_inverted_drive_axis_flips_direction(
         lay_down_weeding_elbow_teleop_node):
     node = lay_down_weeding_elbow_teleop_node
-    node.invert_drive_axis = True
+    node.drive_axis_is_reversed = True
     twists = capture(node)
     calibrate(node)
     feed(node, pose(left_elbow=landmark(y=0.6)), node.commit_frames)
@@ -267,8 +267,8 @@ def test_inverting_the_drive_axis_applies_live(
     node = lay_down_weeding_elbow_teleop_node
     capture(node)
     node.on_parameters_set(
-        [rclpy.parameter.Parameter('invert_drive_axis', value=True)])
-    assert node.invert_drive_axis is True
+        [rclpy.parameter.Parameter('drive_axis_is_reversed', value=True)])
+    assert node.drive_axis_is_reversed is True
 
 
 def test_disabling_publishes_a_final_halt(lay_down_weeding_elbow_teleop_node):

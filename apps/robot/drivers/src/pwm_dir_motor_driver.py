@@ -133,7 +133,7 @@ class PwmDirMotorDriver(Node):
         ]
         self.dir_request = gpiod.request_lines(
             f'/dev/gpiochip{self.get_parameter("gpio_chip").value}',
-            consumer='pwm_dir_motor_driver',
+            consumer=self.get_name(),
             config={
                 dir_line: gpiod.LineSettings(
                     direction=Direction.OUTPUT, output_value=Value.INACTIVE)

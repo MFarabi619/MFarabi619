@@ -39,7 +39,7 @@ def teleop_xiao(smoothing_enabled: bool = False):
     subprocess.run([
         'ros2', 'run', 'teleop_twist_keyboard', 'teleop_twist_keyboard',
         '--ros-args',
-        '--params-file', bl.find('robot_boot', 'keyboard_teleop.yaml'),
+        '--params-file', bl.find('robot_boot', 'teleop_twist_keyboard.yaml'),
         '-r', f'cmd_vel:={teleop_topic}',
     ])
     bl.shutdown('teleop exited')

@@ -170,11 +170,11 @@ public:
     }
     pipeline_->start(config);
 
-    raw_publisher_ = create_publisher<sensor_msgs::msg::Image>(
+    color_publisher_ = create_publisher<sensor_msgs::msg::Image>(
       "color/image_raw", rclcpp::SensorDataQoS());
-    compressed_publisher_ = create_publisher<sensor_msgs::msg::CompressedImage>(
+    color_compressed_publisher_ = create_publisher<sensor_msgs::msg::CompressedImage>(
       "color/image_raw/compressed", rclcpp::SensorDataQoS());
-    camera_info_publisher_ =
+    color_camera_info_publisher_ =
       create_publisher<sensor_msgs::msg::CameraInfo>("color/camera_info", 10);
     if (enable_depth_) {
       depth_frame_id_ =
@@ -183,9 +183,9 @@ public:
         get_logger(), "%s",
         is_depth_aligned_ ? "depth aligned to color" :
           "depth unaligned, publishing in depth frame");
-      depth_image_publisher_ = create_publisher<sensor_msgs::msg::Image>(
+      depth_publisher_ = create_publisher<sensor_msgs::msg::Image>(
         "depth/image_raw", rclcpp::SensorDataQoS());
-      depth_compressed_publisher_ = create_publisher<sensor_msgs::msg::CompressedImage>(
+      depth_preview_publisher_ = create_publisher<sensor_msgs::msg::CompressedImage>(
         "depth/image_raw/compressed", rclcpp::SensorDataQoS());
       depth_camera_info_publisher_ =
         create_publisher<sensor_msgs::msg::CameraInfo>("depth/camera_info", 10);
@@ -263,9 +263,9 @@ private:
     uint32_t width = color_frame->getWidth();
     uint32_t height = color_frame->getHeight();
 
-    const bool raw_wanted = raw_publisher_->get_subscription_count() > 0;
-    const bool compressed_wanted = compressed_publisher_->get_subscription_count() > 0;
-    if (raw_wanted || compressed_wanted) {
+    const bool wants_raw = color_publisher_->get_subscription_count() > 0;
+    const bool wants_compressed = color_compressed_publisher_->get_subscription_count() > 0;
+    if (wants_raw || wants_compressed) {
       auto image = std::make_unique<sensor_msgs::msg::Image>();
       image->header.stamp = stamp;
       image->header.frame_id = frame_id_;
@@ -276,24 +276,24 @@ private:
       image->step = width * BYTES_PER_COLOR_PIXEL;
       const uint8_t * pixels = static_cast<const uint8_t *>(color_frame->getData());
       image->data.assign(pixels, pixels + color_frame->dataSize());
-      if (compressed_wanted) {
+      if (wants_compressed) {
         publish_compressed(*image, stamp);
       }
-      if (raw_wanted) {
-        raw_publisher_->publish(std::move(image));
+      if (wants_raw) {
+        color_publisher_->publish(std::move(image));
       }
     }
 
-    if (!camera_info_) {
+    if (!color_camera_info_) {
       auto camera_param = pipeline_->getCameraParam();
       if (camera_param.rgbIntrinsic.width == 0) {
         return;
       }
-      camera_info_ = camera_info_message(
+      color_camera_info_ = camera_info_message(
         camera_param.rgbIntrinsic, camera_param.rgbDistortion, frame_id_);
     }
-    camera_info_->header.stamp = stamp;
-    camera_info_publisher_->publish(*camera_info_);
+    color_camera_info_->header.stamp = stamp;
+    color_camera_info_publisher_->publish(*color_camera_info_);
   }
 
   void publish_compressed(
@@ -306,7 +306,7 @@ private:
     compressed->format = "jpeg";
     cv::imencode(
       ".jpg", frame, compressed->data, {cv::IMWRITE_JPEG_QUALITY, jpeg_quality_});
-    compressed_publisher_->publish(std::move(compressed));
+    color_compressed_publisher_->publish(std::move(compressed));
   }
 
   void publish_depth(const std::shared_ptr<ob::DepthFrame> & depth_frame)
@@ -337,7 +337,7 @@ private:
           scale == 1.0f ? value : static_cast<uint16_t>(value * scale);
       }
     }
-    if (depth_compressed_publisher_->get_subscription_count() > 0) {
+    if (depth_preview_publisher_->get_subscription_count() > 0) {
       cv::Mat depth16(height, width, CV_16UC1, image->data.data());
       cv::Mat depth8;
       depth16.convertTo(depth8, CV_8UC1, 255.0 / MAX_PREVIEW_DEPTH_MILLIMETERS);
@@ -347,9 +347,9 @@ private:
       preview->header = image->header;
       preview->format = "jpeg";
       cv::imencode(".jpg", colored, preview->data, {cv::IMWRITE_JPEG_QUALITY, jpeg_quality_});
-      depth_compressed_publisher_->publish(std::move(preview));
+      depth_preview_publisher_->publish(std::move(preview));
     }
-    depth_image_publisher_->publish(std::move(image));
+    depth_publisher_->publish(std::move(image));
 
     if (!depth_camera_info_) {
       auto camera_param = pipeline_->getCameraParam();
@@ -377,13 +377,13 @@ private:
   int jpeg_quality_ = 80;
   std::atomic<bool> running_ = false;
   std::thread frame_thread_;
-  std::optional<sensor_msgs::msg::CameraInfo> camera_info_;
+  std::optional<sensor_msgs::msg::CameraInfo> color_camera_info_;
   std::optional<sensor_msgs::msg::CameraInfo> depth_camera_info_;
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr raw_publisher_;
-  rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr compressed_publisher_;
-  rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_publisher_;
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr depth_image_publisher_;
-  rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr depth_compressed_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr color_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr color_compressed_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr color_camera_info_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr depth_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr depth_preview_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr depth_camera_info_publisher_;
 };
 

@@ -27,20 +27,21 @@ LEFT_OPTICAL = (-0.5, 0.0, 2.0)
 UP_OPTICAL = (0.0, -0.3, 2.0)
 
 
-def body_cloud(points):
+def body_point_cloud(points):
     header = Header()
     header.frame_id = 'camera_0_link'
     return point_cloud2.create_cloud_xyz32(header, points)
 
 
-def test_body_points_become_optical(cloud_optical_adapter_node):
-    clouds = []
-    cloud_optical_adapter_node.optical_cloud_publisher.publish = clouds.append
-    cloud_optical_adapter_node.on_cloud(
-        body_cloud([FORWARD_BODY, LEFT_BODY, UP_BODY]))
+def test_body_points_become_optical(point_cloud_optical_adapter_node):
+    point_clouds = []
+    point_cloud_optical_adapter_node.optical_point_cloud_publisher.publish = (
+        point_clouds.append)
+    point_cloud_optical_adapter_node.on_point_cloud(
+        body_point_cloud([FORWARD_BODY, LEFT_BODY, UP_BODY]))
     converted = point_cloud2.read_points_numpy(
-        clouds[0], field_names=('x', 'y', 'z'))
+        point_clouds[0], field_names=('x', 'y', 'z'))
     assert converted[0] == pytest.approx(FORWARD_OPTICAL)
     assert converted[1] == pytest.approx(LEFT_OPTICAL)
     assert converted[2] == pytest.approx(UP_OPTICAL)
-    assert clouds[0].header.frame_id == 'camera_0_color_optical_frame'
+    assert point_clouds[0].header.frame_id == 'camera_0_color_optical_frame'

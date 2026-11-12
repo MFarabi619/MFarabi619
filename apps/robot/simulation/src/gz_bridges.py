@@ -106,17 +106,17 @@ def spawn_simulation_bridges(bl, machine, world, model_name, depth_scan_enabled=
             continue
         bl.node(
             package='robot_perception',
-            executable='cloud_optical_adapter',
-            name=f'{camera.name}_cloud_optical_adapter',
+            executable='point_cloud_optical_adapter',
+            name=f'{camera.name}_point_cloud_optical_adapter',
             params={
-                'body_cloud_topic': f'sensors/{camera.name}/depth/points_body',
-                'optical_cloud_topic': f'sensors/{camera.name}/depth/points',
+                'body_point_cloud_topic': f'sensors/{camera.name}/depth/points_body',
+                'optical_point_cloud_topic': f'sensors/{camera.name}/depth/points',
                 'optical_frame': f'{camera.name}_color_optical_frame',
             })
         if not depth_scan_enabled:
             continue
         include(
-            'robot_boot', 'pointcloud_to_laserscan.launch.py',
+            'robot_boot', 'point_cloud_to_laserscan.launch.py',
             camera=camera.name,
             scan_time=1.0 / camera.depth_frames_per_second,
         )

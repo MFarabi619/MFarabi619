@@ -45,6 +45,7 @@ RPM_PER_RADIAN_PER_SECOND = 60.0 / math.tau
 FULL_POWER_COMMAND = 1000
 QUERY_READ_MAX_ATTEMPTS = 5
 TENTHS_PER_UNIT = 10.0
+FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ = 25
 
 THOUSANDTHS_PER_UNIT = 1000.0
 
@@ -99,8 +100,8 @@ def pair(values):
 
 
 class RoboteqBus:
-    def __init__(self, port, baud):
-        self.port = serial.Serial(port, baud, timeout=SERIAL_TIMEOUT_SECONDS)
+    def __init__(self, port, baud_rate):
+        self.port = serial.Serial(port, baud_rate, timeout=SERIAL_TIMEOUT_SECONDS)
         self.port.write(b'^ECHOF 1\r')
         self.port.reset_input_buffer()
 
@@ -148,8 +149,6 @@ class RoboteqBus:
 
 
 class RoboteqMotorDriver(Node):
-    FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ = 25
-
     def __init__(self, **node_arguments):
         super().__init__('roboteq_motor_driver', **node_arguments)
         self.declare_parameter('serial_port', '/dev/ttyACM0')
@@ -160,13 +159,13 @@ class RoboteqMotorDriver(Node):
         self.declare_parameter('full_scale_wheel_speed', 0.0)
         self.declare_parameter('flash', [''])
         for side in ('left', 'right'):
-            self.declare_parameter(f'{side}_reversed', False)
+            self.declare_parameter(f'{side}_is_reversed', False)
 
         self.max_wheel_speed = self.get_parameter('max_wheel_speed').value
         self.counts_per_revolution = self.get_parameter(
             'counts_per_revolution').value
         self.direction_signs = [
-            -1.0 if self.get_parameter(f'{side}_reversed').value else 1.0
+            -1.0 if self.get_parameter(f'{side}_is_reversed').value else 1.0
             for side in ('left', 'right')
         ]
         self.bus = RoboteqBus(
@@ -437,8 +436,7 @@ class RoboteqMotorDriver(Node):
             speeds_rpm = self.bus.query('BS', 2)
             hall_counts = self.bus.query('CB', 2)
             applied_powers = self.bus.query('P', 2)
-            if (self.feedback_tick
-                    % self.FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ == 0):
+            if self.feedback_tick % FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ == 0:
                 self.read_slow_telemetry(now.to_msg())
         except (TimeoutError, ValueError) as error:
             self.get_logger().warning(f'status read failed: {error}')

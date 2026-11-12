@@ -47,8 +47,8 @@ RELEASE_CLEARANCE_METERS = 0.008
 POSITION_TOLERANCE_METERS = 0.005
 ORIENTATION_TOLERANCE_RADIANS = 0.05
 JOINT_TOLERANCE_RADIANS = 0.01
-VELOCITY_SCALING_FACTOR = 0.5
-ACCELERATION_SCALING_FACTOR = 0.5
+MAX_VELOCITY_SCALING_FACTOR = 0.5
+MAX_ACCELERATION_SCALING_FACTOR = 0.5
 PLANNING_TIME_SECONDS = 5.0
 PLANNING_ATTEMPTS = 3
 
@@ -173,8 +173,8 @@ def move_group_goal(constraints):
     goal = MoveGroup.Goal()
     goal.request.group_name = PLANNING_GROUP
     goal.request.goal_constraints = [constraints]
-    goal.request.max_velocity_scaling_factor = VELOCITY_SCALING_FACTOR
-    goal.request.max_acceleration_scaling_factor = ACCELERATION_SCALING_FACTOR
+    goal.request.max_velocity_scaling_factor = MAX_VELOCITY_SCALING_FACTOR
+    goal.request.max_acceleration_scaling_factor = MAX_ACCELERATION_SCALING_FACTOR
     goal.request.allowed_planning_time = PLANNING_TIME_SECONDS
     goal.request.num_planning_attempts = PLANNING_ATTEMPTS
     goal.planning_options.plan_only = False
@@ -217,28 +217,28 @@ def move_to_joint_positions(node, positions):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--object', default='apple')
+    parser.add_argument('--target_object', default='apple')
     arguments = parser.parse_args()
     rclpy.init()
-    node = Node('place_task')
+    node = Node('kinova_link6_place')
     tf_buffer = Buffer()
     TransformListener(tf_buffer, node)
 
-    original = matrix_from_pose(pre_attach_pose(node, arguments.object))
+    original = matrix_from_pose(pre_attach_pose(node, arguments.target_object))
     original[2, 3] += RELEASE_CLEARANCE_METERS
-    held = matrix_from_pose(current_free_body_pose(node, arguments.object))
+    held = matrix_from_pose(current_free_body_pose(node, arguments.target_object))
     end_effector = end_effector_matrix(node, tf_buffer)
     place_target = original @ numpy.linalg.inv(held) @ end_effector
     move_to_pose(node, pose_from_matrix(place_target))
 
     open_gripper(node)
-    remove_object(node, arguments.object)
+    remove_object(node, arguments.target_object)
 
     retreat_target = place_target.copy()
     retreat_target[2, 3] += RETREAT_METERS
     move_to_pose(node, pose_from_matrix(retreat_target))
     move_to_joint_positions(node, HOME_POSITIONS_RADIANS)
-    print(f"placed '{arguments.object}'")
+    print(f"placed '{arguments.target_object}'")
 
 
 if __name__ == '__main__':

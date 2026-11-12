@@ -5,8 +5,8 @@ type BoxError = Box<dyn std::error::Error + Send + Sync>;
 struct Task {
     name: &'static str,
     command: &'static [&'static str],
-    cwd: Option<&'static str>,
-    env: &'static [(&'static str, &'static str)],
+    working_directory:Option<&'static str>,
+    environment: &'static [(&'static str, &'static str)],
     platform: Option<Platform>,
 }
 
@@ -14,29 +14,29 @@ const TASKS: &[Task] = &[
     Task {
         name: "rviz",
         command: &["rviz2"],
-        cwd: None,
-        env: &[],
+        working_directory:None,
+        environment: &[],
         platform: None,
     },
     Task {
         name: "graph",
         command: &["rqt_graph"],
-        cwd: None,
-        env: &[],
+        working_directory:None,
+        environment: &[],
         platform: None,
     },
     Task {
         name: "turtlesim_node",
         command: &["ros2", "run", "turtlesim", "turtlesim_node"],
-        cwd: None,
-        env: &[],
+        working_directory:None,
+        environment: &[],
         platform: None,
     },
     Task {
         name: "turtlesim_teleop",
         command: &["ros2", "run", "turtlesim", "turtle_teleop_key"],
-        cwd: None,
-        env: &[],
+        working_directory:None,
+        environment: &[],
         platform: None,
     },
     Task {
@@ -47,15 +47,15 @@ const TASKS: &[Task] = &[
             "teleop_twist_keyboard",
             "teleop_twist_keyboard",
         ],
-        cwd: None,
-        env: &[],
+        working_directory:None,
+        environment: &[],
         platform: None,
     },
     Task {
         name: "cad",
         command: &["python", "main.py"],
-        cwd: Some("apps/robot/src/bin/cad"),
-        env: &[("YACV_HOST", "127.0.0.1"), ("YACV_PORT", "32323")],
+        working_directory:Some("apps/robot/src/bin/cad"),
+        environment: &[("YACV_HOST", "127.0.0.1"), ("YACV_PORT", "32323")],
         platform: Some(Platform::OsxArm64),
     },
 ];
@@ -74,6 +74,6 @@ async fn main() -> Result<(), BoxError> {
     }
 
     let command: Vec<String> = task.command.iter().map(|part| part.to_string()).collect();
-    let status = robot::pixi::run(&command, task.env, task.cwd).await?;
+    let status = robot::pixi::run(&command, task.environment, task.working_directory).await?;
     std::process::exit(status.code().unwrap_or(1));
 }

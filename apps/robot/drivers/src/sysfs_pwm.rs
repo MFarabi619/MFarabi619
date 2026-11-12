@@ -11,13 +11,13 @@ use crate::motor::{DriveCommand, WheelDrive};
 pub const PULSE_PERIOD_NANOSECONDS: i64 = 20_000_000;
 pub const PULSE_NEUTRAL_NANOSECONDS: i64 = 1_500_000;
 pub const PULSE_HALF_RANGE_NANOSECONDS: i64 = 500_000;
-const EXPORT_RETRIES: u32 = 500;
+const PWM_EXPORT_MAX_ATTEMPTS: u32 = 500;
 const EXPORT_RETRY_DELAY: Duration = Duration::from_millis(10);
 
 pub struct PulseChannel {
     channel_directory: PathBuf,
     duty_file: fs::File,
-    reversed: bool,
+    is_reversed: bool,
     last_pulse_nanoseconds: i64,
 }
 
@@ -26,7 +26,7 @@ impl PulseChannel {
         sysfs_root: &Path,
         chip: u32,
         channel: u32,
-        reversed: bool,
+        is_reversed: bool,
     ) -> std::io::Result<Self> {
         let chip_directory = sysfs_root.join(format!("pwmchip{chip}"));
         let channel_directory = chip_directory.join(format!("pwm{channel}"));
@@ -45,7 +45,7 @@ impl PulseChannel {
         let mut pulse_channel = Self {
             channel_directory,
             duty_file,
-            reversed,
+            is_reversed,
             last_pulse_nanoseconds: 0,
         };
         pulse_channel.halt()?;
@@ -54,7 +54,7 @@ impl PulseChannel {
 
     pub fn drive(&mut self, fraction: f64) -> std::io::Result<f64> {
         let fraction = fraction.clamp(-1.0, 1.0);
-        let applied = if self.reversed { -fraction } else { fraction };
+        let applied = if self.is_reversed { -fraction } else { fraction };
         self.write_pulse_nanoseconds(
             PULSE_NEUTRAL_NANOSECONDS + (applied * PULSE_HALF_RANGE_NANOSECONDS as f64) as i64,
         )?;
@@ -121,7 +121,7 @@ fn open_when_writable(duty_path: &Path) -> std::io::Result<fs::File> {
             Ok(file) => return Ok(file),
             Err(error) => {
                 attempts += 1;
-                if attempts >= EXPORT_RETRIES {
+                if attempts >= PWM_EXPORT_MAX_ATTEMPTS {
                     return Err(error);
                 }
                 thread::sleep(EXPORT_RETRY_DELAY);

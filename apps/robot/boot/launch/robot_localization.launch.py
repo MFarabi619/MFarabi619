@@ -23,7 +23,7 @@ from robot_boot.zenoh_router import ensure_zenoh_router
 def robot_localization(params_file: str = '', gps_topic_prefix: str = 'sensors/gps_0'):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
-    params_file = params_file or bl.find('robot_control', 'localization.yaml')
+    params_file = params_file or bl.find('robot_control', 'robot_localization.yaml')
     bl.node(
         package='robot_localization',
         executable='ekf_node',

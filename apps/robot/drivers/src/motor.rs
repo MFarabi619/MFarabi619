@@ -36,11 +36,11 @@ fn shape_side(side_command: f64, shaping: Shaping) -> f64 {
     if side_command.abs() < shaping.deadzone_fraction {
         0.0
     } else {
-        let travel = ((side_command.abs() - shaping.deadzone_fraction)
+        let live_range_fraction = ((side_command.abs() - shaping.deadzone_fraction)
             / (1.0 - shaping.deadzone_fraction))
             .clamp(0.0, 1.0);
         (shaping.min_duty_fraction
-            + travel * shaping.scale_factor * (1.0 - shaping.min_duty_fraction))
+            + live_range_fraction * shaping.scale_factor * (1.0 - shaping.min_duty_fraction))
             .copysign(side_command)
     }
 }

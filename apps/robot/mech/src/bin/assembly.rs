@@ -7,16 +7,16 @@ use robot_description::{
 };
 use robot_description::{
     assembly, config, export, mass_properties, mass_properties::LinkSummary, robot_root,
-    time_it, urdf, Link, MM_TO_M,
+    time_it, urdf, Link, METERS_PER_MILLIMETER,
 };
 
-fn camera_center_mm(robot_config: &config::RobotConfig) -> Option<DVec3> {
+fn camera_center_millimeters(robot_config: &config::RobotConfig) -> Option<DVec3> {
     robot_config
         .sensors
         .camera
         .iter()
         .find(|camera| camera.launch_enabled && camera.urdf_enabled)
-        .map(|camera| DVec3::from_array(camera.xyz) / MM_TO_M)
+        .map(|camera| DVec3::from_array(camera.xyz) / METERS_PER_MILLIMETER)
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -71,15 +71,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         };
         let robot_config =
             config::load(&robot_root.join(format!("machines/{robot_name}/robot.yaml")))?;
-        let camera_center_mm = camera_center_mm(&robot_config);
-        let assembly_key = (robot_dimensions, camera_center_mm);
+        let camera_center_millimeters = camera_center_millimeters(&robot_config);
+        let assembly_key = (robot_dimensions, camera_center_millimeters);
         let assembly_index = match assemblies
             .iter()
             .position(|(built, _, _)| *built == assembly_key)
         {
             Some(index) => index,
             None => {
-                let links = assembly::robot(&robot_dimensions, camera_center_mm)?;
+                let links = assembly::robot(&robot_dimensions, camera_center_millimeters)?;
                 let summaries: Vec<LinkSummary> =
                     links.iter().map(mass_properties::summarize).collect();
                 assemblies.push((assembly_key, links, summaries));

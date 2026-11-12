@@ -16,3 +16,4 @@ pub use line::{run_line_follower, LineColor};
 pub use row::run_row_follower;
 
 pub(crate) const WATCHDOG_TIMEOUT: Duration = Duration::from_millis(300);
+pub(crate) const LOG_STRIDE_FRAMES: u64 = 15;

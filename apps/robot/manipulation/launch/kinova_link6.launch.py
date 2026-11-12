@@ -43,7 +43,6 @@ def kinova_link6(
     bl.node(
         package='robot_manipulation',
         executable='kinova_link6_bridge_node',
-        name='kinova_link6_bridge_node',
         remaps={'arm_teleop/cmd_vel': 'joy_teleop/cmd_vel'},
     )
     include(

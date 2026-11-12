@@ -14,11 +14,11 @@ const OSCILLATOR_SETTLE: Duration = Duration::from_millis(5);
 const OSCILLATOR_HZ: f64 = 25_000_000.0;
 const COUNTS_PER_PERIOD: f64 = 4096.0;
 const SERVO_FREQUENCY_HZ: f64 = 50.0;
-const PERIOD_USEC: f64 = 1_000_000.0 / SERVO_FREQUENCY_HZ;
+const PERIOD_MICROSECONDS: f64 = 1_000_000.0 / SERVO_FREQUENCY_HZ;
 
-const SERVO_MINIMUM_USEC: f64 = 500.0;
-const SERVO_MAXIMUM_USEC: f64 = 2400.0;
-const SERVO_RANGE_DEG: f64 = 180.0;
+const SERVO_MINIMUM_MICROSECONDS: f64 = 500.0;
+const SERVO_MAXIMUM_MICROSECONDS: f64 = 2400.0;
+const SERVO_RANGE_DEGREES: f64 = 180.0;
 const PULSE_START_COUNT: u16 = 0;
 
 pub struct Pca9685<'a> {
@@ -49,11 +49,11 @@ impl<'a> Pca9685<'a> {
             .write_block(register, &[on_low, on_high, off_low, off_high])
     }
 
-    pub fn set_servo_angle(&self, channel: u8, angle_deg: f64) -> Result<(), Error> {
-        let angle = angle_deg.clamp(0.0, SERVO_RANGE_DEG);
-        let pulse_usec = SERVO_MINIMUM_USEC
-            + (SERVO_MAXIMUM_USEC - SERVO_MINIMUM_USEC) * angle / SERVO_RANGE_DEG;
-        let off_count = (pulse_usec / PERIOD_USEC * COUNTS_PER_PERIOD).round() as u16;
+    pub fn set_servo_angle(&self, channel: u8, angle_degrees: f64) -> Result<(), Error> {
+        let angle = angle_degrees.clamp(0.0, SERVO_RANGE_DEGREES);
+        let pulse_microseconds = SERVO_MINIMUM_MICROSECONDS
+            + (SERVO_MAXIMUM_MICROSECONDS - SERVO_MINIMUM_MICROSECONDS) * angle / SERVO_RANGE_DEGREES;
+        let off_count = (pulse_microseconds / PERIOD_MICROSECONDS * COUNTS_PER_PERIOD).round() as u16;
         self.set_channel(channel, PULSE_START_COUNT, off_count)
     }
 }

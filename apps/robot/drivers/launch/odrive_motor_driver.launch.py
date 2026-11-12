@@ -24,9 +24,9 @@ def odrive_motor_driver(
     gear_ratio: float = 1.0,
     max_wheel_speed: float = 0.0,
     left_serial_number: str = '',
-    left_reversed: bool = False,
+    left_is_reversed: bool = False,
     right_serial_number: str = '',
-    right_reversed: bool = False,
+    right_is_reversed: bool = False,
 ):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
@@ -37,9 +37,9 @@ def odrive_motor_driver(
             'gear_ratio': gear_ratio,
             'max_wheel_speed': max_wheel_speed,
             'left_serial_number': left_serial_number,
-            'left_reversed': left_reversed,
+            'left_is_reversed': left_is_reversed,
             'right_serial_number': right_serial_number,
-            'right_reversed': right_reversed,
+            'right_is_reversed': right_is_reversed,
         },
         **RESPAWN,
     )

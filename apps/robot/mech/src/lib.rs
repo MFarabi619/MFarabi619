@@ -10,9 +10,9 @@ pub mod time;
 
 use crate::{frames::BASE_LINK, time::now_stamp};
 
-pub const MM_TO_M: f64 = 0.001;
-pub const MM3_TO_M3: f64 = 1e-9;
-pub const MM5_TO_M5: f64 = 1e-15;
+pub const METERS_PER_MILLIMETER: f64 = 0.001;
+pub const CUBIC_METERS_PER_CUBIC_MILLIMETER: f64 = 1e-9;
+pub const QUINTIC_METERS_PER_QUINTIC_MILLIMETER: f64 = 1e-15;
 
 pub const MESH_URI_PREFIX: &str = "package://robot_description/meshes/";
 

@@ -25,8 +25,8 @@ def roboteq_motor_driver(
     baud_rate: int = 115200,
     counts_per_revolution: int = 90,
     control_mode: str = 'speed',
-    left_reversed: bool = False,
-    right_reversed: bool = False,
+    left_is_reversed: bool = False,
+    right_is_reversed: bool = False,
     max_wheel_speed: float = 0.0,
     full_scale_wheel_speed: float = 0.0,
     flash: str = '',
@@ -38,8 +38,8 @@ def roboteq_motor_driver(
         'baud_rate': baud_rate,
         'counts_per_revolution': counts_per_revolution,
         'control_mode': control_mode,
-        'left_reversed': left_reversed,
-        'right_reversed': right_reversed,
+        'left_is_reversed': left_is_reversed,
+        'right_is_reversed': right_is_reversed,
     }
     if max_wheel_speed:
         parameters['max_wheel_speed'] = max_wheel_speed

@@ -6,7 +6,7 @@ use std::{
 use robot_description::{
     camera_intrinsics,
     frames::{BASE_LINK, CAMERA_OPTICAL, GPS_LINK, ODOM},
-    placement, MM_TO_M,
+    placement, METERS_PER_MILLIMETER,
 };
 use oxidros::{
     msg::{
@@ -31,21 +31,21 @@ use robot_control::{
 use robot_description::time::now_stamp;
 use robot::diagnostics::{battery_diagnostic_level, diagnostic_array, Status};
 
-const IMAGE_WIDTH: usize = 1280;
-const IMAGE_HEIGHT: usize = 800;
+const IMAGE_WIDTH_PIXELS: usize = 1280;
+const IMAGE_HEIGHT_PIXELS: usize = 800;
 const CAMERA_FOV_DEGREES: f64 = 70.0;
 const GPS_POSITION_COVARIANCE: [f64; 9] = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 4.0];
 const JPEG_QUALITY: u8 = 80;
 const LATITUDE_ORIGIN: f64 = 45.4215;
 const LONGITUDE_ORIGIN: f64 = -75.6972;
-const PHYSICS_HZ: f64 = 50.0;
+const PHYSICS_RATE_HZ: f64 = 50.0;
 pub const DEADMAN_SECONDS: f64 = 2.0;
 const DEADMAN_MIN_SECONDS: f64 = 0.0;
 const DEADMAN_MAX_SECONDS: f64 = 60.0;
-const CAMERA_HZ: f64 = 15.0;
-const GPS_HZ: f64 = 5.0;
-const ODOMETRY_HZ: f64 = 30.0;
-const BATTERY_HZ: f64 = 1.0;
+const CAMERA_RATE_HZ: f64 = 15.0;
+const GPS_RATE_HZ: f64 = 5.0;
+const ODOMETRY_RATE_HZ: f64 = 30.0;
+const BATTERY_RATE_HZ: f64 = 1.0;
 const BATTERY_IDLE_DRAIN: f64 = 0.02;
 const BATTERY_MOTION_DRAIN: f64 = 0.5;
 const BATTERY_MIN_VOLTAGE: f64 = 11.5;
@@ -55,11 +55,11 @@ const BATTERY_VOLTAGE_SPAN: f64 = 1.2;
 struct SimulatorState {
     x: f64,
     y: f64,
-    heading: f64,
-    linear: f64,
-    angular: f64,
-    left_wheel_angle: f64,
-    right_wheel_angle: f64,
+    heading_radians: f64,
+    linear_meters_per_second: f64,
+    angular_radians_per_second: f64,
+    left_wheel_angle_radians: f64,
+    right_wheel_angle_radians: f64,
     battery_percent: f64,
 }
 
@@ -71,26 +71,40 @@ impl SimulatorState {
         }
     }
 
-    fn set_velocity_command(&mut self, linear: f64, angular: f64) {
-        self.linear = linear;
-        self.angular = angular;
+    fn set_velocity_command(
+        &mut self,
+        linear_meters_per_second: f64,
+        angular_radians_per_second: f64,
+    ) {
+        self.linear_meters_per_second = linear_meters_per_second;
+        self.angular_radians_per_second = angular_radians_per_second;
     }
 
     fn stop(&mut self) {
-        self.linear = 0.0;
-        self.angular = 0.0;
+        self.linear_meters_per_second = 0.0;
+        self.angular_radians_per_second = 0.0;
     }
 
     fn integrate(&mut self, delta_seconds: f64) {
-        (self.x, self.y, self.heading) =
-            integrate_pose(self.x, self.y, self.heading, self.linear, self.angular, delta_seconds);
-        let (left_velocity, right_velocity) = wheel_angular_velocities(self.linear, self.angular);
-        self.left_wheel_angle += left_velocity * delta_seconds;
-        self.right_wheel_angle += right_velocity * delta_seconds;
+        (self.x, self.y, self.heading_radians) = integrate_pose(
+            self.x,
+            self.y,
+            self.heading_radians,
+            self.linear_meters_per_second,
+            self.angular_radians_per_second,
+            delta_seconds,
+        );
+        let (left_wheel_radians_per_second, right_wheel_radians_per_second) =
+            wheel_angular_velocities(
+                self.linear_meters_per_second,
+                self.angular_radians_per_second,
+            );
+        self.left_wheel_angle_radians += left_wheel_radians_per_second * delta_seconds;
+        self.right_wheel_angle_radians += right_wheel_radians_per_second * delta_seconds;
     }
 
     fn motion_magnitude(&self) -> f64 {
-        self.linear.abs() + self.angular.abs()
+        self.linear_meters_per_second.abs() + self.angular_radians_per_second.abs()
     }
 
     fn gps(&self, latitude_origin: f64, longitude_origin: f64) -> NavSatFix {
@@ -111,20 +125,20 @@ impl SimulatorState {
         fix
     }
 
-    fn odom(&self) -> Odometry {
+    fn odometry_message(&self) -> Odometry {
         let (sec, nanosec) = now_stamp();
-        let mut odom = Odometry::new().unwrap();
-        odom.header.stamp.sec = sec;
-        odom.header.stamp.nanosec = nanosec;
-        odom.header.frame_id = RosString::new(ODOM).unwrap();
-        odom.child_frame_id = RosString::new(BASE_LINK).unwrap();
-        odom.pose.pose.position.x = self.x;
-        odom.pose.pose.position.y = self.y;
-        odom.pose.pose.orientation.z = (self.heading / 2.0).sin();
-        odom.pose.pose.orientation.w = (self.heading / 2.0).cos();
-        odom.twist.twist.linear.x = self.linear;
-        odom.twist.twist.angular.z = self.angular;
-        odom
+        let mut message = Odometry::new().unwrap();
+        message.header.stamp.sec = sec;
+        message.header.stamp.nanosec = nanosec;
+        message.header.frame_id = RosString::new(ODOM).unwrap();
+        message.child_frame_id = RosString::new(BASE_LINK).unwrap();
+        message.pose.pose.position.x = self.x;
+        message.pose.pose.position.y = self.y;
+        message.pose.pose.orientation.z = (self.heading_radians / 2.0).sin();
+        message.pose.pose.orientation.w = (self.heading_radians / 2.0).cos();
+        message.twist.twist.linear.x = self.linear_meters_per_second;
+        message.twist.twist.angular.z = self.angular_radians_per_second;
+        message
     }
 
     fn step_battery(&mut self) -> BatteryState {
@@ -158,7 +172,7 @@ impl SimulatorState {
 
 fn camera_messages(jpeg: Vec<u8>) -> (CompressedImage, CameraInfo) {
     let (sec, nanosec) = now_stamp();
-    let (fx, fy, cx, cy) = camera_intrinsics(IMAGE_WIDTH, IMAGE_HEIGHT, CAMERA_FOV_DEGREES);
+    let (fx, fy, cx, cy) = camera_intrinsics(IMAGE_WIDTH_PIXELS, IMAGE_HEIGHT_PIXELS, CAMERA_FOV_DEGREES);
 
     let mut image = CompressedImage::new().unwrap();
     image.header.stamp.sec = sec;
@@ -171,8 +185,8 @@ fn camera_messages(jpeg: Vec<u8>) -> (CompressedImage, CameraInfo) {
     info.header.stamp.sec = sec;
     info.header.stamp.nanosec = nanosec;
     info.header.frame_id = RosString::new(CAMERA_OPTICAL).unwrap();
-    info.width = IMAGE_WIDTH as u32;
-    info.height = IMAGE_HEIGHT as u32;
+    info.width = IMAGE_WIDTH_PIXELS as u32;
+    info.height = IMAGE_HEIGHT_PIXELS as u32;
     info.distortion_model = RosString::new("plumb_bob").unwrap();
     info.d = F64Seq::new(5).unwrap();
     info.k = [fx, 0.0, cx, 0.0, fy, cy, 0.0, 0.0, 1.0];
@@ -196,7 +210,7 @@ pub async fn run_simulator(
     let gps_publisher = node.create_publisher::<NavSatFix>("sensors/gps_0/fix", Some(Profile::sensor_data()))?;
     let battery_publisher = node.create_publisher::<BatteryState>("battery", None)?;
     let diagnostics_publisher = node.create_publisher::<DiagnosticArray>("/diagnostics", None)?;
-    let odom_publisher = node.create_publisher::<Odometry>("odom", None)?;
+    let odometry_publisher = node.create_publisher::<Odometry>("odom", None)?;
     let joint_state_publisher = node.create_publisher::<JointState>("joint_states", None)?;
 
     let mut param_server = node.create_parameter_server()?;
@@ -248,32 +262,32 @@ pub async fn run_simulator(
     let mut latitude_origin = read_f64("latitude_origin", LATITUDE_ORIGIN);
     let mut longitude_origin = read_f64("longitude_origin", LONGITUDE_ORIGIN);
 
-    let camera_height = -placement::ground_z(
+    let camera_mount_height_meters = -placement::ground_z(
         &robot_description::dimensions::for_robot("taro")
             .expect("taro is listed in ROBOT_DIMENSIONS"),
-    ) * MM_TO_M;
+    ) * METERS_PER_MILLIMETER;
     let camera_renderer = CameraRenderer::new(
         scene,
-        IMAGE_WIDTH as u32,
-        IMAGE_HEIGHT as u32,
+        IMAGE_WIDTH_PIXELS as u32,
+        IMAGE_HEIGHT_PIXELS as u32,
         CAMERA_FOV_DEGREES,
-        camera_height,
+        camera_mount_height_meters,
     )
     .await?;
     let (pose_tx, pose_rx) = tokio::sync::watch::channel((0.0f64, 0.0f64, 0.0f64));
     let camera_task = tokio::spawn(async move {
-        let mut camera_tick = interval(Duration::from_secs_f64(1.0 / CAMERA_HZ));
+        let mut camera_tick = interval(Duration::from_secs_f64(1.0 / CAMERA_RATE_HZ));
         let start = Instant::now();
         loop {
             camera_tick.tick().await;
-            let (x, y, heading) = *pose_rx.borrow();
-            let frame = camera_renderer.render(x, y, heading, start.elapsed().as_secs_f64());
+            let (x, y, heading_radians) = *pose_rx.borrow();
+            let frame = camera_renderer.render(x, y, heading_radians, start.elapsed().as_secs_f64());
             let mut jpeg = Vec::new();
             jpeg_encoder::Encoder::new(&mut jpeg, JPEG_QUALITY)
                 .encode(
                     &frame,
-                    IMAGE_WIDTH as u16,
-                    IMAGE_HEIGHT as u16,
+                    IMAGE_WIDTH_PIXELS as u16,
+                    IMAGE_HEIGHT_PIXELS as u16,
                     jpeg_encoder::ColorType::Rgba,
                 )
                 .ok();
@@ -285,11 +299,11 @@ pub async fn run_simulator(
 
     let mut state = SimulatorState::new();
     let mut last_command = Instant::now();
-    let delta_seconds = 1.0 / PHYSICS_HZ;
+    let delta_seconds = 1.0 / PHYSICS_RATE_HZ;
     let mut physics_tick = interval(Duration::from_secs_f64(delta_seconds));
-    let mut gps_tick = interval(Duration::from_secs_f64(1.0 / GPS_HZ));
-    let mut battery_tick = interval(Duration::from_secs_f64(1.0 / BATTERY_HZ));
-    let mut odom_tick = interval(Duration::from_secs_f64(1.0 / ODOMETRY_HZ));
+    let mut gps_tick = interval(Duration::from_secs_f64(1.0 / GPS_RATE_HZ));
+    let mut battery_tick = interval(Duration::from_secs_f64(1.0 / BATTERY_RATE_HZ));
+    let mut odometry_tick = interval(Duration::from_secs_f64(1.0 / ODOMETRY_RATE_HZ));
 
     tracing::info!("driving on cmd_vel -> camera/gps/battery");
     let ctrl_c = tokio::signal::ctrl_c();
@@ -320,12 +334,12 @@ pub async fn run_simulator(
                     state.stop();
                 }
                 state.integrate(delta_seconds);
-                let _ = pose_tx.send((state.x, state.y, state.heading));
+                let _ = pose_tx.send((state.x, state.y, state.heading_radians));
             }
             _ = gps_tick.tick() => gps_publisher.send(&state.gps(latitude_origin, longitude_origin))?,
-            _ = odom_tick.tick() => {
-                odom_publisher.send(&state.odom())?;
-                joint_state_publisher.send(&joint_state_message(state.left_wheel_angle, state.right_wheel_angle))?;
+            _ = odometry_tick.tick() => {
+                odometry_publisher.send(&state.odometry_message())?;
+                joint_state_publisher.send(&joint_state_message(state.left_wheel_angle_radians, state.right_wheel_angle_radians))?;
             }
             _ = battery_tick.tick() => {
                 battery_publisher.send(&state.step_battery())?;

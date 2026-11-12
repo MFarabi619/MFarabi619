@@ -348,7 +348,7 @@ class WeedingCreep(Node):
         self.lifted_frames = 0
         self.smoothed_forward_speed_meters_per_second = 0.0
         self.previous_drive_time_seconds = None
-        self.publish(0.0)
+        self.publish_twist(0.0)
 
     def claim_smoothing_fraction(self):
         now_seconds = self.get_clock().now().nanoseconds / NANOSECONDS_PER_SECOND
@@ -362,9 +362,9 @@ class WeedingCreep(Node):
         fraction = self.claim_smoothing_fraction()
         self.smoothed_forward_speed_meters_per_second += fraction * (
             forward_speed_meters_per_second - self.smoothed_forward_speed_meters_per_second)
-        self.publish(self.smoothed_forward_speed_meters_per_second)
+        self.publish_twist(self.smoothed_forward_speed_meters_per_second)
 
-    def publish(self, forward_speed_meters_per_second):
+    def publish_twist(self, forward_speed_meters_per_second):
         message = TwistStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.header.frame_id = self.frame_id

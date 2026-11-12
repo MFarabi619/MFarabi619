@@ -53,12 +53,12 @@ CENTER_THICKNESS_PIXELS = 3.0
 SURFACE_THICKNESS_PIXELS = 2.0
 
 LIVE_PARAMETERS = frozenset({
-    'surface_class_ids', 'min_fraction', 'min_run_width_fraction', 'roi_top_fraction',
-    'roi_bottom_fraction', 'smooth_window', 'max_saturation', 'max_value',
+    'surface_class_ids', 'min_column_fraction', 'min_run_width_fraction', 'roi_top_fraction',
+    'roi_bottom_fraction', 'smooth_window_columns', 'max_saturation', 'max_value',
 })
 
 UNIT_RANGE_PARAMETERS = frozenset({
-    'max_saturation', 'max_value', 'min_fraction', 'min_run_width_fraction',
+    'max_saturation', 'max_value', 'min_column_fraction', 'min_run_width_fraction',
     'roi_top_fraction', 'roi_bottom_fraction',
 })
 FIXED_PARAMETERS = frozenset({
@@ -72,7 +72,7 @@ BRIGHTNESS_MASK = 'brightness'
 DENOISE_KERNEL = np.ones((5, 5), np.uint8)
 MERGE_KERNEL = np.ones((15, 15), np.uint8)
 
-LATEST_IMAGE_QOS = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
+FRESHEST_FRAME_QOS = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
 
 IMAGENET_MEAN_RGB = (123.675, 116.28, 103.53, 0.0)
 IMAGENET_RECIPROCAL_STD_RGB = (1.0 / 58.395, 1.0 / 57.12, 1.0 / 57.375, 0.0)
@@ -98,10 +98,10 @@ class SurfaceDetector(Node):
         self.inference_size_pixels = self.declare_parameter('inference_size_pixels', 512).value
         self.roi_top_fraction = self.declare_parameter('roi_top_fraction', 0.4).value
         self.roi_bottom_fraction = self.declare_parameter('roi_bottom_fraction', 1.0).value
-        self.min_fraction = self.declare_parameter('min_fraction', 0.5).value
+        self.min_column_fraction = self.declare_parameter('min_column_fraction', 0.5).value
         self.min_run_width_fraction = self.declare_parameter(
             'min_run_width_fraction', 0.10).value
-        self.smooth_window = self.declare_parameter('smooth_window', 9).value
+        self.smooth_window_columns = self.declare_parameter('smooth_window_columns', 9).value
         self.mask_source = self.declare_parameter(
             'mask_source', SEGMENTATION_MASK).value
         if self.mask_source not in (SEGMENTATION_MASK, BRIGHTNESS_MASK):
@@ -135,7 +135,7 @@ class SurfaceDetector(Node):
         self.add_on_set_parameters_callback(self.validate_parameters)
         self.add_post_set_parameters_callback(self.on_parameters_set)
         self.create_subscription(
-            CompressedImage, self.image_topic, self.on_image, LATEST_IMAGE_QOS
+            CompressedImage, self.image_topic, self.on_image, FRESHEST_FRAME_QOS
         )
         self.get_logger().info(
             f'{self.mask_source} detector: {self.image_topic}')
@@ -161,9 +161,9 @@ class SurfaceDetector(Node):
                 return SetParametersResult(
                     successful=False,
                     reason=f'{parameter.name} is fixed at launch')
-            if parameter.name == 'smooth_window' and parameter.value < 1:
+            if parameter.name == 'smooth_window_columns' and parameter.value < 1:
                 return SetParametersResult(
-                    successful=False, reason='smooth_window must be at least 1')
+                    successful=False, reason='smooth_window_columns must be at least 1')
             if parameter.name in UNIT_RANGE_PARAMETERS and not (
                     0.0 <= parameter.value <= 1.0):
                 return SetParametersResult(
@@ -206,7 +206,7 @@ class SurfaceDetector(Node):
 
         mask = self.surface_mask(bgr)
         fraction = self.column_fraction(mask[top:bottom])
-        above_threshold = fraction >= self.min_fraction
+        above_threshold = fraction >= self.min_column_fraction
         runs = [
             (int(run.start), int(run.stop))
             for run in np.ma.clump_masked(np.ma.masked_array(above_threshold, above_threshold))
@@ -257,7 +257,7 @@ class SurfaceDetector(Node):
 
     def column_fraction(self, mask_band):
         column_fraction = mask_band.mean(axis=0)
-        kernel = np.ones(self.smooth_window) / self.smooth_window
+        kernel = np.ones(self.smooth_window_columns) / self.smooth_window_columns
         return np.convolve(column_fraction, kernel, mode='same')
 
     def detection(self, stamp, run, fraction, top, bottom):

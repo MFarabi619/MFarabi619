@@ -28,8 +28,8 @@ const LEFT_PWM_CHANNEL: u8 = 0;
 const RIGHT_PWM_CHANNEL: u8 = 1;
 const LEFT_DIR_PIN: u8 = 2;
 const RIGHT_DIR_PIN: u8 = 7;
-const PWM_PERIOD_US: u32 = 50;
-const PWM_DUTY_US: u32 = PWM_PERIOD_US;
+const PWM_PERIOD_MICROSECONDS: u32 = 50;
+const PWM_DUTY_MICROSECONDS: u32 = PWM_PERIOD_MICROSECONDS;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Direction {
@@ -95,11 +95,11 @@ fn shell(address: &str, command: &str) -> io::Result<()> {
 fn stop(address: &str) -> io::Result<()> {
     shell(
         address,
-        &format!("pwm usec {PWM_DEVICE} {LEFT_PWM_CHANNEL} {PWM_PERIOD_US} 0"),
+        &format!("pwm usec {PWM_DEVICE} {LEFT_PWM_CHANNEL} {PWM_PERIOD_MICROSECONDS} 0"),
     )?;
     shell(
         address,
-        &format!("pwm usec {PWM_DEVICE} {RIGHT_PWM_CHANNEL} {PWM_PERIOD_US} 0"),
+        &format!("pwm usec {PWM_DEVICE} {RIGHT_PWM_CHANNEL} {PWM_PERIOD_MICROSECONDS} 0"),
     )
 }
 
@@ -115,11 +115,11 @@ fn drive(address: &str, direction: Direction) -> io::Result<()> {
     )?;
     shell(
         address,
-        &format!("pwm usec {PWM_DEVICE} {LEFT_PWM_CHANNEL} {PWM_PERIOD_US} {PWM_DUTY_US}"),
+        &format!("pwm usec {PWM_DEVICE} {LEFT_PWM_CHANNEL} {PWM_PERIOD_MICROSECONDS} {PWM_DUTY_MICROSECONDS}"),
     )?;
     shell(
         address,
-        &format!("pwm usec {PWM_DEVICE} {RIGHT_PWM_CHANNEL} {PWM_PERIOD_US} {PWM_DUTY_US}"),
+        &format!("pwm usec {PWM_DEVICE} {RIGHT_PWM_CHANNEL} {PWM_PERIOD_MICROSECONDS} {PWM_DUTY_MICROSECONDS}"),
     )
 }
 

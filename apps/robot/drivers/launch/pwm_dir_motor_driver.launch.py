@@ -21,7 +21,7 @@ from robot_boot.zenoh_router import ensure_zenoh_router
 
 @launch_this
 def pwm_dir_motor_driver(
-    gpio_chip: str = 'gpiochip0',
+    gpio_chip: int = 0,
     pwm_frequency_hz: float = 20000.0,
     max_wheel_speed: float = 0.0,
     min_duty_fraction: float = 0.0,

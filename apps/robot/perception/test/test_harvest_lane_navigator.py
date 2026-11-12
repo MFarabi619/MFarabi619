@@ -71,7 +71,7 @@ def capture(node):
     return commands, overlays
 
 
-def reported_lateral_error(overlay):
+def reported_lateral_error_meters(overlay):
     label = overlay.texts[0].text
     return float(re.search(r'([+-]\d+\.\d+)', label).group(1))
 
@@ -119,7 +119,7 @@ def test_slightly_off_row_slows_without_stopping(harvest_lane_navigator_node):
 def test_offset_label_reports_meters(harvest_lane_navigator_node):
     commands, overlays = capture(harvest_lane_navigator_node)
     harvest_lane_navigator_node.on_mask(projected_mask([(0.15, 0.0)]))
-    assert reported_lateral_error(overlays[0]) == pytest.approx(-0.15, abs=0.05)
+    assert reported_lateral_error_meters(overlays[0]) == pytest.approx(-0.15, abs=0.05)
 
 
 def test_full_lattice_of_rows_agrees_on_center(harvest_lane_navigator_node):
@@ -227,14 +227,14 @@ def test_depth_recovers_offset_of_elevated_canopy(harvest_lane_navigator_node):
     mask, depth = elevated_canopy([(0.15, 0.0)], 0.15)
     harvest_lane_navigator_node.on_depth(depth)
     harvest_lane_navigator_node.on_mask(mask)
-    assert reported_lateral_error(overlays[0]) == pytest.approx(-0.15, abs=0.05)
+    assert reported_lateral_error_meters(overlays[0]) == pytest.approx(-0.15, abs=0.05)
 
 
 class FakeGoalHandle:
     def __init__(self, distance_meters=0.0, forward_speed_meters_per_second=0.0):
         self.request = type('Request', (), {
-            'travel_distance_m': distance_meters,
-            'forward_speed_mps': forward_speed_meters_per_second})()
+            'travel_distance_meters': distance_meters,
+            'forward_speed_meters_per_second': forward_speed_meters_per_second})()
         self.is_cancel_requested = False
         self.feedbacks = []
         self.status = None
@@ -258,7 +258,7 @@ def begin_goal(node, distance_meters=0.0, forward_speed_meters_per_second=0.0):
     node.goal_distance_meters = distance_meters
     node.goal_forward_speed_meters_per_second = forward_speed_meters_per_second
     node.distance_traveled_meters = 0.0
-    node.previous_odom_position = None
+    node.previous_odometry_position = None
     node.row_miss_count = 0
     node.goal_outcome = None
     return handle
@@ -279,7 +279,7 @@ def test_goal_drives_and_streams_feedback(harvest_lane_navigator_node):
     harvest_lane_navigator_node.on_mask(projected_mask([(0.0, 0.0)]))
     assert len(commands) == 1
     assert len(handle.feedbacks) == 1
-    assert handle.feedbacks[0].lateral_error_m == pytest.approx(0.0, abs=0.05)
+    assert handle.feedbacks[0].lateral_error_meters == pytest.approx(0.0, abs=0.05)
 
 
 def test_goal_speed_overrides_parameter(harvest_lane_navigator_node):
@@ -292,10 +292,10 @@ def test_goal_speed_overrides_parameter(harvest_lane_navigator_node):
 
 def test_odometry_reaches_goal_distance(harvest_lane_navigator_node):
     begin_goal(harvest_lane_navigator_node, distance_meters=2.0)
-    harvest_lane_navigator_node.on_odom(odometry(0.0, 0.0))
-    harvest_lane_navigator_node.on_odom(odometry(1.2, 0.0))
+    harvest_lane_navigator_node.on_odometry(odometry(0.0, 0.0))
+    harvest_lane_navigator_node.on_odometry(odometry(1.2, 0.0))
     assert harvest_lane_navigator_node.goal_outcome is None
-    harvest_lane_navigator_node.on_odom(odometry(2.1, 0.0))
+    harvest_lane_navigator_node.on_odometry(odometry(2.1, 0.0))
     assert harvest_lane_navigator_node.goal_outcome == 'distance_reached'
     assert harvest_lane_navigator_node.distance_traveled_meters == pytest.approx(2.1)
 
@@ -360,7 +360,7 @@ def test_scattered_real_canopy_still_locks(harvest_lane_navigator_node):
     commands, overlays = capture(harvest_lane_navigator_node)
     harvest_lane_navigator_node.on_mask(scattered_canopy_mask(0.15))
     assert len(commands) == 1
-    assert reported_lateral_error(overlays[0]) == pytest.approx(-0.15, abs=0.07)
+    assert reported_lateral_error_meters(overlays[0]) == pytest.approx(-0.15, abs=0.07)
 
 
 def test_row_starting_ahead_of_robot_still_locks(harvest_lane_navigator_node):
@@ -368,7 +368,7 @@ def test_row_starting_ahead_of_robot_still_locks(harvest_lane_navigator_node):
     harvest_lane_navigator_node.on_mask(
         scattered_canopy_mask(0.0, row_start_distance_meters=1.5))
     assert len(commands) == 1
-    assert reported_lateral_error(overlays[0]) == pytest.approx(0.0, abs=0.07)
+    assert reported_lateral_error_meters(overlays[0]) == pytest.approx(0.0, abs=0.07)
 
 
 def speckle_mask(coverage_fraction):

@@ -80,7 +80,7 @@ class LuxonisOakDSr(Node):
         super().__init__('luxonis_oak_d_sr')
         self.declare_parameter('frames_per_second', 15.0)
         self.declare_parameter('jpeg_quality', 60)
-        self.declare_parameter('frame_id', 'camera_0_link')
+        self.declare_parameter('frame_id', 'camera_0_color_optical_frame')
         self.declare_parameter('resolution_divisor', 2)
         self.frame_id = self.get_parameter('frame_id').value
         self.jpeg_quality = self.get_parameter('jpeg_quality').value

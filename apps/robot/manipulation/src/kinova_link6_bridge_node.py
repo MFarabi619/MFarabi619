@@ -81,7 +81,7 @@ class BridgeConnection:
 
 class KinovaLink6BridgeNode(Node):
     def __init__(self):
-        super().__init__('kinova_link6_bridge')
+        super().__init__('kinova_link6_bridge_node')
         self.state_connection = BridgeConnection(STATE_SOCKET_TIMEOUT_SECONDS)
         self.motion_connection = BridgeConnection(None)
         self.mimic_joints = []

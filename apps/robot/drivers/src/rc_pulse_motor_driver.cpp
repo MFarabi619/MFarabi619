@@ -40,7 +40,7 @@
 using robot_platform_msgs::msg::Drive;
 using robot_platform_msgs::msg::Feedback;
 
-constexpr int PWM_EXPORT_RETRIES = 500;
+constexpr int PWM_EXPORT_MAX_ATTEMPTS = 500;
 constexpr auto PWM_EXPORT_RETRY_DELAY = std::chrono::milliseconds(10);
 constexpr double FEEDBACK_RATE_HZ = 50.0;
 constexpr double COMMAND_TIMEOUT_SECONDS = 0.5;
@@ -69,8 +69,8 @@ void write_sysfs(const std::string & path, const std::string & value)
 class PulseChannel
 {
 public:
-  PulseChannel(int64_t chip, int64_t channel, bool reversed)
-  : reversed(reversed),
+  PulseChannel(int64_t chip, int64_t channel, bool is_reversed)
+  : is_reversed(is_reversed),
     channel_directory(
       "/sys/class/pwm/pwmchip" + std::to_string(chip) + "/pwm" + std::to_string(channel))
   {
@@ -79,7 +79,7 @@ public:
       write_sysfs(
         "/sys/class/pwm/pwmchip" + std::to_string(chip) + "/export", std::to_string(channel));
     }
-    for (int attempt = 0; attempt < PWM_EXPORT_RETRIES; ++attempt) {
+    for (int attempt = 0; attempt < PWM_EXPORT_MAX_ATTEMPTS; ++attempt) {
       if (access(duty_path.c_str(), W_OK) == 0) {
         break;
       }
@@ -115,25 +115,25 @@ public:
       return;
     }
     double fraction = std::clamp(wheel_speed / max_wheel_speed, -1.0, 1.0);
-    if (reversed) {
+    if (is_reversed) {
       fraction = -fraction;
     }
     write_pulse_nanoseconds(
       PULSE_NEUTRAL_NANOSECONDS + static_cast<int64_t>(fraction * PULSE_HALF_RANGE_NANOSECONDS));
     command_fraction = wheel_speed >= 0.0 ? std::abs(fraction) : -std::abs(fraction);
-    velocity = wheel_speed;
+    velocity_radians_per_second = wheel_speed;
   }
 
   void halt()
   {
     write_pulse_nanoseconds(PULSE_NEUTRAL_NANOSECONDS);
     command_fraction = 0.0;
-    velocity = 0.0;
+    velocity_radians_per_second = 0.0;
   }
 
   double command_fraction = 0.0;
-  double velocity = 0.0;
-  double travel = 0.0;
+  double velocity_radians_per_second = 0.0;
+  double travel_radians = 0.0;
 
 private:
   void write_pulse_nanoseconds(int64_t pulse_nanoseconds)
@@ -147,7 +147,7 @@ private:
     last_pulse_nanoseconds = pulse_nanoseconds;
   }
 
-  const bool reversed;
+  const bool is_reversed;
   const std::string channel_directory;
   std::FILE *duty_file;
   int64_t last_pulse_nanoseconds = 0;
@@ -163,7 +163,7 @@ public:
     for (const std::string side : {"left", "right"}) {
       declare_parameter(side + "_pwm_chip", 0);
       declare_parameter(side + "_pwm_channel", 0);
-      declare_parameter(side + "_reversed", false);
+      declare_parameter(side + "_is_reversed", false);
     }
 
     max_wheel_speed = get_parameter("max_wheel_speed").as_double();
@@ -172,7 +172,7 @@ public:
       wheels[side_index] = std::make_unique<PulseChannel>(
         get_parameter(side + "_pwm_chip").as_int(),
         get_parameter(side + "_pwm_channel").as_int(),
-        get_parameter(side + "_reversed").as_bool());
+        get_parameter(side + "_is_reversed").as_bool());
     }
 
     last_command_time = now();
@@ -223,10 +223,12 @@ private:
     message.commanded_mode = commanded_mode;
     message.actual_mode = has_timed_out ? Drive::MODE_NONE : commanded_mode;
     for (size_t side_index = 0; side_index < wheels.size(); ++side_index) {
-      wheels[side_index]->travel += wheels[side_index]->velocity / FEEDBACK_RATE_HZ;
+      wheels[side_index]->travel_radians +=
+        wheels[side_index]->velocity_radians_per_second / FEEDBACK_RATE_HZ;
       message.drivers[side_index].duty_cycle = wheels[side_index]->command_fraction;
-      message.drivers[side_index].measured_velocity = wheels[side_index]->velocity;
-      message.drivers[side_index].measured_travel = wheels[side_index]->travel;
+      message.drivers[side_index].measured_velocity =
+        wheels[side_index]->velocity_radians_per_second;
+      message.drivers[side_index].measured_travel = wheels[side_index]->travel_radians;
     }
     feedback_publisher->publish(message);
   }

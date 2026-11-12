@@ -52,8 +52,7 @@ LABEL_FONT_SIZE_PIXELS = 18.0
 BRACKET_FRACTION = 0.25
 BRACKET_THICKNESS_PIXELS = 3.0
 MILLIMETERS_PER_METER = 1000.0
-NANOSECONDS_PER_SECOND = 1_000_000_000
-DEPTH_ENCODING = '16UC1'
+MILLIMETER_DEPTH_ENCODING = '16UC1'
 BYTES_PER_MILLIMETER_DEPTH_PIXEL = 2
 LIVE_PARAMETERS = frozenset({
     'min_hue', 'max_hue', 'min_saturation', 'min_value', 'min_blob_area',
@@ -120,9 +119,9 @@ class GreenDetector(Node):
         self.camera_model.from_camera_info(message)
 
     def on_depth(self, message):
-        if message.encoding != DEPTH_ENCODING:
+        if message.encoding != MILLIMETER_DEPTH_ENCODING:
             self.get_logger().warning(
-                f'expected {DEPTH_ENCODING} depth, got {message.encoding}',
+                f'expected {MILLIMETER_DEPTH_ENCODING} depth, got {message.encoding}',
                 throttle_duration_sec=5.0,
             )
             return
@@ -153,12 +152,13 @@ class GreenDetector(Node):
         detections.header.frame_id = self.depth_frame_id
         overlay = ImageAnnotations()
         for bounding_box, fill in self.detect_blobs(self.green_mask(bgr)):
-            distance, point = self.bounding_box_range(bounding_box, width, height)
-            if point is None or distance is None or distance > self.max_range_meters:
+            distance_meters, point = self.bounding_box_range(bounding_box, width, height)
+            if (point is None or distance_meters is None
+                    or distance_meters > self.max_range_meters):
                 continue
             detections.detections.append(
                 self.detection(message.header.stamp, bounding_box, fill, point))
-            self.annotate(overlay, message.header.stamp, bounding_box, distance)
+            self.annotate(overlay, message.header.stamp, bounding_box, distance_meters)
         self.detections_publisher.publish(detections)
         self.overlay_publisher.publish(overlay)
 
@@ -198,17 +198,17 @@ class GreenDetector(Node):
         valid_depths = depth_patch[depth_patch > 0]
         if valid_depths.size == 0:
             return None, None
-        distance = float(np.median(valid_depths)) / MILLIMETERS_PER_METER
-        return distance, self.deproject(depth_x, depth_y, distance)
+        distance_meters = float(np.median(valid_depths)) / MILLIMETERS_PER_METER
+        return distance_meters, self.deproject(depth_x, depth_y, distance_meters)
 
-    def deproject(self, depth_x, depth_y, distance):
+    def deproject(self, depth_x, depth_y, distance_meters):
         if self.camera_model is None:
             return None
         ray_x, ray_y, ray_z = self.camera_model.project_pixel_to_3d_ray((depth_x, depth_y))
         return Point(
-            x=ray_x / ray_z * distance,
-            y=ray_y / ray_z * distance,
-            z=distance,
+            x=ray_x / ray_z * distance_meters,
+            y=ray_y / ray_z * distance_meters,
+            z=distance_meters,
         )
 
     def depth_is_stale(self):
@@ -235,7 +235,7 @@ class GreenDetector(Node):
         detection.results.append(hypothesis)
         return detection
 
-    def annotate(self, overlay, stamp, bounding_box, distance):
+    def annotate(self, overlay, stamp, bounding_box, distance_meters):
         x, y, width, height = bounding_box
         left, right, top, bottom = float(x), float(x + width), float(y), float(y + height)
         bracket = BRACKET_FRACTION * min(width, height)
@@ -258,7 +258,7 @@ class GreenDetector(Node):
         label = TextAnnotation()
         label.timestamp = stamp
         label.position = Point2(x=float(x), y=max(float(y) - LABEL_MARGIN_PIXELS, 0.0))
-        label.text = f'{self.class_label} {distance:.2f} m'
+        label.text = f'{self.class_label} {distance_meters:.2f} m'
         label.font_size = LABEL_FONT_SIZE_PIXELS
         label.text_color = TEXT_COLOR
         label.background_color = TEXT_BACKGROUND_COLOR

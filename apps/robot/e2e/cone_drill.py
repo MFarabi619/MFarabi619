@@ -48,15 +48,15 @@ class ConeDrill(Node):
         self.finish_time = None
         self.live = None
 
-        odom_qos = QoSProfile(
+        odometry_qos = QoSProfile(
             reliability=QoSReliabilityPolicy.RELIABLE,
             history=QoSHistoryPolicy.KEEP_LAST,
             depth=50,
         )
-        self.create_subscription(Odometry, odom_topic, self.on_odom, odom_qos)
+        self.create_subscription(Odometry, odom_topic, self.on_odometry, odometry_qos)
         self.create_timer(1.0 / RENDER_RATE_HZ, self.on_render)
 
-    def on_odom(self, message):
+    def on_odometry(self, message):
         position = message.pose.pose.position
         self.robot = (SPAWN_X_METERS + position.x, SPAWN_Y_METERS + position.y)
         self.update_score()

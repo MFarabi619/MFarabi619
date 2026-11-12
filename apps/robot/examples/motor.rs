@@ -3,7 +3,7 @@ use std::{error::Error, thread::sleep, time::Duration};
 use comfy_table::{
     modifiers, presets::UTF8_FULL, Attribute, Cell, Color, ContentArrangement, Table,
 };
-use robot::config::{GPIO_CHIP, RGPIOD_HOST, RGPIOD_PORT};
+use robot::beagleyai::{GPIO_CHIP, RGPIOD_HOST, RGPIOD_PORT};
 use robot_drivers::{
     gpio::Connection,
     motor::{mix, Drivetrain, Motor, HALT},
@@ -17,7 +17,7 @@ const LEFT_FORWARD_LEVEL: bool = true;
 const RIGHT_FORWARD_LEVEL: bool = false;
 const PWM_FREQUENCY_HZ: f32 = 10000.0;
 const DIAGNOSTIC_DUTY: f32 = 40.0;
-const DRIVE_MAGNITUDE: f64 = 0.8;
+const DRIVE_FRACTION: f64 = 0.8;
 const HOLD: Duration = Duration::from_millis(1500);
 const SETTLE: Duration = Duration::from_millis(1000);
 
@@ -73,14 +73,14 @@ fn movement_sequence() -> Result<(), Box<dyn Error>> {
     );
 
     let movements = [
-        ("forward", mix(DRIVE_MAGNITUDE, 0.0)),
-        ("backward", mix(-DRIVE_MAGNITUDE, 0.0)),
-        ("turn left", mix(0.0, DRIVE_MAGNITUDE)),
-        ("turn right", mix(0.0, -DRIVE_MAGNITUDE)),
+        ("forward", mix(DRIVE_FRACTION, 0.0)),
+        ("backward", mix(-DRIVE_FRACTION, 0.0)),
+        ("turn left", mix(0.0, DRIVE_FRACTION)),
+        ("turn right", mix(0.0, -DRIVE_FRACTION)),
     ];
-    for (label, velocity) in movements {
+    for (label, drive_command) in movements {
         println!("  → {label}");
-        drivetrain.drive(velocity)?;
+        drivetrain.drive(drive_command)?;
         sleep(HOLD);
     }
     println!("  → stop");
@@ -88,7 +88,7 @@ fn movement_sequence() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn dir_combination_sweep() -> Result<(), Box<dyn Error>> {
+fn direction_combination_sweep() -> Result<(), Box<dyn Error>> {
     let connection = Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?;
     let chip = connection.open_chip(GPIO_CHIP)?;
     for pin in [LEFT_PWM_LINE, LEFT_DIR_LINE, RIGHT_PWM_LINE, RIGHT_DIR_LINE] {
@@ -143,7 +143,7 @@ fn per_side_direction_sweep() -> Result<(), Box<dyn Error>> {
 fn main() -> Result<(), Box<dyn Error>> {
     println!("motor drive check");
     println!(
-        "host {RGPIOD_HOST}:{RGPIOD_PORT} · PWM {:.0} kHz · diagnostic duty {DIAGNOSTIC_DUTY:.0}% · drive speed {DRIVE_MAGNITUDE}",
+        "host {RGPIOD_HOST}:{RGPIOD_PORT} · PWM {:.0} kHz · diagnostic duty {DIAGNOSTIC_DUTY:.0}% · drive speed {DRIVE_FRACTION}",
         PWM_FREQUENCY_HZ / 1000.0
     );
     println!("{}", config_table());
@@ -151,7 +151,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     type Phase = (&'static str, fn() -> Result<(), Box<dyn Error>>);
     let phases: [Phase; 3] = [
         ("Movement sequence", movement_sequence),
-        ("DIR combination sweep", dir_combination_sweep),
+        ("DIR combination sweep", direction_combination_sweep),
         ("Per-side direction sweep", per_side_direction_sweep),
     ];
     let total = phases.len();

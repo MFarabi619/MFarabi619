@@ -26,7 +26,7 @@ import time
 from robot_machines.machine import DOMAINS, MachineError, load_machine
 
 MIRROR_ROOT = '/home/mfarabi/MFarabi619'
-UNITS = ('robot.service', 'robot-zenoh-router.service', 'robot@.service')
+SYSTEMD_UNITS = ('robot.service', 'robot-zenoh-router.service', 'robot@.service')
 MIRROR_ROBOT_ROOT = f'{MIRROR_ROOT}/apps/robot'
 PIXI_PATH = '/home/mfarabi/.pixi/bin/pixi'
 
@@ -171,10 +171,10 @@ def install_units(mdns_hostname, machine):
     has_hostapd_config = (MACHINES_DIRECTORY / machine.name / 'hostapd.conf').is_file()
     commands = [
         ['sudo', 'install', '-m', '644', '-o', 'root', '-g', 'root',
-         *[f'{systemd_directory}/{unit}' for unit in UNITS], '/etc/systemd/system/'],
+         *[f'{systemd_directory}/{unit}' for unit in SYSTEMD_UNITS], '/etc/systemd/system/'],
         ['sudo', 'install', '-m', '755', '-o', 'root', '-g', 'root',
          f'{systemd_directory}/robot-yaml-watch', '/usr/local/bin/'],
-        ['sync', *[f'/etc/systemd/system/{unit}' for unit in UNITS]],
+        ['sync', *[f'/etc/systemd/system/{unit}' for unit in SYSTEMD_UNITS]],
     ]
     if has_hostapd_config:
         hostapd_config_path = f'{MIRROR_ROBOT_ROOT}/machines/{machine.name}/hostapd.conf'

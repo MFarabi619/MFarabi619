@@ -23,8 +23,8 @@ type BoxError = Box<dyn std::error::Error + Send + Sync>;
 struct Wheel {
     channel: PulseChannel,
     command_fraction: f64,
-    velocity: f64,
-    travel: f64,
+    velocity_radians_per_second: f64,
+    travel_radians: f64,
 }
 
 impl Wheel {
@@ -32,21 +32,21 @@ impl Wheel {
         Self {
             channel,
             command_fraction: 0.0,
-            velocity: 0.0,
-            travel: 0.0,
+            velocity_radians_per_second: 0.0,
+            travel_radians: 0.0,
         }
     }
 
     fn drive(&mut self, wheel_speed: f64, max_wheel_speed: f64) -> std::io::Result<()> {
         self.command_fraction = self.channel.drive(wheel_speed / max_wheel_speed)?;
-        self.velocity = wheel_speed;
+        self.velocity_radians_per_second = wheel_speed;
         Ok(())
     }
 
     fn halt(&mut self) -> std::io::Result<()> {
         self.channel.halt()?;
         self.command_fraction = 0.0;
-        self.velocity = 0.0;
+        self.velocity_radians_per_second = 0.0;
         Ok(())
     }
 }
@@ -67,10 +67,10 @@ fn feedback(wheels: &mut [Wheel; 2], commanded_mode: i8, has_timed_out: bool) ->
         commanded_mode
     };
     for (wheel, driver) in wheels.iter_mut().zip(message.drivers.iter_mut()) {
-        wheel.travel += wheel.velocity / FEEDBACK_RATE_HZ;
+        wheel.travel_radians += wheel.velocity_radians_per_second / FEEDBACK_RATE_HZ;
         driver.duty_cycle = wheel.command_fraction as f32;
-        driver.measured_velocity = wheel.velocity as f32;
-        driver.measured_travel = wheel.travel as f32;
+        driver.measured_velocity = wheel.velocity_radians_per_second as f32;
+        driver.measured_travel = wheel.travel_radians as f32;
     }
     message
 }
@@ -90,7 +90,7 @@ async fn main() -> Result<(), BoxError> {
                 (
                     i64_parameter(&store, &format!("{side}_pwm_chip"), 0) as u32,
                     i64_parameter(&store, &format!("{side}_pwm_channel"), 0) as u32,
-                    bool_parameter(&store, &format!("{side}_reversed"), false),
+                    bool_parameter(&store, &format!("{side}_is_reversed"), false),
                 )
             }),
         )

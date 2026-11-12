@@ -6,7 +6,7 @@ use robot_description::{
 };
 use oxidros::{
     msg::{
-        common_interfaces::{nav_msgs::msg::Odometry as OdometryMsg, sensor_msgs::msg::JointState},
+        common_interfaces::{nav_msgs::msg::Odometry as OdometryMessage, sensor_msgs::msg::JointState},
         msg::{RosString, RosStringSeq},
     },
     prelude::*,
@@ -20,7 +20,7 @@ type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
 pub struct Odometry {
     joint_states: Publisher<JointState>,
-    odom: Publisher<OdometryMsg>,
+    odometry_publisher: Publisher<OdometryMessage>,
     x: f64,
     y: f64,
     heading_radians: f64,
@@ -35,7 +35,7 @@ impl Odometry {
     pub fn new(node: &Arc<Node>) -> Result<Self, BoxError> {
         Ok(Self {
             joint_states: node.create_publisher::<JointState>("joint_states", None)?,
-            odom: node.create_publisher::<OdometryMsg>("odom", None)?,
+            odometry_publisher: node.create_publisher::<OdometryMessage>("odom", None)?,
             x: 0.0,
             y: 0.0,
             heading_radians: 0.0,
@@ -72,15 +72,16 @@ impl Odometry {
             self.angular_radians_per_second,
             delta_seconds,
         );
-        let (left_velocity, right_velocity) = wheel_angular_velocities(
-            self.linear_meters_per_second,
-            self.angular_radians_per_second,
-        );
-        self.left_wheel_angle_radians += left_velocity * delta_seconds;
-        self.right_wheel_angle_radians += right_velocity * delta_seconds;
+        let (left_wheel_radians_per_second, right_wheel_radians_per_second) =
+            wheel_angular_velocities(
+                self.linear_meters_per_second,
+                self.angular_radians_per_second,
+            );
+        self.left_wheel_angle_radians += left_wheel_radians_per_second * delta_seconds;
+        self.right_wheel_angle_radians += right_wheel_radians_per_second * delta_seconds;
 
         self.joint_states.send(&self.joint_state())?;
-        self.odom.send(&self.odom_message())?;
+        self.odometry_publisher.send(&self.odometry_message())?;
         Ok(())
     }
 
@@ -88,9 +89,9 @@ impl Odometry {
         joint_state_message(self.left_wheel_angle_radians, self.right_wheel_angle_radians)
     }
 
-    fn odom_message(&self) -> OdometryMsg {
+    fn odometry_message(&self) -> OdometryMessage {
         let (sec, nanosec) = now_stamp();
-        let mut message = OdometryMsg::new().unwrap();
+        let mut message = OdometryMessage::new().unwrap();
         message.header.stamp.sec = sec;
         message.header.stamp.nanosec = nanosec;
         message.header.frame_id = RosString::new(ODOM).unwrap();

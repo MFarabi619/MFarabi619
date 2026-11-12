@@ -30,6 +30,6 @@ def kinova_link6_pick(robot: str = 'kinova-link-6', target_object: str = 'apple'
     bl = BetterLaunch()
     bl.node(
         'robot_manipulation', 'kinova_link6_pick',
-        name='pick_task',
+        name='kinova_link6_pick',
         params={**moveit_configuration, 'object': target_object},
     )

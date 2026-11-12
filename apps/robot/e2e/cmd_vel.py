@@ -47,13 +47,13 @@ from rich.text import Text
 
 COMMAND_TOPIC = "joy_teleop/cmd_vel"
 FRAME_ID = "base_link"
-RATE_HZ = 20.0
+COMMAND_RATE_HZ = 20.0
 SETTLE_SECONDS = 1.0
 GAUGE_WIDTH_CHARACTERS = 26
 SCOPE_WIDTH_CHARACTERS = 60
 
-LINEAR_MAX_VELOCITY_METERS_PER_SECOND = 15.0
-ANGULAR_MAX_VELOCITY_RADIANS_PER_SECOND = 15.0
+LINEAR_FULL_SCALE_METERS_PER_SECOND = 15.0
+ANGULAR_FULL_SCALE_RADIANS_PER_SECOND = 15.0
 
 DEFAULT_FUZZ_COUNT = 6
 FUZZ_SEED = 42
@@ -87,8 +87,8 @@ class Frame:
     program: list
     index: int
     fraction: float
-    linear_history: deque
-    angular_history: deque
+    linear_meters_per_second_history: deque
+    angular_radians_per_second_history: deque
     subscribers: int
     sent: int
     peak_linear: float
@@ -108,18 +108,18 @@ def sample(kind, parameters, fraction):
     if kind == "hold":
         return parameters["linear"], parameters["angular"]
     if kind == "ramp":
-        linear = parameters["linear_start"] + (
+        linear_fraction = parameters["linear_start"] + (
             parameters["linear_end"] - parameters["linear_start"]
         ) * fraction
-        angular = parameters["angular_start"] + (
+        angular_fraction = parameters["angular_start"] + (
             parameters["angular_end"] - parameters["angular_start"]
         ) * fraction
-        return linear, angular
+        return linear_fraction, angular_fraction
     if kind == "trapezoid":
-        scale = trapezoid_scale(
+        scale_factor = trapezoid_scale(
             fraction, parameters.get("rise", 0.25), parameters.get("fall", 0.25)
         )
-        return parameters["linear"] * scale, parameters["angular"] * scale
+        return parameters["linear"] * scale_factor, parameters["angular"] * scale_factor
     if kind == "sine":
         wave = math.sin(2 * math.pi * parameters["cycles"] * fraction)
         return parameters["linear"], parameters["angular"] * wave
@@ -136,46 +136,46 @@ def sample(kind, parameters, fraction):
 
 
 def scaled_sample(segment, fraction):
-    linear, angular = sample(segment.kind, segment.parameters, fraction)
+    linear_fraction, angular_fraction = sample(segment.kind, segment.parameters, fraction)
     return (
-        linear * LINEAR_MAX_VELOCITY_METERS_PER_SECOND,
-        angular * ANGULAR_MAX_VELOCITY_RADIANS_PER_SECOND,
+        linear_fraction * LINEAR_FULL_SCALE_METERS_PER_SECOND,
+        angular_fraction * ANGULAR_FULL_SCALE_RADIANS_PER_SECOND,
     )
 
 
 def segment_ticks(segment):
-    return max(1, round(segment.duration_seconds * RATE_HZ))
+    return max(1, round(segment.duration_seconds * COMMAND_RATE_HZ))
 
 
-def fuzz_parameters(kind, linear, angular, random_source):
+def fuzz_parameters(kind, linear_fraction, angular_fraction, random_source):
     if kind == "ramp":
         return {
             "linear_start": 0.0,
             "angular_start": 0.0,
-            "linear_end": linear,
-            "angular_end": angular,
+            "linear_end": linear_fraction,
+            "angular_end": angular_fraction,
         }
     if kind == "sine":
         return {
-            "linear": linear,
-            "angular": abs(angular),
+            "linear": linear_fraction,
+            "angular": abs(angular_fraction),
             "cycles": random_source.randint(2, 6),
         }
     if kind == "reversal":
         return {
-            "linear": linear,
-            "angular": angular,
+            "linear": linear_fraction,
+            "angular": angular_fraction,
             "flips": random_source.randint(3, 8),
         }
-    return {"linear": linear, "angular": angular}
+    return {"linear": linear_fraction, "angular": angular_fraction}
 
 
 def fuzz_segments(count, random_source):
     segments = []
     for number in range(1, count + 1):
         kind = random_source.choice(FUZZ_KINDS)
-        linear = round(random_source.uniform(-1.0, 1.0), 2)
-        angular = round(random_source.uniform(-1.0, 1.0), 2)
+        linear_fraction = round(random_source.uniform(-1.0, 1.0), 2)
+        angular_fraction = round(random_source.uniform(-1.0, 1.0), 2)
         duration_seconds = round(random_source.uniform(1.0, 2.5), 1)
         segments.append(
             Segment(
@@ -185,7 +185,7 @@ def fuzz_segments(count, random_source):
                 "fuzz",
                 duration_seconds,
                 kind,
-                fuzz_parameters(kind, linear, angular, random_source),
+                fuzz_parameters(kind, linear_fraction, angular_fraction, random_source),
             )
         )
     return segments
@@ -352,12 +352,12 @@ def build_program(fuzz):
     return program
 
 
-def command(clock, linear, angular):
+def command(clock, linear_meters_per_second, angular_radians_per_second):
     message = TwistStamped()
     message.header.stamp = clock.now().to_msg()
     message.header.frame_id = FRAME_ID
-    message.twist.linear.x = linear
-    message.twist.angular.z = angular
+    message.twist.linear.x = linear_meters_per_second
+    message.twist.angular.z = angular_radians_per_second
     return message
 
 
@@ -374,20 +374,20 @@ def velocity_bar(value, limit, color):
     )
 
 
-def gauge_grid(linear, angular, color):
+def gauge_grid(linear_meters_per_second, angular_radians_per_second, color):
     grid = Table.grid(padding=(0, 2))
     grid.add_column(justify="right", style="dim")
     grid.add_column()
     grid.add_column(justify="left")
     grid.add_row(
         "linear.x",
-        velocity_bar(linear, LINEAR_MAX_VELOCITY_METERS_PER_SECOND, color),
-        f"{linear:+.2f} m/s",
+        velocity_bar(linear_meters_per_second, LINEAR_FULL_SCALE_METERS_PER_SECOND, color),
+        f"{linear_meters_per_second:+.2f} m/s",
     )
     grid.add_row(
         "angular.z",
-        velocity_bar(angular, ANGULAR_MAX_VELOCITY_RADIANS_PER_SECOND, color),
-        f"{angular:+.2f} rad/s",
+        velocity_bar(angular_radians_per_second, ANGULAR_FULL_SCALE_RADIANS_PER_SECOND, color),
+        f"{angular_radians_per_second:+.2f} rad/s",
     )
     return grid
 
@@ -403,7 +403,9 @@ def sparkline(values, limit, positive, negative):
     return line
 
 
-def current_panel(segment, index, total, fraction, linear, angular):
+def current_panel(
+    segment, index, total, fraction, linear_meters_per_second, angular_radians_per_second
+):
     heading = Text(
         f"{segment.glyph}  {segment.name.upper()}", style=f"bold {segment.color}"
     )
@@ -419,7 +421,9 @@ def current_panel(segment, index, total, fraction, linear, angular):
         Align.center(heading),
         Align.center(badge),
         Text(""),
-        Align.center(gauge_grid(linear, angular, segment.color)),
+        Align.center(
+            gauge_grid(linear_meters_per_second, angular_radians_per_second, segment.color)
+        ),
         Text(""),
         Align.center(bar),
     )
@@ -431,15 +435,15 @@ def current_panel(segment, index, total, fraction, linear, angular):
     )
 
 
-def scope_panel(linear_history, angular_history):
+def scope_panel(linear_meters_per_second_history, angular_radians_per_second_history):
     grid = Table.grid(padding=(0, 2))
     grid.add_column(justify="right", style="dim")
     grid.add_column()
     grid.add_row(
         "linear",
         sparkline(
-            linear_history,
-            LINEAR_MAX_VELOCITY_METERS_PER_SECOND,
+            linear_meters_per_second_history,
+            LINEAR_FULL_SCALE_METERS_PER_SECOND,
             POSITIVE_COLOR,
             NEGATIVE_COLOR,
         ),
@@ -447,8 +451,8 @@ def scope_panel(linear_history, angular_history):
     grid.add_row(
         "angular",
         sparkline(
-            angular_history,
-            ANGULAR_MAX_VELOCITY_RADIANS_PER_SECOND,
+            angular_radians_per_second_history,
+            ANGULAR_FULL_SCALE_RADIANS_PER_SECOND,
             ACCENT_COLOR,
             "#d3869b",
         ),
@@ -547,15 +551,33 @@ def build_layout():
 
 def render(layout, frame):
     segment = frame.program[frame.index]
-    linear = frame.linear_history[-1] if frame.linear_history else 0.0
-    angular = frame.angular_history[-1] if frame.angular_history else 0.0
+    linear_meters_per_second = (
+        frame.linear_meters_per_second_history[-1]
+        if frame.linear_meters_per_second_history
+        else 0.0
+    )
+    angular_radians_per_second = (
+        frame.angular_radians_per_second_history[-1]
+        if frame.angular_radians_per_second_history
+        else 0.0
+    )
     layout["header"].update(header())
     layout["commanding"].update(
         current_panel(
-            segment, frame.index, len(frame.program), frame.fraction, linear, angular
+            segment,
+            frame.index,
+            len(frame.program),
+            frame.fraction,
+            linear_meters_per_second,
+            angular_radians_per_second,
         )
     )
-    layout["scope"].update(scope_panel(frame.linear_history, frame.angular_history))
+    layout["scope"].update(
+        scope_panel(
+            frame.linear_meters_per_second_history,
+            frame.angular_radians_per_second_history,
+        )
+    )
     layout["phases"].update(phases_panel(frame.program, frame.index))
     layout["checks"].update(
         checks_panel(
@@ -623,16 +645,27 @@ def preview():
         index for index, segment in enumerate(program) if segment.kind == "sine"
     )
     segment = program[index]
-    linear_history = deque(maxlen=SCOPE_WIDTH_CHARACTERS)
-    angular_history = deque(maxlen=SCOPE_WIDTH_CHARACTERS)
+    linear_meters_per_second_history = deque(maxlen=SCOPE_WIDTH_CHARACTERS)
+    angular_radians_per_second_history = deque(maxlen=SCOPE_WIDTH_CHARACTERS)
     for step in range(SCOPE_WIDTH_CHARACTERS):
-        linear, angular = scaled_sample(segment, step / SCOPE_WIDTH_CHARACTERS)
-        linear_history.append(linear)
-        angular_history.append(angular)
+        linear_meters_per_second, angular_radians_per_second = scaled_sample(
+            segment, step / SCOPE_WIDTH_CHARACTERS
+        )
+        linear_meters_per_second_history.append(linear_meters_per_second)
+        angular_radians_per_second_history.append(angular_radians_per_second)
     progress = make_overall()
     progress.advance(progress.add_task("run", total=100), 62)
     frame = Frame(
-        program, index, 0.6, linear_history, angular_history, 2, 137, 2.0, 2.0, progress
+        program,
+        index,
+        0.6,
+        linear_meters_per_second_history,
+        angular_radians_per_second_history,
+        2,
+        137,
+        2.0,
+        2.0,
+        progress,
     )
     layout = build_layout()
     render(layout, frame)
@@ -648,10 +681,10 @@ def main():
         return
     program = build_program(fuzz_count())
     rclpy.init(args=sys.argv)
-    node = rclpy.create_node("cmd_vel_test")
+    node = rclpy.create_node("cmd_vel")
     publisher = node.create_publisher(TwistStamped, COMMAND_TOPIC, 10)
     clock = node.get_clock()
-    period_seconds = 1.0 / RATE_HZ
+    period_seconds = 1.0 / COMMAND_RATE_HZ
     layout = build_layout()
     progress = make_overall()
     task = progress.add_task(
@@ -670,24 +703,34 @@ def main():
         progress,
     )
     try:
-        for _ in range(int(SETTLE_SECONDS * RATE_HZ)):
+        for _ in range(int(SETTLE_SECONDS * COMMAND_RATE_HZ)):
             publisher.publish(command(clock, 0.0, 0.0))
             frame.sent += 1
             rclpy.spin_once(node, timeout_sec=0.0)
             time.sleep(period_seconds)
-        with Live(layout, refresh_per_second=RATE_HZ, screen=True):
+        with Live(layout, refresh_per_second=COMMAND_RATE_HZ, screen=True):
             for index, segment in enumerate(program):
                 ticks = segment_ticks(segment)
                 for tick in range(ticks):
-                    linear, angular = scaled_sample(segment, (tick + 1) / ticks)
-                    publisher.publish(command(clock, linear, angular))
+                    linear_meters_per_second, angular_radians_per_second = scaled_sample(
+                        segment, (tick + 1) / ticks
+                    )
+                    publisher.publish(
+                        command(clock, linear_meters_per_second, angular_radians_per_second)
+                    )
                     frame.index = index
                     frame.fraction = (tick + 1) / ticks
                     frame.sent += 1
-                    frame.linear_history.append(linear)
-                    frame.angular_history.append(angular)
-                    frame.peak_linear = max(frame.peak_linear, abs(linear))
-                    frame.peak_angular = max(frame.peak_angular, abs(angular))
+                    frame.linear_meters_per_second_history.append(linear_meters_per_second)
+                    frame.angular_radians_per_second_history.append(
+                        angular_radians_per_second
+                    )
+                    frame.peak_linear = max(
+                        frame.peak_linear, abs(linear_meters_per_second)
+                    )
+                    frame.peak_angular = max(
+                        frame.peak_angular, abs(angular_radians_per_second)
+                    )
                     frame.subscribers = node.count_subscribers(COMMAND_TOPIC)
                     progress.advance(task)
                     render(layout, frame)

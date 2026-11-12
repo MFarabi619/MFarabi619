@@ -32,7 +32,7 @@ apple_rest_position = {}
 APPLE_LIFTED_MINIMUM_METERS = 0.12
 ARM_JOINTS = ['joint_1', 'joint_2', 'joint_3', 'joint_4', 'joint_5', 'joint_6']
 HOME_TOLERANCE_RADIANS = 0.05
-KNUCKLE_JOINT = 'robotiq_85_left_knuckle_joint'
+GRIPPER_JOINT = 'robotiq_85_left_knuckle_joint'
 KNUCKLE_CLOSED_MINIMUM_RADIANS = 0.5
 KNUCKLE_OPEN_MAXIMUM_RADIANS = 0.05
 KNUCKLE_HOLDING_RANGE_RADIANS = (0.05, 0.75)
@@ -117,9 +117,9 @@ def test_gripper_round_trip():
     """The gripper action closes and reopens the fingers through
     position_controllers/GripperActionController."""
     send_gripper_goal(0.8)
-    assert joint_positions()[KNUCKLE_JOINT] > KNUCKLE_CLOSED_MINIMUM_RADIANS
+    assert joint_positions()[GRIPPER_JOINT] > KNUCKLE_CLOSED_MINIMUM_RADIANS
     send_gripper_goal(0.0)
-    assert joint_positions()[KNUCKLE_JOINT] < KNUCKLE_OPEN_MAXIMUM_RADIANS
+    assert joint_positions()[GRIPPER_JOINT] < KNUCKLE_OPEN_MAXIMUM_RADIANS
 
 
 def test_picks_apple():
@@ -136,7 +136,7 @@ def test_picks_apple():
     time.sleep(SETTLE_SECONDS)
     assert apple_position()[2] > APPLE_LIFTED_MINIMUM_METERS
     low, high = KNUCKLE_HOLDING_RANGE_RADIANS
-    assert low < joint_positions()[KNUCKLE_JOINT] < high
+    assert low < joint_positions()[GRIPPER_JOINT] < high
 
 
 def test_places_apple_back():
@@ -144,7 +144,7 @@ def test_places_apple_back():
     mujoco_planning_scene at attach time, then parks the arm at home."""
     place = subprocess.run(
         [sys.executable, 'manipulation/src/kinova_link6_place.py',
-         '--object', 'apple'],
+         '--target_object', 'apple'],
         capture_output=True, text=True, timeout=PLACE_TIMEOUT_SECONDS,
         cwd=ROBOT_ROOT)
     assert place.returncode == 0, place.stdout + place.stderr

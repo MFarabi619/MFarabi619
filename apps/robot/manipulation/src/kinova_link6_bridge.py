@@ -39,7 +39,7 @@ EXECUTE_TIMEOUT_SECONDS = 300.0
 MODE_SETTLE_SECONDS = 2.0
 SESSION_INACTIVITY_TIMEOUT_MILLISECONDS = 60000
 CONNECTION_INACTIVITY_TIMEOUT_MILLISECONDS = 2000
-MAX_JOINT_VELOCITY_DEGREES_PER_SECOND = 60.0
+MAX_JOINT_SPEED_DEGREES_PER_SECOND = 60.0
 SMOOTH_BLENDING = 1.0
 STOP_AT_WAYPOINT_BLENDING = 0.0
 TWIST_WATCHDOG_SECONDS = 0.7
@@ -132,7 +132,7 @@ def execute_waypoints(waypoints_degrees):
         waypoint.name = f'waypoint_{index}'
         waypoint.angular_waypoint.angles.extend(angles)
         waypoint.angular_waypoint.maximum_velocities.extend(
-            [MAX_JOINT_VELOCITY_DEGREES_PER_SECOND] * JOINT_COUNT)
+            [MAX_JOINT_SPEED_DEGREES_PER_SECOND] * JOINT_COUNT)
         waypoint.angular_waypoint.blending = (
             STOP_AT_WAYPOINT_BLENDING if index == len(waypoints_degrees) - 1
             else SMOOTH_BLENDING)

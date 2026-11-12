@@ -20,7 +20,8 @@ from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
-def collision_monitor(params_file: str = '', cloud_topic: str = 'sensors/camera_0/depth/points'):
+def collision_monitor(
+        params_file: str = '', point_cloud_topic: str = 'sensors/camera_0/depth/points'):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
     params_file = params_file or bl.find('robot_control', 'collision_monitor.yaml')
@@ -31,7 +32,7 @@ def collision_monitor(params_file: str = '', cloud_topic: str = 'sensors/camera_
         param_files=[
             params_file,
             write_parameter_overrides_file(
-                {'collision_monitor': {'point_cloud': {'topic': cloud_topic}}}),
+                {'collision_monitor': {'point_cloud': {'topic': point_cloud_topic}}}),
         ],
         remaps=TF_REMAPS,
         **RESPAWN,

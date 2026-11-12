@@ -22,7 +22,7 @@ use oxidros::{
 use super::{
     onnx::OnnxModel,
     palm::{decode_rgb, Config as PalmConfig, Detector as PalmDetector, Hand, RGB_CHANNELS},
-    twist, WATCHDOG_TIMEOUT,
+    twist, LOG_STRIDE_FRAMES, WATCHDOG_TIMEOUT,
 };
 
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
@@ -31,16 +31,15 @@ const LANDMARK_INPUT: usize = 224;
 const LANDMARK_COUNT: usize = 21;
 const PRESENCE_THRESHOLD: f32 = 0.6;
 const HANDEDNESS_MARGIN: f32 = 0.05;
-const LOG_STRIDE_FRAMES: u64 = 10;
 const CROP_EXPANSION: f64 = 2.7;
 const FINGER_OPEN_ANGLE_RADIANS: f32 = 2.8;
 const THUMB_OPEN_ANGLE_RADIANS: f32 = 2.4;
 const LABEL_FONT_SIZE_PIXELS: f64 = 28.0;
 const DEBOUNCE_FRAMES: usize = 4;
-const DEFAULT_FORWARD_SPEED_METERS_PER_SECOND: f64 = 0.1;
+const DEFAULT_GESTURE_FORWARD_SPEED_METERS_PER_SECOND: f64 = 0.1;
 const DEFAULT_ANGULAR_SPEED_RADIANS_PER_SECOND: f64 = 0.1;
-const SLEW_LINEAR: f64 = 0.05;
-const SLEW_ANGULAR: f64 = 0.1;
+const MAX_LINEAR_STEP_METERS_PER_SECOND_PER_FRAME: f64 = 0.05;
+const MAX_ANGULAR_STEP_RADIANS_PER_SECOND_PER_FRAME: f64 = 0.1;
 
 // MediaPipe hand landmark connections (0=wrist; thumb 1-4; index 5-8; middle 9-12; ring 13-16; pinky 17-20).
 const HAND_CONNECTIONS: [(usize, usize); 21] = [
@@ -344,24 +343,24 @@ fn slew(current: f64, target: f64, max_step: f64) -> f64 {
     current + (target - current).clamp(-max_step, max_step)
 }
 
-struct GestureBrain {
+struct GestureCommander {
     committed: Gesture,
     candidate: Gesture,
     candidate_frames: usize,
-    linear: f64,
-    angular: f64,
+    linear_meters_per_second: f64,
+    angular_radians_per_second: f64,
     forward_speed_meters_per_second: f64,
     angular_speed_radians_per_second: f64,
 }
 
-impl GestureBrain {
+impl GestureCommander {
     fn new(forward_speed_meters_per_second: f64, angular_speed_radians_per_second: f64) -> Self {
         Self {
             committed: Gesture::None,
             candidate: Gesture::None,
             candidate_frames: 0,
-            linear: 0.0,
-            angular: 0.0,
+            linear_meters_per_second: 0.0,
+            angular_radians_per_second: 0.0,
             forward_speed_meters_per_second,
             angular_speed_radians_per_second,
         }
@@ -372,7 +371,7 @@ impl GestureBrain {
     }
 
     fn velocity(&self) -> (f64, f64) {
-        (self.linear, self.angular)
+        (self.linear_meters_per_second, self.angular_radians_per_second)
     }
 
     fn update(&mut self, gesture: Gesture) {
@@ -385,10 +384,18 @@ impl GestureBrain {
         if self.candidate_frames >= DEBOUNCE_FRAMES {
             self.committed = self.candidate;
         }
-        let (target_linear, target_angular) =
+        let (target_linear_meters_per_second, target_angular_radians_per_second) =
             behavior_velocity(self.committed, self.forward_speed_meters_per_second, self.angular_speed_radians_per_second);
-        self.linear = slew(self.linear, target_linear, SLEW_LINEAR);
-        self.angular = slew(self.angular, target_angular, SLEW_ANGULAR);
+        self.linear_meters_per_second = slew(
+            self.linear_meters_per_second,
+            target_linear_meters_per_second,
+            MAX_LINEAR_STEP_METERS_PER_SECOND_PER_FRAME,
+        );
+        self.angular_radians_per_second = slew(
+            self.angular_radians_per_second,
+            target_angular_radians_per_second,
+            MAX_ANGULAR_STEP_RADIANS_PER_SECOND_PER_FRAME,
+        );
     }
 
     fn halt(&mut self) {
@@ -406,7 +413,7 @@ pub async fn run_gesture(node: Arc<Node>, start_enabled: bool) -> Result<(), Box
         let store = parameters.params.read();
         (
             crate::parameters::string_parameter(&store, "image_topic", crate::parameters::DEFAULT_IMAGE_TOPIC),
-            crate::parameters::f64_parameter(&store, "forward_speed_meters_per_second", DEFAULT_FORWARD_SPEED_METERS_PER_SECOND),
+            crate::parameters::f64_parameter(&store, "forward_speed_meters_per_second", DEFAULT_GESTURE_FORWARD_SPEED_METERS_PER_SECOND),
             crate::parameters::f64_parameter(&store, "angular_speed_radians_per_second", DEFAULT_ANGULAR_SPEED_RADIANS_PER_SECOND),
         )
     };
@@ -416,8 +423,8 @@ pub async fn run_gesture(node: Arc<Node>, start_enabled: bool) -> Result<(), Box
     let cmd_vel = node.create_publisher::<TwistStamped>("cmd_vel", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
     let mut enable = node.create_server::<SetBool>("~/enable", None)?;
     let skeleton = foxglove::ChannelBuilder::new("/hand/landmarks").build::<ImageAnnotations>();
-    let mut brain = GestureBrain::new(forward_speed_meters_per_second, angular_speed_radians_per_second);
-    let mut last_committed = brain.committed();
+    let mut commander = GestureCommander::new(forward_speed_meters_per_second, angular_speed_radians_per_second);
+    let mut previous_committed = commander.committed();
     let mut enabled = start_enabled;
 
     tracing::info!(
@@ -427,7 +434,7 @@ pub async fn run_gesture(node: Arc<Node>, start_enabled: bool) -> Result<(), Box
     let ctrl_c = tokio::signal::ctrl_c();
     tokio::pin!(ctrl_c);
     let mut watchdog = tokio::time::interval(WATCHDOG_TIMEOUT);
-    let mut last_frame = Instant::now();
+    let mut latest_frame_time = Instant::now();
     loop {
         tokio::select! {
             _ = &mut ctrl_c => break,
@@ -435,7 +442,7 @@ pub async fn run_gesture(node: Arc<Node>, start_enabled: bool) -> Result<(), Box
                 let request = request?;
                 enabled = request.request().data;
                 if !enabled {
-                    brain.halt();
+                    commander.halt();
                     let _ = cmd_vel.send(&twist(0.0, 0.0));
                 }
                 let mut response = SetBool_Response::new().unwrap();
@@ -444,17 +451,17 @@ pub async fn run_gesture(node: Arc<Node>, start_enabled: bool) -> Result<(), Box
                 tracing::info!("gesture control {}", if enabled { "enabled" } else { "disabled" });
             }
             _ = watchdog.tick() => {
-                if last_frame.elapsed() >= WATCHDOG_TIMEOUT {
-                    brain.halt();
+                if latest_frame_time.elapsed() >= WATCHDOG_TIMEOUT {
+                    commander.halt();
                     if enabled {
-                        let (linear, angular) = brain.velocity();
-                        cmd_vel.send(&twist(linear, angular))?;
+                        let (linear_meters_per_second, angular_radians_per_second) = commander.velocity();
+                        cmd_vel.send(&twist(linear_meters_per_second, angular_radians_per_second))?;
                     }
                     skeleton.log(&ImageAnnotations::default());
                 }
             }
             message = images.recv() => {
-                last_frame = Instant::now();
+                latest_frame_time = Instant::now();
                 let gesture = match decode_rgb(message?.sample.data.as_slice()) {
                     Err(error) => {
                         tracing::warn!("{error}");
@@ -481,14 +488,14 @@ pub async fn run_gesture(node: Arc<Node>, start_enabled: bool) -> Result<(), Box
                         }
                     },
                 };
-                brain.update(gesture);
+                commander.update(gesture);
                 if enabled {
-                    let (linear, angular) = brain.velocity();
-                    cmd_vel.send(&twist(linear, angular))?;
+                    let (linear_meters_per_second, angular_radians_per_second) = commander.velocity();
+                    cmd_vel.send(&twist(linear_meters_per_second, angular_radians_per_second))?;
                 }
-                if brain.committed() != last_committed {
-                    last_committed = brain.committed();
-                    tracing::info!("gesture command: {last_committed:?}");
+                if commander.committed() != previous_committed {
+                    previous_committed = commander.committed();
+                    tracing::info!("gesture command: {previous_committed:?}");
                 }
             }
         }
@@ -520,25 +527,25 @@ mod tests {
     }
 
     #[test]
-    fn brain_debounces_before_committing() {
-        let mut brain = GestureBrain::new(DEFAULT_FORWARD_SPEED_METERS_PER_SECOND, DEFAULT_ANGULAR_SPEED_RADIANS_PER_SECOND);
+    fn commander_debounces_before_committing() {
+        let mut commander = GestureCommander::new(DEFAULT_GESTURE_FORWARD_SPEED_METERS_PER_SECOND, DEFAULT_ANGULAR_SPEED_RADIANS_PER_SECOND);
         for _ in 0..DEBOUNCE_FRAMES - 1 {
-            brain.update(Gesture::Point);
+            commander.update(Gesture::Point);
         }
-        assert_eq!(brain.committed(), Gesture::None);
-        brain.update(Gesture::Point);
-        assert_eq!(brain.committed(), Gesture::Point);
+        assert_eq!(commander.committed(), Gesture::None);
+        commander.update(Gesture::Point);
+        assert_eq!(commander.committed(), Gesture::Point);
     }
 
     #[test]
     fn watchdog_halt_disarms() {
-        let mut brain = GestureBrain::new(DEFAULT_FORWARD_SPEED_METERS_PER_SECOND, DEFAULT_ANGULAR_SPEED_RADIANS_PER_SECOND);
+        let mut commander = GestureCommander::new(DEFAULT_GESTURE_FORWARD_SPEED_METERS_PER_SECOND, DEFAULT_ANGULAR_SPEED_RADIANS_PER_SECOND);
         for _ in 0..DEBOUNCE_FRAMES {
-            brain.update(Gesture::Point);
+            commander.update(Gesture::Point);
         }
-        assert_eq!(brain.committed(), Gesture::Point);
-        brain.halt();
-        assert_eq!(brain.velocity(), (0.0, 0.0));
-        assert_eq!(brain.committed(), Gesture::None);
+        assert_eq!(commander.committed(), Gesture::Point);
+        commander.halt();
+        assert_eq!(commander.velocity(), (0.0, 0.0));
+        assert_eq!(commander.committed(), Gesture::None);
     }
 }

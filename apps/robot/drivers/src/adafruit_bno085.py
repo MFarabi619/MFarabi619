@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright 2026 Mumtahin Farabi
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,80 +21,145 @@
 # THE SOFTWARE.
 
 
-from adafruit_bno08x import (
-    BNO_REPORT_ACCELEROMETER,
-    BNO_REPORT_ACTIVITY_CLASSIFIER,
-    BNO_REPORT_GYROSCOPE,
-    BNO_REPORT_LINEAR_ACCELERATION,
-    BNO_REPORT_MAGNETOMETER,
-    BNO_REPORT_ROTATION_VECTOR,
-    BNO_REPORT_SHAKE_DETECTOR,
-    BNO_REPORT_STABILITY_CLASSIFIER,
-    BNO_REPORT_STEP_COUNTER,
+from adafruit_bno085_i2c import (
+    AdafruitBno085I2c,
+    MEDIUM_REPORT_INTERVAL_MICROSECONDS,
+    SLOW_REPORT_INTERVAL_MICROSECONDS,
 )
-from adafruit_bno08x.i2c import BNO08X_I2C
-from adafruit_extended_bus import ExtendedI2C
+from geometry_msgs.msg import Vector3Stamped
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import Imu, MagneticField
+from std_msgs.msg import Bool, Header, String, UInt32, UInt8
 
-MEDIUM_REPORT_INTERVAL_MICROSECONDS = 100_000
-SLOW_REPORT_INTERVAL_MICROSECONDS = 1_000_000
+TESLA_PER_MICROTESLA = 1e-6
+MICROSECONDS_PER_SECOND = 1_000_000
+MAX_CONSECUTIVE_FAILURES = 50
+CALIBRATION_STATUS_PERIOD_SECONDS = 30.0
+MEDIUM_REPORT_INTERVAL_SECONDS = (
+    MEDIUM_REPORT_INTERVAL_MICROSECONDS / MICROSECONDS_PER_SECOND)
+SLOW_REPORT_INTERVAL_SECONDS = (
+    SLOW_REPORT_INTERVAL_MICROSECONDS / MICROSECONDS_PER_SECOND)
 
 
-class AdafruitBno085:
-    def __init__(self, i2c_bus, i2c_address, fast_interval_microseconds):
-        self.fast_interval_microseconds = fast_interval_microseconds
-        self.device = BNO08X_I2C(ExtendedI2C(i2c_bus), address=i2c_address)
-        self.configure_features()
+class AdafruitBno085(Node):
+    def __init__(self):
+        super().__init__('adafruit_bno085')
+        self.declare_parameter('i2c_bus', 1)
+        self.declare_parameter('i2c_address', 0x4A)
+        self.declare_parameter('frame_id', 'imu_0_link')
+        self.declare_parameter('publish_rate_hz', 25.0)
+        publish_rate_hz = self.get_parameter('publish_rate_hz').value
+        self.bno085 = AdafruitBno085I2c(
+            self.get_parameter('i2c_bus').value,
+            self.get_parameter('i2c_address').value,
+            int(MICROSECONDS_PER_SECOND / publish_rate_hz))
+        self.consecutive_failures = 0
+        self.frame_id = self.get_parameter('frame_id').value
+        self.imu_publisher = self.create_publisher(Imu, 'data', 10)
+        self.mag_publisher = self.create_publisher(MagneticField, 'mag', 10)
+        self.linear_acceleration_publisher = self.create_publisher(
+            Vector3Stamped, 'linear_acceleration', 10)
+        self.stability_publisher = self.create_publisher(String, 'stability', 10)
+        self.activity_publisher = self.create_publisher(String, 'activity', 10)
+        self.steps_publisher = self.create_publisher(UInt32, 'steps', 10)
+        self.shake_publisher = self.create_publisher(Bool, 'shake', 10)
+        self.calibration_status_publisher = self.create_publisher(
+            UInt8, 'calibration_status', 10)
+        self.create_timer(
+            CALIBRATION_STATUS_PERIOD_SECONDS, self.publish_calibration_status)
+        self.create_timer(1.0 / publish_rate_hz, self.publish_fast)
+        self.create_timer(MEDIUM_REPORT_INTERVAL_SECONDS, self.publish_medium)
+        self.create_timer(SLOW_REPORT_INTERVAL_SECONDS, self.publish_slow)
 
-    def configure_features(self):
-        for feature in (BNO_REPORT_ACCELEROMETER, BNO_REPORT_GYROSCOPE,
-                        BNO_REPORT_ROTATION_VECTOR):
-            self.device.enable_feature(feature, self.fast_interval_microseconds)
-        for feature in (BNO_REPORT_MAGNETOMETER, BNO_REPORT_LINEAR_ACCELERATION):
-            self.device.enable_feature(feature, MEDIUM_REPORT_INTERVAL_MICROSECONDS)
-        for feature in (BNO_REPORT_STABILITY_CLASSIFIER, BNO_REPORT_ACTIVITY_CLASSIFIER,
-                        BNO_REPORT_STEP_COUNTER, BNO_REPORT_SHAKE_DETECTOR):
-            self.device.enable_feature(feature, SLOW_REPORT_INTERVAL_MICROSECONDS)
+    def recover(self):
+        self.get_logger().warning('too many failed samples, soft-resetting the BNO085')
+        try:
+            self.bno085.soft_reset()
+        except (OSError, RuntimeError, KeyError) as error:
+            self.get_logger().error(f'soft reset failed: {error}')
+        self.consecutive_failures = 0
 
-    def soft_reset(self):
-        self.device.soft_reset()
-        self.configure_features()
+    def publish_calibration_status(self):
+        try:
+            status = self.bno085.calibration_status
+        except (OSError, RuntimeError, KeyError):
+            return
+        self.calibration_status_publisher.publish(UInt8(data=status))
 
-    @property
-    def quaternion(self):
-        return self.device.quaternion
+    def stamped_header(self):
+        header = Header()
+        header.stamp = self.get_clock().now().to_msg()
+        header.frame_id = self.frame_id
+        return header
 
-    @property
-    def gyro(self):
-        return self.device.gyro
+    def publish_fast(self):
+        try:
+            quaternion = self.bno085.quaternion
+            gyro = self.bno085.gyro
+            acceleration = self.bno085.acceleration
+        except (OSError, RuntimeError, KeyError) as error:
+            self.get_logger().warning(
+                f'fast sample failed: {error}', throttle_duration_sec=5.0)
+            self.consecutive_failures += 1
+            if self.consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
+                self.recover()
+            return
+        self.consecutive_failures = 0
+        if None in (quaternion, gyro, acceleration):
+            return
+        imu = Imu()
+        imu.header = self.stamped_header()
+        (imu.orientation.x, imu.orientation.y,
+         imu.orientation.z, imu.orientation.w) = quaternion
+        (imu.angular_velocity.x, imu.angular_velocity.y,
+         imu.angular_velocity.z) = gyro
+        (imu.linear_acceleration.x, imu.linear_acceleration.y,
+         imu.linear_acceleration.z) = acceleration
+        self.imu_publisher.publish(imu)
 
-    @property
-    def acceleration(self):
-        return self.device.acceleration
+    def publish_medium(self):
+        try:
+            magnetic = self.bno085.magnetic
+            linear = self.bno085.linear_acceleration
+        except (OSError, RuntimeError, KeyError):
+            return
+        header = self.stamped_header()
+        if magnetic is not None:
+            mag = MagneticField()
+            mag.header = header
+            (mag.magnetic_field.x, mag.magnetic_field.y, mag.magnetic_field.z) = (
+                component * TESLA_PER_MICROTESLA for component in magnetic)
+            self.mag_publisher.publish(mag)
+        if linear is not None:
+            message = Vector3Stamped()
+            message.header = header
+            (message.vector.x, message.vector.y, message.vector.z) = linear
+            self.linear_acceleration_publisher.publish(message)
 
-    @property
-    def magnetic(self):
-        return self.device.magnetic
+    def publish_slow(self):
+        try:
+            stability = self.bno085.stability_classification
+            activity = self.bno085.activity_classification
+            steps = self.bno085.steps
+            shake = self.bno085.shake
+        except (OSError, RuntimeError, KeyError):
+            return
+        if stability is not None:
+            self.stability_publisher.publish(String(data=stability))
+        if activity is not None:
+            most_likely = activity.get('most_likely', '')
+            self.activity_publisher.publish(String(data=str(most_likely)))
+        if steps is not None:
+            self.steps_publisher.publish(UInt32(data=steps))
+        if shake is not None:
+            self.shake_publisher.publish(Bool(data=bool(shake)))
 
-    @property
-    def linear_acceleration(self):
-        return self.device.linear_acceleration
 
-    @property
-    def stability_classification(self):
-        return self.device.stability_classification
+def main():
+    rclpy.init()
+    rclpy.spin(AdafruitBno085())
 
-    @property
-    def activity_classification(self):
-        return self.device.activity_classification
 
-    @property
-    def steps(self):
-        return self.device.steps
-
-    @property
-    def shake(self):
-        return self.device.shake
-
-    @property
-    def calibration_status(self):
-        return self.device.calibration_status
+if __name__ == '__main__':
+    main()

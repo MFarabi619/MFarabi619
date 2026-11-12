@@ -1,5 +1,5 @@
 use oxidros::prelude::*;
-use robot::config::{beagleyai_config, beagleyai_drivetrain};
+use robot::beagleyai::{beagleyai_config, beagleyai_drivetrain};
 
 
 #[tokio::main]

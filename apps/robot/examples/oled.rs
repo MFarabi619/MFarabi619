@@ -12,7 +12,7 @@ use robot_drivers::{
     ssd1306::{Ssd1306, BUFFER_LEN, HEIGHT, WIDTH},
 };
 
-const HOST: &str = "beagleyai";
+const RGPIOD_HOST: &str = "beagleyai";
 const RGPIOD_PORT: u16 = 8889;
 const I2C_BUS: u32 = 1;
 const OLED_ADDRESS: u32 = 0x3c;
@@ -77,7 +77,7 @@ fn draw(frame: &mut Frame) {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let connection: &'static Connection =
-        Box::leak(Box::new(Connection::connect(HOST, RGPIOD_PORT)?));
+        Box::leak(Box::new(Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?));
     let i2c = I2c::open(connection, I2C_BUS, OLED_ADDRESS)?;
     let mut canvas = Ssd1306Canvas::new(Ssd1306::new(i2c)?);
 

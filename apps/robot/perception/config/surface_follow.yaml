@@ -15,4 +15,4 @@
     max_saturation: 0.75
     max_value: 0.35
     roi_top_fraction: 0.6
-    min_fraction: 0.6
+    min_column_fraction: 0.6

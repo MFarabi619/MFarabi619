@@ -7,12 +7,12 @@ const FULLSCREEN_TRIANGLE_VERTEX_COUNT: u32 = 3;
 #[derive(Clone, Copy, Pod, Zeroable)]
 struct CameraUniform {
     position: [f32; 2],
-    heading: f32,
+    heading_radians: f32,
     camera_mount_height_meters: f32,
     tan_half_fov: f32,
-    aspect: f32,
-    time: f32,
-    _pad: f32,
+    aspect_ratio: f32,
+    elapsed_seconds: f32,
+    _padding: f32,
 }
 
 pub struct CameraRenderer {
@@ -24,10 +24,10 @@ pub struct CameraRenderer {
     color: wgpu::Texture,
     target: wgpu::TextureView,
     readback: wgpu::Buffer,
-    width: u32,
-    height: u32,
+    width_pixels: u32,
+    height_pixels: u32,
     tan_half_fov: f32,
-    aspect: f32,
+    aspect_ratio: f32,
     camera_mount_height_meters: f32,
 }
 
@@ -49,8 +49,8 @@ impl Scene {
 impl CameraRenderer {
     pub async fn new(
         scene: Scene,
-        width: u32,
-        height: u32,
+        width_pixels: u32,
+        height_pixels: u32,
         fov_degrees: f64,
         camera_mount_height_meters: f64,
     ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
@@ -141,8 +141,8 @@ impl CameraRenderer {
         let color = device.create_texture(&wgpu::TextureDescriptor {
             label: Some("color"),
             size: wgpu::Extent3d {
-                width,
-                height,
+                width: width_pixels,
+                height: height_pixels,
                 depth_or_array_layers: 1,
             },
             mip_level_count: 1,
@@ -156,7 +156,7 @@ impl CameraRenderer {
 
         let readback = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("readback"),
-            size: (padded_bytes_per_row(width) * height) as u64,
+            size: (padded_bytes_per_row(width_pixels) * height_pixels) as u64,
             usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
             mapped_at_creation: false,
         });
@@ -170,23 +170,23 @@ impl CameraRenderer {
             color,
             target,
             readback,
-            width,
-            height,
+            width_pixels,
+            height_pixels,
             tan_half_fov: (fov_degrees.to_radians() / 2.0).tan() as f32,
-            aspect: width as f32 / height as f32,
+            aspect_ratio: width_pixels as f32 / height_pixels as f32,
             camera_mount_height_meters: camera_mount_height_meters as f32,
         })
     }
 
-    pub fn render(&self, x: f64, y: f64, heading: f64, time: f64) -> Vec<u8> {
+    pub fn render(&self, x: f64, y: f64, heading_radians: f64, elapsed_seconds: f64) -> Vec<u8> {
         let uniform = CameraUniform {
             position: [x as f32, y as f32],
-            heading: heading as f32,
+            heading_radians: heading_radians as f32,
             camera_mount_height_meters: self.camera_mount_height_meters,
             tan_half_fov: self.tan_half_fov,
-            aspect: self.aspect,
-            time: time as f32,
-            _pad: 0.0,
+            aspect_ratio: self.aspect_ratio,
+            elapsed_seconds: elapsed_seconds as f32,
+            _padding: 0.0,
         };
         self.queue
             .write_buffer(&self.uniform, 0, bytemuck::bytes_of(&uniform));
@@ -218,7 +218,7 @@ impl CameraRenderer {
             pass.draw(0..FULLSCREEN_TRIANGLE_VERTEX_COUNT, 0..1);
         }
 
-        let bytes_per_row = padded_bytes_per_row(self.width);
+        let bytes_per_row = padded_bytes_per_row(self.width_pixels);
         encoder.copy_texture_to_buffer(
             wgpu::TexelCopyTextureInfo {
                 texture: &self.color,
@@ -231,12 +231,12 @@ impl CameraRenderer {
                 layout: wgpu::TexelCopyBufferLayout {
                     offset: 0,
                     bytes_per_row: Some(bytes_per_row),
-                    rows_per_image: Some(self.height),
+                    rows_per_image: Some(self.height_pixels),
                 },
             },
             wgpu::Extent3d {
-                width: self.width,
-                height: self.height,
+                width: self.width_pixels,
+                height: self.height_pixels,
                 depth_or_array_layers: 1,
             },
         );
@@ -249,9 +249,10 @@ impl CameraRenderer {
             .unwrap();
 
         let mapped = slice.get_mapped_range().unwrap();
-        let row_bytes = (self.width * RGBA_BYTES_PER_PIXEL) as usize;
-        let mut rgba =
-            Vec::with_capacity((self.width * self.height * RGBA_BYTES_PER_PIXEL) as usize);
+        let row_bytes = (self.width_pixels * RGBA_BYTES_PER_PIXEL) as usize;
+        let mut rgba = Vec::with_capacity(
+            (self.width_pixels * self.height_pixels * RGBA_BYTES_PER_PIXEL) as usize,
+        );
         for row in mapped.chunks_exact(bytes_per_row as usize) {
             rgba.extend_from_slice(&row[..row_bytes]);
         }
@@ -261,7 +262,7 @@ impl CameraRenderer {
     }
 }
 
-fn padded_bytes_per_row(width: u32) -> u32 {
-    (width * RGBA_BYTES_PER_PIXEL).div_ceil(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT)
+fn padded_bytes_per_row(width_pixels: u32) -> u32 {
+    (width_pixels * RGBA_BYTES_PER_PIXEL).div_ceil(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT)
         * wgpu::COPY_BYTES_PER_ROW_ALIGNMENT
 }

@@ -87,7 +87,7 @@ def brightness_detector_node():
             rclpy.parameter.Parameter('max_value', value=0.35),
             rclpy.parameter.Parameter('max_saturation', value=0.75),
             rclpy.parameter.Parameter('roi_top_fraction', value=0.5),
-            rclpy.parameter.Parameter('min_fraction', value=0.6),
+            rclpy.parameter.Parameter('min_column_fraction', value=0.6),
             rclpy.parameter.Parameter('max_detections_per_second', value=1000.0),
         ])
     yield node
@@ -188,8 +188,8 @@ def normalized_canopy_detector_node():
 
 
 @pytest.fixture
-def cloud_optical_adapter_node():
-    node = load_node_class('cloud_optical_adapter', 'CloudOpticalAdapter')()
+def point_cloud_optical_adapter_node():
+    node = load_node_class('point_cloud_optical_adapter', 'PointCloudOpticalAdapter')()
     yield node
     node.destroy_node()
 

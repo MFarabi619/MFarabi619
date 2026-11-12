@@ -45,7 +45,7 @@ MAX_PREVIEW_DEPTH_MILLIMETERS = 8000.0
 SENSOR_WIDTH_PIXELS = 1280
 SENSOR_HEIGHT_PIXELS = 800
 IMU_RATE_HZ = 100
-POINTCLOUD_RATE_HZ = 10.0
+POINT_CLOUD_RATE_HZ = 10.0
 METERS_PER_MILLIMETER = 0.001
 BYTES_PER_CLOUD_POINT = 12
 BYTES_PER_DEPTH_PIXEL = 2
@@ -61,7 +61,7 @@ def build_pipeline(
     stereo = pipeline.create(dai.node.StereoDepth)
     color_encoder = pipeline.create(dai.node.VideoEncoder)
     imu = pipeline.create(dai.node.IMU)
-    pointcloud = pipeline.create(dai.node.PointCloud)
+    point_cloud = pipeline.create(dai.node.PointCloud)
     color_output = pipeline.create(dai.node.XLinkOut)
     depth_output = pipeline.create(dai.node.XLinkOut)
     imu_output = pipeline.create(dai.node.XLinkOut)
@@ -70,7 +70,7 @@ def build_pipeline(
     depth_output.setStreamName('depth')
     imu_output.setStreamName('imu')
     points_output.setStreamName('points')
-    points_output.setFpsLimit(POINTCLOUD_RATE_HZ)
+    points_output.setFpsLimit(POINT_CLOUD_RATE_HZ)
     color.setResolution(dai.ColorCameraProperties.SensorResolution.THE_800_P)
     color.setCamera('color')
     color.setFps(color_frames_per_second)
@@ -97,14 +97,14 @@ def build_pipeline(
         IMU_RATE_HZ)
     imu.setBatchReportThreshold(1)
     imu.setMaxBatchReports(10)
-    pointcloud.initialConfig.setSparse(True)
+    point_cloud.initialConfig.setSparse(True)
     left.out.link(stereo.left)
     right.out.link(stereo.right)
     color.video.link(color_encoder.input)
     color_encoder.bitstream.link(color_output.input)
     stereo.depth.link(depth_output.input)
-    stereo.depth.link(pointcloud.inputDepth)
-    pointcloud.outputPointCloud.link(points_output.input)
+    stereo.depth.link(point_cloud.inputDepth)
+    point_cloud.outputPointCloud.link(points_output.input)
     imu.out.link(imu_output.input)
     return pipeline
 
@@ -116,7 +116,7 @@ class LuxonisOakDProWPoe(Node):
         self.declare_parameter('depth_frames_per_second', 15.0)
         self.declare_parameter('color_frames_per_second', 0.0)
         self.declare_parameter('jpeg_quality', 60)
-        self.declare_parameter('frame_id', 'camera_0_link')
+        self.declare_parameter('frame_id', 'camera_0_color_optical_frame')
         self.declare_parameter('color_resolution_divisor', 2)
         self.declare_parameter('depth_resolution_divisor', 4)
         self.declare_parameter('ir_dot_projector_intensity', 0.5)

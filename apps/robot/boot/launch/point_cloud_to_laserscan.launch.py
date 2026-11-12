@@ -20,7 +20,7 @@ from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
-def pointcloud_to_laserscan(
+def point_cloud_to_laserscan(
     camera: str = 'camera_0',
     target_frame: str = 'base_link',
     min_height: float = 0.1,
@@ -34,7 +34,7 @@ def pointcloud_to_laserscan(
     bl.node(
         package='pointcloud_to_laserscan',
         executable='pointcloud_to_laserscan_node',
-        name=f'{camera}_pointcloud_to_laserscan',
+        name=f'{camera}_point_cloud_to_laserscan',
         remaps=TF_REMAPS | {
             'cloud_in': f'sensors/{camera}/depth/points',
             'scan': f'sensors/{camera}/scan',

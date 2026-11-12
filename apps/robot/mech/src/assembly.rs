@@ -7,17 +7,17 @@ use std::{
 use cadrum::{Boolean, Color, DVec3, Solid};
 use crate::{
     datums::{
-        MOTOR_MOUNT_WIDTH_MM, WHEEL_HUB_INBOARD_FACE_FROM_STEP_ORIGIN_MM, WHEEL_TREAD_DIAMETER_MM,
-        WHEEL_TREAD_WIDTH_MM,
+        MOTOR_MOUNT_WIDTH_MILLIMETERS, WHEEL_HUB_INBOARD_FACE_FROM_STEP_ORIGIN_MILLIMETERS, WHEEL_TREAD_DIAMETER_MILLIMETERS,
+        WHEEL_TREAD_WIDTH_MILLIMETERS,
     },
     dimensions::Dimensions,
     parameters::{
-        CASTER_MOUNT_BAR_LENGTH_MM, CASTER_MOUNT_BAR_PITCH_MM, CASTER_MOUNT_BAR_WIDTH_MM,
-        GUSSET_ARM_LENGTH_MM, GUSSET_ARM_WIDTH_MM, GUSSET_HOLES_PER_ARM, GUSSET_HOLE_DIAMETER_MM,
-        GUSSET_HOLE_PITCH_MM, GUSSET_THICKNESS_MM, POST_HEIGHT_MM, POST_INSET_FROM_END_MM,
-        POST_LENGTHWISE_BAR_DROP_FROM_TOP_MM, RAIL_CROSS_HEIGHT_MM, RAIL_CROSS_WIDTH_MM,
-        RAIL_END_CAP_BOSS_DEPTH_MM, RAIL_END_CAP_BOSS_WALL_MM, RAIL_END_CAP_FLANGE_THICKNESS_MM,
-        RAIL_FILLET_RADIUS_MM, RAIL_HOLE_DIAMETER_MM, RAIL_HOLE_SPACING_MM, RAIL_WALL_THICKNESS_MM,
+        CASTER_MOUNT_BAR_LENGTH_MILLIMETERS, CASTER_MOUNT_BAR_PITCH_MILLIMETERS, CASTER_MOUNT_BAR_WIDTH_MILLIMETERS,
+        GUSSET_ARM_LENGTH_MILLIMETERS, GUSSET_ARM_WIDTH_MILLIMETERS, GUSSET_HOLES_PER_ARM, GUSSET_HOLE_DIAMETER_MILLIMETERS,
+        GUSSET_HOLE_PITCH_MILLIMETERS, GUSSET_THICKNESS_MILLIMETERS, POST_HEIGHT_MILLIMETERS, POST_INSET_FROM_END_MILLIMETERS,
+        POST_LENGTHWISE_BAR_DROP_FROM_TOP_MILLIMETERS, RAIL_CROSS_HEIGHT_MILLIMETERS, RAIL_CROSS_WIDTH_MILLIMETERS,
+        RAIL_END_CAP_BOSS_DEPTH_MILLIMETERS, RAIL_END_CAP_BOSS_WALL_MILLIMETERS, RAIL_END_CAP_FLANGE_THICKNESS_MILLIMETERS,
+        RAIL_FILLET_RADIUS_MILLIMETERS, RAIL_HOLE_DIAMETER_MILLIMETERS, RAIL_HOLE_SPACING_MILLIMETERS, RAIL_WALL_THICKNESS_MILLIMETERS,
     },
     placement::{self, Corner, Side},
 };
@@ -28,12 +28,12 @@ use crate::{
     time_it, Link, LinkId,
 };
 
-const CASTER_TIRE_MIN_DIAMETER_MM: f64 = 250.0;
-const CAMERA_FRONT_WINDOW_MAX_THICKNESS_MM: f64 = 0.65;
-const EDGE_COINCIDENCE_EPSILON_MM: f64 = 1e-6;
-const CUTTER_OVERSHOOT_MM: f64 = 1.0;
-const CAVITY_OVERSHOOT_MM: f64 = 0.5;
-const DATUM_TOLERANCE_MM: f64 = 1e-3;
+const CASTER_TIRE_MIN_DIAMETER_MILLIMETERS: f64 = 250.0;
+const CAMERA_FRONT_WINDOW_MAX_THICKNESS_MILLIMETERS: f64 = 0.65;
+const EDGE_COINCIDENCE_EPSILON_MILLIMETERS: f64 = 1e-6;
+const CUTTER_OVERSHOOT_MILLIMETERS: f64 = 1.0;
+const CAVITY_OVERSHOOT_MILLIMETERS: f64 = 0.5;
+const DATUM_TOLERANCE_MILLIMETERS: f64 = 1e-3;
 
 pub const WHEEL_TREAD_STEP: &str = "wheel_tread.step";
 pub const WHEEL_RIM_STEP: &str = "wheel_rim.step";
@@ -78,11 +78,11 @@ pub fn subtract_cutters(shape: &Solid, cutters: &[Solid]) -> Result<Solid, cadru
 }
 
 fn plank(dimensions: &Dimensions) -> Solid {
-    let plank_length = dimensions.frame_length_mm - 2.0 * RAIL_CROSS_WIDTH_MM;
-    let plank_width = dimensions.frame_width_mm - 2.0 * RAIL_CROSS_WIDTH_MM;
-    let plank_center_z = dimensions.frame_top_z_mm - RAIL_CROSS_HEIGHT_MM / 2.0;
+    let plank_length = dimensions.frame_length_millimeters - 2.0 * RAIL_CROSS_WIDTH_MILLIMETERS;
+    let plank_width = dimensions.frame_width_millimeters - 2.0 * RAIL_CROSS_WIDTH_MILLIMETERS;
+    let plank_center_z = dimensions.frame_top_z_millimeters - RAIL_CROSS_HEIGHT_MILLIMETERS / 2.0;
     box_centered(
-        DVec3::new(plank_length, plank_width, RAIL_CROSS_HEIGHT_MM),
+        DVec3::new(plank_length, plank_width, RAIL_CROSS_HEIGHT_MILLIMETERS),
         DVec3::new(0.0, 0.0, plank_center_z),
     )
     .with_material(Material::Plywood)
@@ -90,9 +90,9 @@ fn plank(dimensions: &Dimensions) -> Solid {
 
 fn perforated_rail(length: f64) -> Result<Solid, cadrum::Error> {
     let half_x = length / 2.0;
-    let half_y = RAIL_CROSS_WIDTH_MM / 2.0;
-    let half_z = RAIL_CROSS_HEIGHT_MM / 2.0;
-    let hole_radius = RAIL_HOLE_DIAMETER_MM / 2.0;
+    let half_y = RAIL_CROSS_WIDTH_MILLIMETERS / 2.0;
+    let half_z = RAIL_CROSS_HEIGHT_MILLIMETERS / 2.0;
+    let hole_radius = RAIL_HOLE_DIAMETER_MILLIMETERS / 2.0;
 
     let outer_block = Solid::cube(
         DVec3::new(-half_x, -half_y, -half_z),
@@ -100,14 +100,14 @@ fn perforated_rail(length: f64) -> Result<Solid, cadrum::Error> {
     );
     let longitudinal_corner_edges = outer_block.iter_edge().filter(|edge| {
         [edge.start_point(), edge.end_point()].iter().all(|point| {
-            (point.y.abs() - half_y).abs() < EDGE_COINCIDENCE_EPSILON_MM
-                && (point.z.abs() - half_z).abs() < EDGE_COINCIDENCE_EPSILON_MM
+            (point.y.abs() - half_y).abs() < EDGE_COINCIDENCE_EPSILON_MILLIMETERS
+                && (point.z.abs() - half_z).abs() < EDGE_COINCIDENCE_EPSILON_MILLIMETERS
         })
     });
     let filleted_block =
-        outer_block.fillet_edges(RAIL_FILLET_RADIUS_MM, longitudinal_corner_edges)?;
+        outer_block.fillet_edges(RAIL_FILLET_RADIUS_MILLIMETERS, longitudinal_corner_edges)?;
 
-    let end_slab_x = half_x - RAIL_FILLET_RADIUS_MM - EDGE_COINCIDENCE_EPSILON_MM;
+    let end_slab_x = half_x - RAIL_FILLET_RADIUS_MILLIMETERS - EDGE_COINCIDENCE_EPSILON_MILLIMETERS;
     let end_faces: Vec<&cadrum::Face> = filleted_block
         .iter_face()
         .filter(|face| {
@@ -119,21 +119,21 @@ fn perforated_rail(length: f64) -> Result<Solid, cadrum::Error> {
                 || endpoints.iter().all(|point| point.x <= -end_slab_x)
         })
         .collect();
-    let outer_shell = filleted_block.shell(-RAIL_WALL_THICKNESS_MM, end_faces)?;
+    let outer_shell = filleted_block.shell(-RAIL_WALL_THICKNESS_MILLIMETERS, end_faces)?;
 
-    let hole_count = (length / RAIL_HOLE_SPACING_MM).round() as usize;
-    let first_hole_x = -((hole_count as f64 - 1.0) * RAIL_HOLE_SPACING_MM) / 2.0;
-    let wide_face_row_y_offset = RAIL_HOLE_SPACING_MM;
-    let top_bottom_hole_cutter_axis = DVec3::Z * (RAIL_CROSS_HEIGHT_MM + 2.0 * CUTTER_OVERSHOOT_MM);
-    let side_hole_cutter_axis = DVec3::Y * (RAIL_CROSS_WIDTH_MM + 2.0 * CUTTER_OVERSHOOT_MM);
+    let hole_count = (length / RAIL_HOLE_SPACING_MILLIMETERS).round() as usize;
+    let first_hole_x = -((hole_count as f64 - 1.0) * RAIL_HOLE_SPACING_MILLIMETERS) / 2.0;
+    let wide_face_row_y_offset = RAIL_HOLE_SPACING_MILLIMETERS;
+    let top_bottom_hole_cutter_axis = DVec3::Z * (RAIL_CROSS_HEIGHT_MILLIMETERS + 2.0 * CUTTER_OVERSHOOT_MILLIMETERS);
+    let side_hole_cutter_axis = DVec3::Y * (RAIL_CROSS_WIDTH_MILLIMETERS + 2.0 * CUTTER_OVERSHOOT_MILLIMETERS);
 
-    let hole_pitch = DVec3::X * RAIL_HOLE_SPACING_MM;
+    let hole_pitch = DVec3::X * RAIL_HOLE_SPACING_MILLIMETERS;
     let mut cutters: Vec<Solid> = Vec::new();
     for y_row in [-wide_face_row_y_offset, wide_face_row_y_offset] {
         cutters.extend(hole_row(
             hole_radius,
             top_bottom_hole_cutter_axis,
-            DVec3::new(first_hole_x, y_row, -half_z - CUTTER_OVERSHOOT_MM),
+            DVec3::new(first_hole_x, y_row, -half_z - CUTTER_OVERSHOOT_MILLIMETERS),
             hole_pitch,
             hole_count,
         ));
@@ -141,43 +141,43 @@ fn perforated_rail(length: f64) -> Result<Solid, cadrum::Error> {
     cutters.extend(hole_row(
         hole_radius,
         side_hole_cutter_axis,
-        DVec3::new(first_hole_x, -half_y - CUTTER_OVERSHOOT_MM, 0.0),
+        DVec3::new(first_hole_x, -half_y - CUTTER_OVERSHOOT_MILLIMETERS, 0.0),
         hole_pitch,
         hole_count,
     ));
 
     subtract_cutters(&outer_shell, &cutters)
-        .map(|solid| solid.translate(DVec3::Z * (-RAIL_CROSS_HEIGHT_MM / 2.0)))
+        .map(|solid| solid.translate(DVec3::Z * (-RAIL_CROSS_HEIGHT_MILLIMETERS / 2.0)))
 }
 
 fn frame(dimensions: &Dimensions) -> Result<Vec<Solid>, cadrum::Error> {
-    let side_rail_center_y = dimensions.frame_width_mm / 2.0 - RAIL_CROSS_WIDTH_MM / 2.0;
-    let front_x = dimensions.frame_length_mm / 2.0 - RAIL_CROSS_WIDTH_MM / 2.0;
-    let rear_x = -dimensions.frame_length_mm / 2.0 + RAIL_CROSS_WIDTH_MM / 2.0;
-    let cross_length = dimensions.frame_width_mm - 2.0 * RAIL_CROSS_WIDTH_MM;
+    let side_rail_center_y = dimensions.frame_width_millimeters / 2.0 - RAIL_CROSS_WIDTH_MILLIMETERS / 2.0;
+    let front_x = dimensions.frame_length_millimeters / 2.0 - RAIL_CROSS_WIDTH_MILLIMETERS / 2.0;
+    let rear_x = -dimensions.frame_length_millimeters / 2.0 + RAIL_CROSS_WIDTH_MILLIMETERS / 2.0;
+    let cross_length = dimensions.frame_width_millimeters - 2.0 * RAIL_CROSS_WIDTH_MILLIMETERS;
 
-    let side_rail = perforated_rail(dimensions.frame_length_mm)?;
+    let side_rail = perforated_rail(dimensions.frame_length_millimeters)?;
     let cross_rail = perforated_rail(cross_length)?.rotate_z(FRAC_PI_2);
 
     let mut rails = vec![
         side_rail.clone().translate(DVec3::new(
             0.0,
             side_rail_center_y,
-            dimensions.frame_top_z_mm,
+            dimensions.frame_top_z_millimeters,
         )),
         side_rail.translate(DVec3::new(
             0.0,
             -side_rail_center_y,
-            dimensions.frame_top_z_mm,
+            dimensions.frame_top_z_millimeters,
         )),
     ];
     if dimensions.has_cross_rails {
         rails.push(
             cross_rail
                 .clone()
-                .translate(DVec3::new(rear_x, 0.0, dimensions.frame_top_z_mm)),
+                .translate(DVec3::new(rear_x, 0.0, dimensions.frame_top_z_millimeters)),
         );
-        rails.push(cross_rail.translate(DVec3::new(front_x, 0.0, dimensions.frame_top_z_mm)));
+        rails.push(cross_rail.translate(DVec3::new(front_x, 0.0, dimensions.frame_top_z_millimeters)));
     }
     Ok(rails
         .into_iter()
@@ -186,12 +186,12 @@ fn frame(dimensions: &Dimensions) -> Result<Vec<Solid>, cadrum::Error> {
 }
 
 fn vertical_posts(dimensions: &Dimensions) -> Result<Vec<Solid>, cadrum::Error> {
-    let post_template = perforated_rail(POST_HEIGHT_MM)?
-        .translate(DVec3::Z * (RAIL_CROSS_HEIGHT_MM / 2.0))
+    let post_template = perforated_rail(POST_HEIGHT_MILLIMETERS)?
+        .translate(DVec3::Z * (RAIL_CROSS_HEIGHT_MILLIMETERS / 2.0))
         .rotate_y(-FRAC_PI_2);
-    let post_x_extent = dimensions.frame_length_mm / 2.0 - POST_INSET_FROM_END_MM;
-    let side_rail_center_y = dimensions.frame_width_mm / 2.0 - RAIL_CROSS_WIDTH_MM / 2.0;
-    let post_center_z = dimensions.frame_top_z_mm + POST_HEIGHT_MM / 2.0;
+    let post_x_extent = dimensions.frame_length_millimeters / 2.0 - POST_INSET_FROM_END_MILLIMETERS;
+    let side_rail_center_y = dimensions.frame_width_millimeters / 2.0 - RAIL_CROSS_WIDTH_MILLIMETERS / 2.0;
+    let post_center_z = dimensions.frame_top_z_millimeters + POST_HEIGHT_MILLIMETERS / 2.0;
 
     let mut parts = Vec::with_capacity(4);
     for post_x in [-post_x_extent, post_x_extent] {
@@ -212,27 +212,27 @@ fn vertical_posts(dimensions: &Dimensions) -> Result<Vec<Solid>, cadrum::Error> 
 }
 
 fn outer_face_gusset() -> Result<Solid, cadrum::Error> {
-    let half_width = GUSSET_ARM_WIDTH_MM / 2.0;
+    let half_width = GUSSET_ARM_WIDTH_MILLIMETERS / 2.0;
 
     let vertical_arm = Solid::cube(
         DVec3::new(-half_width, 0.0, -half_width),
-        DVec3::new(half_width, GUSSET_THICKNESS_MM, GUSSET_ARM_LENGTH_MM),
+        DVec3::new(half_width, GUSSET_THICKNESS_MILLIMETERS, GUSSET_ARM_LENGTH_MILLIMETERS),
     );
     let horizontal_arm = Solid::cube(
-        DVec3::new(-half_width, 0.0, -RAIL_CROSS_HEIGHT_MM),
-        DVec3::new(GUSSET_ARM_LENGTH_MM, GUSSET_THICKNESS_MM, 0.0),
+        DVec3::new(-half_width, 0.0, -RAIL_CROSS_HEIGHT_MILLIMETERS),
+        DVec3::new(GUSSET_ARM_LENGTH_MILLIMETERS, GUSSET_THICKNESS_MILLIMETERS, 0.0),
     );
     let l_shape = (&vertical_arm + &horizontal_arm).build()?;
 
-    let hole_radius = GUSSET_HOLE_DIAMETER_MM / 2.0;
-    let cutter_axis = DVec3::Y * (GUSSET_THICKNESS_MM + 2.0 * CUTTER_OVERSHOOT_MM);
-    let cutter_y_start = -CUTTER_OVERSHOOT_MM;
+    let hole_radius = GUSSET_HOLE_DIAMETER_MILLIMETERS / 2.0;
+    let cutter_axis = DVec3::Y * (GUSSET_THICKNESS_MILLIMETERS + 2.0 * CUTTER_OVERSHOOT_MILLIMETERS);
+    let cutter_y_start = -CUTTER_OVERSHOOT_MILLIMETERS;
 
     let mut cutters: Vec<Solid> = hole_row(
         hole_radius,
         cutter_axis,
         DVec3::new(0.0, cutter_y_start, 0.0),
-        DVec3::Z * GUSSET_HOLE_PITCH_MM,
+        DVec3::Z * GUSSET_HOLE_PITCH_MILLIMETERS,
         GUSSET_HOLES_PER_ARM,
     )
     .collect();
@@ -240,11 +240,11 @@ fn outer_face_gusset() -> Result<Solid, cadrum::Error> {
         hole_radius,
         cutter_axis,
         DVec3::new(
-            GUSSET_HOLE_PITCH_MM,
+            GUSSET_HOLE_PITCH_MILLIMETERS,
             cutter_y_start,
-            -RAIL_CROSS_HEIGHT_MM / 2.0,
+            -RAIL_CROSS_HEIGHT_MILLIMETERS / 2.0,
         ),
-        DVec3::X * GUSSET_HOLE_PITCH_MM,
+        DVec3::X * GUSSET_HOLE_PITCH_MILLIMETERS,
         GUSSET_HOLES_PER_ARM - 1,
     ));
 
@@ -254,15 +254,15 @@ fn outer_face_gusset() -> Result<Solid, cadrum::Error> {
 fn post_gussets(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
     let gusset_template = outer_face_gusset()?;
 
-    let post_x_extent = dimensions.frame_length_mm / 2.0 - POST_INSET_FROM_END_MM;
-    let side_rail_center_y = dimensions.frame_width_mm / 2.0 - RAIL_CROSS_WIDTH_MM / 2.0;
+    let post_x_extent = dimensions.frame_length_millimeters / 2.0 - POST_INSET_FROM_END_MILLIMETERS;
+    let side_rail_center_y = dimensions.frame_width_millimeters / 2.0 - RAIL_CROSS_WIDTH_MILLIMETERS / 2.0;
 
     let mut gussets = Vec::with_capacity(8);
     for post_x_sign in [1.0, -1.0] {
         for post_y_sign in [1.0, -1.0] {
             let post_x = post_x_sign * post_x_extent;
             let post_outer_face_y =
-                post_y_sign * side_rail_center_y + post_y_sign * (RAIL_CROSS_WIDTH_MM / 2.0);
+                post_y_sign * side_rail_center_y + post_y_sign * (RAIL_CROSS_WIDTH_MILLIMETERS / 2.0);
             for x_side_sign in [1.0, -1.0] {
                 let mut gusset = gusset_template.clone();
                 if x_side_sign < 0.0 {
@@ -276,7 +276,7 @@ fn post_gussets(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
                         .translate(DVec3::new(
                             post_x,
                             post_outer_face_y,
-                            dimensions.frame_top_z_mm,
+                            dimensions.frame_top_z_millimeters,
                         ))
                         .with_material(Material::Steel),
                 );
@@ -286,18 +286,18 @@ fn post_gussets(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
     Ok(gussets)
 }
 
-const CROSSOVER_CONNECTOR_CLEARANCE_FROM_POST_FACE_MM: f64 = 76.2;
-const CROSSOVER_CONNECTOR_LENGTH_MM: f64 = 127.0;
-const CROSSOVER_CONNECTOR_PLATE_THICKNESS_MM: f64 = 12.7;
-const CROSSOVER_CONNECTOR_PLATE_MIN_LENGTH_MM: f64 = 100.0;
-const CROSSOVER_BAR_OVERHANG_MM: f64 = 76.2;
+const CROSSOVER_CONNECTOR_CLEARANCE_FROM_POST_FACE_MILLIMETERS: f64 = 76.2;
+const CROSSOVER_CONNECTOR_LENGTH_MILLIMETERS: f64 = 127.0;
+const CROSSOVER_CONNECTOR_PLATE_THICKNESS_MILLIMETERS: f64 = 12.7;
+const CROSSOVER_CONNECTOR_PLATE_MIN_LENGTH_MILLIMETERS: f64 = 100.0;
+const CROSSOVER_BAR_OVERHANG_MILLIMETERS: f64 = 76.2;
 
 fn crossover_connector_center_x(dimensions: &Dimensions) -> f64 {
-    let post_x_extent = dimensions.frame_length_mm / 2.0 - POST_INSET_FROM_END_MM;
-    let post_inner_face_x = post_x_extent - RAIL_CROSS_HEIGHT_MM / 2.0;
+    let post_x_extent = dimensions.frame_length_millimeters / 2.0 - POST_INSET_FROM_END_MILLIMETERS;
+    let post_inner_face_x = post_x_extent - RAIL_CROSS_HEIGHT_MILLIMETERS / 2.0;
     post_inner_face_x
-        - CROSSOVER_CONNECTOR_CLEARANCE_FROM_POST_FACE_MM
-        - CROSSOVER_CONNECTOR_LENGTH_MM / 2.0
+        - CROSSOVER_CONNECTOR_CLEARANCE_FROM_POST_FACE_MILLIMETERS
+        - CROSSOVER_CONNECTOR_LENGTH_MILLIMETERS / 2.0
 }
 
 fn crossover_connectors(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
@@ -307,7 +307,7 @@ fn crossover_connectors(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn E
         .map(|solid| {
             let solid = solid.rotate_x(FRAC_PI_2);
             let [min, max] = solid.bounding_box();
-            let material = if max.x - min.x >= CROSSOVER_CONNECTOR_PLATE_MIN_LENGTH_MM {
+            let material = if max.x - min.x >= CROSSOVER_CONNECTOR_PLATE_MIN_LENGTH_MILLIMETERS {
                 Material::Steel
             } else {
                 Material::Aluminum
@@ -317,9 +317,9 @@ fn crossover_connectors(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn E
         .collect();
 
     let connector_center_x = crossover_connector_center_x(dimensions);
-    let side_rail_center_y = dimensions.frame_width_mm / 2.0 - RAIL_CROSS_WIDTH_MM / 2.0;
+    let side_rail_center_y = dimensions.frame_width_millimeters / 2.0 - RAIL_CROSS_WIDTH_MILLIMETERS / 2.0;
     let post_lengthwise_bar_top_z =
-        dimensions.frame_top_z_mm + POST_HEIGHT_MM - POST_LENGTHWISE_BAR_DROP_FROM_TOP_MM;
+        dimensions.frame_top_z_millimeters + POST_HEIGHT_MILLIMETERS - POST_LENGTHWISE_BAR_DROP_FROM_TOP_MILLIMETERS;
 
     let mut parts = Vec::with_capacity(oriented.len() * 4);
     for connector_x_sign in [1.0, -1.0] {
@@ -341,10 +341,10 @@ fn crossover_connectors(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn E
 }
 
 fn crossover_bars(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
-    let bar_length = dimensions.frame_width_mm + 2.0 * CROSSOVER_BAR_OVERHANG_MM;
-    let plate_top_z = dimensions.frame_top_z_mm + POST_HEIGHT_MM
-        - POST_LENGTHWISE_BAR_DROP_FROM_TOP_MM
-        + CROSSOVER_CONNECTOR_PLATE_THICKNESS_MM;
+    let bar_length = dimensions.frame_width_millimeters + 2.0 * CROSSOVER_BAR_OVERHANG_MILLIMETERS;
+    let plate_top_z = dimensions.frame_top_z_millimeters + POST_HEIGHT_MILLIMETERS
+        - POST_LENGTHWISE_BAR_DROP_FROM_TOP_MILLIMETERS
+        + CROSSOVER_CONNECTOR_PLATE_THICKNESS_MILLIMETERS;
     let bar_template = perforated_rail(bar_length)?.rotate_z(FRAC_PI_2);
     let connector_center_x = crossover_connector_center_x(dimensions);
 
@@ -356,7 +356,7 @@ fn crossover_bars(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>>
                 .translate(DVec3::new(
                     bar_x_sign * connector_center_x,
                     0.0,
-                    plate_top_z + RAIL_CROSS_HEIGHT_MM,
+                    plate_top_z + RAIL_CROSS_HEIGHT_MILLIMETERS,
                 ))
                 .with_material(Material::Aluminum)
         })
@@ -364,30 +364,30 @@ fn crossover_bars(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>>
 }
 
 fn tee_gusset() -> Result<Solid, cadrum::Error> {
-    let half_width = GUSSET_ARM_WIDTH_MM / 2.0;
+    let half_width = GUSSET_ARM_WIDTH_MILLIMETERS / 2.0;
     let vertical_arm = Solid::cube(
         DVec3::new(
             -half_width,
             0.0,
-            -(RAIL_CROSS_HEIGHT_MM + GUSSET_ARM_LENGTH_MM),
+            -(RAIL_CROSS_HEIGHT_MILLIMETERS + GUSSET_ARM_LENGTH_MILLIMETERS),
         ),
-        DVec3::new(half_width, GUSSET_THICKNESS_MM, GUSSET_ARM_LENGTH_MM),
+        DVec3::new(half_width, GUSSET_THICKNESS_MILLIMETERS, GUSSET_ARM_LENGTH_MILLIMETERS),
     );
     let horizontal_arm = Solid::cube(
-        DVec3::new(-half_width, 0.0, -RAIL_CROSS_HEIGHT_MM),
-        DVec3::new(GUSSET_ARM_LENGTH_MM, GUSSET_THICKNESS_MM, 0.0),
+        DVec3::new(-half_width, 0.0, -RAIL_CROSS_HEIGHT_MILLIMETERS),
+        DVec3::new(GUSSET_ARM_LENGTH_MILLIMETERS, GUSSET_THICKNESS_MILLIMETERS, 0.0),
     );
     let tee_shape = (&vertical_arm + &horizontal_arm).build()?;
 
-    let hole_radius = GUSSET_HOLE_DIAMETER_MM / 2.0;
-    let cutter_axis = DVec3::Y * (GUSSET_THICKNESS_MM + 2.0 * CUTTER_OVERSHOOT_MM);
-    let cutter_y_start = -CUTTER_OVERSHOOT_MM;
+    let hole_radius = GUSSET_HOLE_DIAMETER_MILLIMETERS / 2.0;
+    let cutter_axis = DVec3::Y * (GUSSET_THICKNESS_MILLIMETERS + 2.0 * CUTTER_OVERSHOOT_MILLIMETERS);
+    let cutter_y_start = -CUTTER_OVERSHOOT_MILLIMETERS;
 
     let mut cutters: Vec<Solid> = hole_row(
         hole_radius,
         cutter_axis,
         DVec3::new(0.0, cutter_y_start, 0.0),
-        DVec3::Z * GUSSET_HOLE_PITCH_MM,
+        DVec3::Z * GUSSET_HOLE_PITCH_MILLIMETERS,
         GUSSET_HOLES_PER_ARM,
     )
     .collect();
@@ -397,20 +397,20 @@ fn tee_gusset() -> Result<Solid, cadrum::Error> {
         DVec3::new(
             0.0,
             cutter_y_start,
-            -RAIL_CROSS_HEIGHT_MM - GUSSET_HOLE_PITCH_MM,
+            -RAIL_CROSS_HEIGHT_MILLIMETERS - GUSSET_HOLE_PITCH_MILLIMETERS,
         ),
-        DVec3::Z * -GUSSET_HOLE_PITCH_MM,
+        DVec3::Z * -GUSSET_HOLE_PITCH_MILLIMETERS,
         GUSSET_HOLES_PER_ARM - 1,
     ));
     cutters.extend(hole_row(
         hole_radius,
         cutter_axis,
         DVec3::new(
-            GUSSET_HOLE_PITCH_MM,
+            GUSSET_HOLE_PITCH_MILLIMETERS,
             cutter_y_start,
-            -RAIL_CROSS_HEIGHT_MM / 2.0,
+            -RAIL_CROSS_HEIGHT_MILLIMETERS / 2.0,
         ),
-        DVec3::X * GUSSET_HOLE_PITCH_MM,
+        DVec3::X * GUSSET_HOLE_PITCH_MILLIMETERS,
         GUSSET_HOLES_PER_ARM - 1,
     ));
 
@@ -418,11 +418,11 @@ fn tee_gusset() -> Result<Solid, cadrum::Error> {
 }
 
 fn post_lengthwise_bars(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
-    let post_x_extent = dimensions.frame_length_mm / 2.0 - POST_INSET_FROM_END_MM;
-    let side_rail_center_y = dimensions.frame_width_mm / 2.0 - RAIL_CROSS_WIDTH_MM / 2.0;
-    let bar_length = 2.0 * post_x_extent - RAIL_CROSS_HEIGHT_MM;
+    let post_x_extent = dimensions.frame_length_millimeters / 2.0 - POST_INSET_FROM_END_MILLIMETERS;
+    let side_rail_center_y = dimensions.frame_width_millimeters / 2.0 - RAIL_CROSS_WIDTH_MILLIMETERS / 2.0;
+    let bar_length = 2.0 * post_x_extent - RAIL_CROSS_HEIGHT_MILLIMETERS;
     let post_lengthwise_bar_top_z =
-        dimensions.frame_top_z_mm + POST_HEIGHT_MM - POST_LENGTHWISE_BAR_DROP_FROM_TOP_MM;
+        dimensions.frame_top_z_millimeters + POST_HEIGHT_MILLIMETERS - POST_LENGTHWISE_BAR_DROP_FROM_TOP_MILLIMETERS;
 
     let bar_template = perforated_rail(bar_length)?;
     let gusset_template = tee_gusset()?;
@@ -445,7 +445,7 @@ fn post_lengthwise_bars(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn E
                 if face_y_sign < 0.0 {
                     gusset = gusset.mirror(DVec3::ZERO, DVec3::Y);
                 }
-                let gusset_face_y = bar_y + face_y_sign * (RAIL_CROSS_WIDTH_MM / 2.0);
+                let gusset_face_y = bar_y + face_y_sign * (RAIL_CROSS_WIDTH_MILLIMETERS / 2.0);
                 parts.push(
                     gusset
                         .translate(DVec3::new(
@@ -462,50 +462,50 @@ fn post_lengthwise_bars(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn E
 }
 
 fn corner_gusset() -> Result<Solid, cadrum::Error> {
-    let half_width = GUSSET_ARM_WIDTH_MM / 2.0;
+    let half_width = GUSSET_ARM_WIDTH_MILLIMETERS / 2.0;
     let arm_x = Solid::cube(
-        DVec3::new(-half_width, -half_width, -GUSSET_THICKNESS_MM),
-        DVec3::new(GUSSET_ARM_LENGTH_MM, half_width, 0.0),
+        DVec3::new(-half_width, -half_width, -GUSSET_THICKNESS_MILLIMETERS),
+        DVec3::new(GUSSET_ARM_LENGTH_MILLIMETERS, half_width, 0.0),
     );
     let arm_y = Solid::cube(
-        DVec3::new(-half_width, -GUSSET_ARM_LENGTH_MM, -GUSSET_THICKNESS_MM),
+        DVec3::new(-half_width, -GUSSET_ARM_LENGTH_MILLIMETERS, -GUSSET_THICKNESS_MILLIMETERS),
         DVec3::new(half_width, half_width, 0.0),
     );
     let l_shape = (&arm_x + &arm_y).build()?;
 
-    let hole_radius = GUSSET_HOLE_DIAMETER_MM / 2.0;
-    let hole_axis = DVec3::Z * (GUSSET_THICKNESS_MM + 2.0 * CUTTER_OVERSHOOT_MM);
-    let hole_z_bottom = -GUSSET_THICKNESS_MM - CUTTER_OVERSHOOT_MM;
+    let hole_radius = GUSSET_HOLE_DIAMETER_MILLIMETERS / 2.0;
+    let hole_axis = DVec3::Z * (GUSSET_THICKNESS_MILLIMETERS + 2.0 * CUTTER_OVERSHOOT_MILLIMETERS);
+    let hole_z_bottom = -GUSSET_THICKNESS_MILLIMETERS - CUTTER_OVERSHOOT_MILLIMETERS;
 
     let mut cutters: Vec<Solid> = hole_row(
         hole_radius,
         hole_axis,
         DVec3::new(0.0, 0.0, hole_z_bottom),
-        DVec3::X * GUSSET_HOLE_PITCH_MM,
+        DVec3::X * GUSSET_HOLE_PITCH_MILLIMETERS,
         GUSSET_HOLES_PER_ARM,
     )
     .collect();
     cutters.extend(hole_row(
         hole_radius,
         hole_axis,
-        DVec3::new(0.0, -GUSSET_HOLE_PITCH_MM, hole_z_bottom),
-        DVec3::Y * -GUSSET_HOLE_PITCH_MM,
+        DVec3::new(0.0, -GUSSET_HOLE_PITCH_MILLIMETERS, hole_z_bottom),
+        DVec3::Y * -GUSSET_HOLE_PITCH_MILLIMETERS,
         GUSSET_HOLES_PER_ARM - 1,
     ));
 
     subtract_cutters(&l_shape, &cutters)
-        .map(|solid| solid.translate(DVec3::Z * GUSSET_THICKNESS_MM))
+        .map(|solid| solid.translate(DVec3::Z * GUSSET_THICKNESS_MILLIMETERS))
 }
 
 fn rail_end_cap() -> Result<Solid, cadrum::Error> {
-    let flange_half_y = RAIL_CROSS_WIDTH_MM / 2.0;
-    let flange_half_z = RAIL_CROSS_HEIGHT_MM / 2.0;
-    let boss_half_y = flange_half_y - RAIL_WALL_THICKNESS_MM;
-    let boss_half_z = flange_half_z - RAIL_WALL_THICKNESS_MM;
-    let cavity_half_y = boss_half_y - RAIL_END_CAP_BOSS_WALL_MM;
-    let cavity_half_z = boss_half_z - RAIL_END_CAP_BOSS_WALL_MM;
-    let flange_thickness = RAIL_END_CAP_FLANGE_THICKNESS_MM;
-    let boss_depth = RAIL_END_CAP_BOSS_DEPTH_MM;
+    let flange_half_y = RAIL_CROSS_WIDTH_MILLIMETERS / 2.0;
+    let flange_half_z = RAIL_CROSS_HEIGHT_MILLIMETERS / 2.0;
+    let boss_half_y = flange_half_y - RAIL_WALL_THICKNESS_MILLIMETERS;
+    let boss_half_z = flange_half_z - RAIL_WALL_THICKNESS_MILLIMETERS;
+    let cavity_half_y = boss_half_y - RAIL_END_CAP_BOSS_WALL_MILLIMETERS;
+    let cavity_half_z = boss_half_z - RAIL_END_CAP_BOSS_WALL_MILLIMETERS;
+    let flange_thickness = RAIL_END_CAP_FLANGE_THICKNESS_MILLIMETERS;
+    let boss_depth = RAIL_END_CAP_BOSS_DEPTH_MILLIMETERS;
 
     let flange = Solid::cube(
         DVec3::new(-flange_thickness, -flange_half_y, -flange_half_z),
@@ -516,9 +516,9 @@ fn rail_end_cap() -> Result<Solid, cadrum::Error> {
         DVec3::new(boss_depth, boss_half_y, boss_half_z),
     );
     let cavity = Solid::cube(
-        DVec3::new(-CAVITY_OVERSHOOT_MM, -cavity_half_y, -cavity_half_z),
+        DVec3::new(-CAVITY_OVERSHOOT_MILLIMETERS, -cavity_half_y, -cavity_half_z),
         DVec3::new(
-            boss_depth + CAVITY_OVERSHOOT_MM,
+            boss_depth + CAVITY_OVERSHOOT_MILLIMETERS,
             cavity_half_y,
             cavity_half_z,
         ),
@@ -531,10 +531,10 @@ fn rail_end_cap() -> Result<Solid, cadrum::Error> {
 fn rail_end_caps(dimensions: &Dimensions) -> Result<Vec<Solid>, cadrum::Error> {
     let end_cap_template = rail_end_cap()?.with_material(Material::BlackPlastic);
 
-    let rail_center_z = dimensions.frame_top_z_mm - RAIL_CROSS_HEIGHT_MM / 2.0;
-    let side_rail_center_y = dimensions.frame_width_mm / 2.0 - RAIL_CROSS_WIDTH_MM / 2.0;
-    let rear_x_outer = -dimensions.frame_length_mm / 2.0;
-    let front_x_outer = dimensions.frame_length_mm / 2.0;
+    let rail_center_z = dimensions.frame_top_z_millimeters - RAIL_CROSS_HEIGHT_MILLIMETERS / 2.0;
+    let side_rail_center_y = dimensions.frame_width_millimeters / 2.0 - RAIL_CROSS_WIDTH_MILLIMETERS / 2.0;
+    let rear_x_outer = -dimensions.frame_length_millimeters / 2.0;
+    let front_x_outer = dimensions.frame_length_millimeters / 2.0;
 
     let placements = [
         (0.0, rear_x_outer, side_rail_center_y),
@@ -559,9 +559,9 @@ fn post_caps(dimensions: &Dimensions) -> Result<Vec<Solid>, cadrum::Error> {
         .rotate_y(FRAC_PI_2)
         .with_material(Material::BlackPlastic);
 
-    let post_x_extent = dimensions.frame_length_mm / 2.0 - POST_INSET_FROM_END_MM;
-    let side_rail_center_y = dimensions.frame_width_mm / 2.0 - RAIL_CROSS_WIDTH_MM / 2.0;
-    let post_top_z = dimensions.frame_top_z_mm + POST_HEIGHT_MM;
+    let post_x_extent = dimensions.frame_length_millimeters / 2.0 - POST_INSET_FROM_END_MILLIMETERS;
+    let side_rail_center_y = dimensions.frame_width_millimeters / 2.0 - RAIL_CROSS_WIDTH_MILLIMETERS / 2.0;
+    let post_top_z = dimensions.frame_top_z_millimeters + POST_HEIGHT_MILLIMETERS;
 
     let mut caps = Vec::with_capacity(4);
     for post_x in [-post_x_extent, post_x_extent] {
@@ -582,10 +582,10 @@ fn gussets(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
     }
     let gusset_template = corner_gusset()?.with_material(Material::Steel);
 
-    let rear_outer_x = -dimensions.frame_length_mm / 2.0;
-    let front_outer_x = dimensions.frame_length_mm / 2.0;
-    let outer_y = dimensions.frame_width_mm / 2.0;
-    let inset = RAIL_HOLE_SPACING_MM;
+    let rear_outer_x = -dimensions.frame_length_millimeters / 2.0;
+    let front_outer_x = dimensions.frame_length_millimeters / 2.0;
+    let outer_y = dimensions.frame_width_millimeters / 2.0;
+    let inset = RAIL_HOLE_SPACING_MILLIMETERS;
 
     let corners = [
         (0.0, rear_outer_x + inset, outer_y - inset),
@@ -600,7 +600,7 @@ fn gussets(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
             gusset_template
                 .clone()
                 .rotate_z(z_rot)
-                .translate(DVec3::new(x, y, dimensions.frame_top_z_mm))
+                .translate(DVec3::new(x, y, dimensions.frame_top_z_millimeters))
         })
         .collect())
 }
@@ -639,7 +639,7 @@ fn place_component(
         .collect())
 }
 
-const E_STOP_MUSHROOM_MIN_X_MM: f64 = 513.0;
+const E_STOP_MUSHROOM_MIN_X_MILLIMETERS: f64 = 513.0;
 const E_STOP_MUSHROOM_RED: Color = Color {
     r: 0.8,
     g: 0.05,
@@ -670,7 +670,7 @@ fn recolored_e_stop_button() -> Result<Vec<Solid>, Box<dyn Error>> {
             for (face_id, min_x) in face_min_x {
                 colormap
                     .entry(face_id)
-                    .or_insert(if min_x >= E_STOP_MUSHROOM_MIN_X_MM {
+                    .or_insert(if min_x >= E_STOP_MUSHROOM_MIN_X_MILLIMETERS {
                         E_STOP_MUSHROOM_RED
                     } else {
                         E_STOP_BASE_BLACK
@@ -683,10 +683,10 @@ fn recolored_e_stop_button() -> Result<Vec<Solid>, Box<dyn Error>> {
 
 fn e_stop_buttons(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
     let template = recolored_e_stop_button()?;
-    let post_x_extent = dimensions.frame_length_mm / 2.0 - POST_INSET_FROM_END_MM;
-    let side_rail_center_y = dimensions.frame_width_mm / 2.0 - RAIL_CROSS_WIDTH_MM / 2.0;
-    let post_face_from_center = RAIL_CROSS_HEIGHT_MM / 2.0;
-    let post_top_z = dimensions.frame_top_z_mm + POST_HEIGHT_MM;
+    let post_x_extent = dimensions.frame_length_millimeters / 2.0 - POST_INSET_FROM_END_MILLIMETERS;
+    let side_rail_center_y = dimensions.frame_width_millimeters / 2.0 - RAIL_CROSS_WIDTH_MILLIMETERS / 2.0;
+    let post_face_from_center = RAIL_CROSS_HEIGHT_MILLIMETERS / 2.0;
+    let post_top_z = dimensions.frame_top_z_millimeters + POST_HEIGHT_MILLIMETERS;
 
     let mut parts = Vec::with_capacity(template.len() * 2);
     for (is_facing_forward, post_x, post_y) in [
@@ -720,7 +720,7 @@ fn e_stop_buttons(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>>
     Ok(parts)
 }
 
-const SIDE_ENCLOSURE_TOP_ABOVE_BAR_MM: f64 = 76.2;
+const SIDE_ENCLOSURE_TOP_ABOVE_BAR_MILLIMETERS: f64 = 76.2;
 
 fn side_mounted_enclosure(
     asset_name: &str,
@@ -734,16 +734,16 @@ fn side_mounted_enclosure(
         .map(|solid| orient(solid).with_material(Material::GrayPlastic))
         .collect();
     let [min, max] = combined_bounds(&oriented);
-    let side_face_y = dimensions.frame_width_mm / 2.0;
+    let side_face_y = dimensions.frame_width_millimeters / 2.0;
     let post_lengthwise_bar_top_z =
-        dimensions.frame_top_z_mm + POST_HEIGHT_MM - POST_LENGTHWISE_BAR_DROP_FROM_TOP_MM;
+        dimensions.frame_top_z_millimeters + POST_HEIGHT_MILLIMETERS - POST_LENGTHWISE_BAR_DROP_FROM_TOP_MILLIMETERS;
     let offset = DVec3::new(
         -(min.x + max.x) / 2.0,
         match side {
             Side::Left => side_face_y - min.y,
             Side::Right => -side_face_y - max.y,
         },
-        post_lengthwise_bar_top_z + SIDE_ENCLOSURE_TOP_ABOVE_BAR_MM - max.z,
+        post_lengthwise_bar_top_z + SIDE_ENCLOSURE_TOP_ABOVE_BAR_MILLIMETERS - max.z,
     );
     Ok(oriented
         .into_iter()
@@ -751,16 +751,16 @@ fn side_mounted_enclosure(
         .collect())
 }
 
-const BALL_HEAD_MOUNT_CENTER_DROP_FROM_POST_TOP_MM: f64 = 38.1;
+const BALL_HEAD_MOUNT_CENTER_DROP_FROM_POST_TOP_MILLIMETERS: f64 = 38.1;
 
-/// Places the camera at `camera_center_mm` when robot.yaml configures one, so the
+/// Places the camera at `camera_center_millimeters` when robot.yaml configures one, so the
 /// solid and the URDF joint come from the same number. The bracket is clamped to
 /// the post underneath whatever it carries, so it follows the camera rather than
 /// the other way round. Without a configured camera both keep their pre-config
 /// position on the post.
 fn orbbec_gemini_335l_on_ball_head_mount(
     dimensions: &Dimensions,
-    camera_center_mm: Option<DVec3>,
+    camera_center_millimeters: Option<DVec3>,
 ) -> Result<Vec<Solid>, Box<dyn Error>> {
     let imported = Solid::read_step(&mut File::open(cad_asset(BALL_HEAD_MOUNT_STEP))?)?;
     let oriented: Vec<Solid> = imported
@@ -780,7 +780,7 @@ fn orbbec_gemini_335l_on_ball_head_mount(
             let solid = solid.rotate_z(-FRAC_PI_2).rotate_y(FRAC_PI_2).rotate_x(PI);
             let [min, max] = solid.bounding_box();
             let thinnest_extent = (max - min).min_element();
-            let material = if thinnest_extent < CAMERA_FRONT_WINDOW_MAX_THICKNESS_MM {
+            let material = if thinnest_extent < CAMERA_FRONT_WINDOW_MAX_THICKNESS_MILLIMETERS {
                 Material::BlackPlastic
             } else {
                 Material::Steel
@@ -790,13 +790,13 @@ fn orbbec_gemini_335l_on_ball_head_mount(
         .collect();
     let [camera_min, camera_max] = combined_bounds(&camera_oriented);
 
-    let post_x_extent = dimensions.frame_length_mm / 2.0 - POST_INSET_FROM_END_MM;
-    let post_front_face_x = post_x_extent + RAIL_CROSS_HEIGHT_MM / 2.0;
-    let side_rail_center_y = dimensions.frame_width_mm / 2.0 - RAIL_CROSS_WIDTH_MM / 2.0;
-    let post_top_z = dimensions.frame_top_z_mm + POST_HEIGHT_MM;
-    let mount_center_z_on_post = post_top_z - BALL_HEAD_MOUNT_CENTER_DROP_FROM_POST_TOP_MM;
+    let post_x_extent = dimensions.frame_length_millimeters / 2.0 - POST_INSET_FROM_END_MILLIMETERS;
+    let post_front_face_x = post_x_extent + RAIL_CROSS_HEIGHT_MILLIMETERS / 2.0;
+    let side_rail_center_y = dimensions.frame_width_millimeters / 2.0 - RAIL_CROSS_WIDTH_MILLIMETERS / 2.0;
+    let post_top_z = dimensions.frame_top_z_millimeters + POST_HEIGHT_MILLIMETERS;
+    let mount_center_z_on_post = post_top_z - BALL_HEAD_MOUNT_CENTER_DROP_FROM_POST_TOP_MILLIMETERS;
 
-    let camera_center = camera_center_mm.unwrap_or_else(|| {
+    let camera_center = camera_center_millimeters.unwrap_or_else(|| {
         let mount_front_x = post_front_face_x + (mount_max.x - mount_min.x);
         DVec3::new(
             mount_front_x + (camera_max.x - camera_min.x) / 2.0,
@@ -826,7 +826,7 @@ fn orbbec_gemini_335l_on_ball_head_mount(
 fn enclosure_box(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
     Ok(place_component(
         ENCLOSURE_BOX_STEP,
-        DVec3::new(0.0, 0.0, dimensions.frame_top_z_mm),
+        DVec3::new(0.0, 0.0, dimensions.frame_top_z_millimeters),
         ZAnchor::Bottom,
         |solid| solid.rotate_x(PI).rotate_z(FRAC_PI_2),
     )?
@@ -838,10 +838,10 @@ fn enclosure_box(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> 
 fn oak_d_pro_w_poe_on_ball_head_mount(
     dimensions: &Dimensions,
 ) -> Result<Vec<Solid>, Box<dyn Error>> {
-    let front_rail_center_x = dimensions.frame_length_mm / 2.0 - RAIL_CROSS_WIDTH_MM / 2.0;
+    let front_rail_center_x = dimensions.frame_length_millimeters / 2.0 - RAIL_CROSS_WIDTH_MILLIMETERS / 2.0;
     let mut parts: Vec<Solid> = place_component(
         BALL_HEAD_MOUNT_STEP,
-        DVec3::new(front_rail_center_x, 0.0, dimensions.frame_top_z_mm),
+        DVec3::new(front_rail_center_x, 0.0, dimensions.frame_top_z_millimeters),
         ZAnchor::Bottom,
         |solid| solid,
     )?
@@ -860,7 +860,7 @@ fn oak_d_pro_w_poe_on_ball_head_mount(
         .map(|solid| {
             let [min, max] = solid.bounding_box();
             let thinnest_extent = (max - min).min_element();
-            let material = if thinnest_extent < CAMERA_FRONT_WINDOW_MAX_THICKNESS_MM {
+            let material = if thinnest_extent < CAMERA_FRONT_WINDOW_MAX_THICKNESS_MILLIMETERS {
                 Material::BlackPlastic
             } else {
                 Material::Steel
@@ -873,8 +873,8 @@ fn oak_d_pro_w_poe_on_ball_head_mount(
 
 fn caster_mount_bars(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
     let imported = Solid::read_step(&mut File::open(cad_asset(PRE_DRILLED_1X1_ALUMINUM_BAR_STEP))?)?;
-    let across_bar_span = 2.0 * CASTER_MOUNT_BAR_PITCH_MM + CASTER_MOUNT_BAR_WIDTH_MM;
-    let trim_half_section = CASTER_MOUNT_BAR_WIDTH_MM / 2.0 + CUTTER_OVERSHOOT_MM;
+    let across_bar_span = 2.0 * CASTER_MOUNT_BAR_PITCH_MILLIMETERS + CASTER_MOUNT_BAR_WIDTH_MILLIMETERS;
+    let trim_half_section = CASTER_MOUNT_BAR_WIDTH_MILLIMETERS / 2.0 + CUTTER_OVERSHOOT_MILLIMETERS;
     let along_bar_keep = Solid::cube(
         DVec3::new(
             -across_bar_span / 2.0,
@@ -899,19 +899,19 @@ fn caster_mount_bars(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Erro
         .collect();
 
     let middle_bar_center_x = Corner::FrontLeft.axle_x(dimensions);
-    let rail_inner_face_y = dimensions.frame_width_mm / 2.0 - RAIL_CROSS_WIDTH_MM;
-    let across_bar_center_y = rail_inner_face_y + CASTER_MOUNT_BAR_LENGTH_MM / 2.0;
-    let across_bar_center_z = dimensions.frame_top_z_mm + CASTER_MOUNT_BAR_WIDTH_MM / 2.0;
+    let rail_inner_face_y = dimensions.frame_width_millimeters / 2.0 - RAIL_CROSS_WIDTH_MILLIMETERS;
+    let across_bar_center_y = rail_inner_face_y + CASTER_MOUNT_BAR_LENGTH_MILLIMETERS / 2.0;
+    let across_bar_center_z = dimensions.frame_top_z_millimeters + CASTER_MOUNT_BAR_WIDTH_MILLIMETERS / 2.0;
     let along_bar_center_y =
-        rail_inner_face_y + CASTER_MOUNT_BAR_LENGTH_MM - CASTER_MOUNT_BAR_WIDTH_MM / 2.0;
-    let along_bar_center_z = dimensions.frame_top_z_mm - CASTER_MOUNT_BAR_WIDTH_MM / 2.0;
+        rail_inner_face_y + CASTER_MOUNT_BAR_LENGTH_MILLIMETERS - CASTER_MOUNT_BAR_WIDTH_MILLIMETERS / 2.0;
+    let along_bar_center_z = dimensions.frame_top_z_millimeters - CASTER_MOUNT_BAR_WIDTH_MILLIMETERS / 2.0;
 
     let mut parts = Vec::with_capacity((across_frame.len() * 3 + along_frame.len()) * 2);
     for corner in Corner::FRONT {
         let outboard = placement::outboard_sign(corner.side());
         for bar_index in [-1.0, 0.0, 1.0] {
             let across_bar_position = DVec3::new(
-                middle_bar_center_x + bar_index * CASTER_MOUNT_BAR_PITCH_MM,
+                middle_bar_center_x + bar_index * CASTER_MOUNT_BAR_PITCH_MILLIMETERS,
                 outboard * across_bar_center_y,
                 across_bar_center_z,
             );
@@ -944,7 +944,7 @@ fn casters(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
         .map(|solid| {
             let solid = solid.rotate_x(PI).rotate_z(-FRAC_PI_2);
             let [min, max] = solid.bounding_box();
-            let material = if max.z - min.z > CASTER_TIRE_MIN_DIAMETER_MM {
+            let material = if max.z - min.z > CASTER_TIRE_MIN_DIAMETER_MILLIMETERS {
                 Material::Rubber
             } else {
                 Material::Steel
@@ -964,7 +964,7 @@ fn casters(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
     let [plate_min, plate_max] = mounting_plate.bounding_box();
     let caster_pivot = plate_min.midpoint(plate_max).with_z(overall_max.z);
 
-    let plate_top_z = dimensions.frame_top_z_mm;
+    let plate_top_z = dimensions.frame_top_z_millimeters;
     let bay_center_y = placement::caster_bay_center_y(dimensions);
     let mut parts = Vec::with_capacity(oriented.len() * 2);
     for corner in Corner::FRONT {
@@ -985,7 +985,7 @@ fn casters(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
 
 fn assert_datum(name: &str, declared: f64, measured: f64) {
     assert!(
-        (declared - measured).abs() < DATUM_TOLERANCE_MM,
+        (declared - measured).abs() < DATUM_TOLERANCE_MILLIMETERS,
         "datum {name}: declared {declared}, measured {measured} — update mech/src/datums.rs"
     );
 }
@@ -1004,8 +1004,8 @@ impl MotorMountAssembly {
             .collect::<Vec<_>>();
         let [mount_min, mount_max] = combined_bounds(&mount_bodies);
         assert_datum(
-            "MOTOR_MOUNT_WIDTH_MM",
-            MOTOR_MOUNT_WIDTH_MM,
+            "MOTOR_MOUNT_WIDTH_MILLIMETERS",
+            MOTOR_MOUNT_WIDTH_MILLIMETERS,
             mount_max.x - mount_min.x,
         );
         let mount_anchor = mount_min.midpoint(mount_max).with_z(mount_min.z);
@@ -1089,13 +1089,13 @@ impl WheelAssembly {
         let tread_bodies = Solid::read_step(&mut File::open(cad_asset(WHEEL_TREAD_STEP))?)?;
         let [tread_min, tread_max] = combined_bounds(&tread_bodies);
         assert_datum(
-            "WHEEL_TREAD_DIAMETER_MM",
-            WHEEL_TREAD_DIAMETER_MM,
+            "WHEEL_TREAD_DIAMETER_MILLIMETERS",
+            WHEEL_TREAD_DIAMETER_MILLIMETERS,
             tread_max.x - tread_min.x,
         );
         assert_datum(
-            "WHEEL_TREAD_WIDTH_MM",
-            WHEEL_TREAD_WIDTH_MM,
+            "WHEEL_TREAD_WIDTH_MILLIMETERS",
+            WHEEL_TREAD_WIDTH_MILLIMETERS,
             tread_max.y - tread_min.y,
         );
         let mut bodies = tread_bodies
@@ -1106,8 +1106,8 @@ impl WheelAssembly {
         let hub_bodies = Solid::read_step(&mut File::open(cad_asset(WHEEL_HUB_STEP))?)?;
         let [hub_min, _] = combined_bounds(&hub_bodies);
         assert_datum(
-            "WHEEL_HUB_INBOARD_FACE_FROM_STEP_ORIGIN_MM",
-            WHEEL_HUB_INBOARD_FACE_FROM_STEP_ORIGIN_MM,
+            "WHEEL_HUB_INBOARD_FACE_FROM_STEP_ORIGIN_MILLIMETERS",
+            WHEEL_HUB_INBOARD_FACE_FROM_STEP_ORIGIN_MILLIMETERS,
             -hub_min.y,
         );
         bodies.extend(hub_bodies);
@@ -1183,7 +1183,7 @@ pub fn mount_and_motor() -> Result<Vec<Link>, Box<dyn Error>> {
 
 pub fn robot(
     dimensions: &Dimensions,
-    camera_center_mm: Option<DVec3>,
+    camera_center_millimeters: Option<DVec3>,
 ) -> Result<Vec<Link>, Box<dyn Error>> {
     let mut chassis_solids: Vec<Solid> = Vec::new();
     chassis_solids.extend(time_it!("frame", frame(dimensions))?);
@@ -1209,7 +1209,7 @@ pub fn robot(
         chassis_solids.extend(time_it!("crossover_bars", crossover_bars(dimensions))?);
         chassis_solids.extend(time_it!(
             "orbbec_gemini_335l_on_ball_head_mount",
-            orbbec_gemini_335l_on_ball_head_mount(dimensions, camera_center_mm)
+            orbbec_gemini_335l_on_ball_head_mount(dimensions, camera_center_millimeters)
         )?);
         chassis_solids.extend(time_it!(
             "enclosure_box_on_left_bar",

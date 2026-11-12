@@ -20,12 +20,11 @@ use oxidros::{
 
 use super::{
     palm::{decode_rgb, RGB_CHANNELS},
-    twist, WATCHDOG_TIMEOUT,
+    twist, LOG_STRIDE_FRAMES, WATCHDOG_TIMEOUT,
 };
 
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
-const LOG_STRIDE_FRAMES: u64 = 15;
 const LABEL_FONT_SIZE_PIXELS: f64 = 24.0;
 const DEFAULT_FORWARD_SPEED_METERS_PER_SECOND: f64 = 0.4;
 const DEFAULT_STEER_GAIN: f64 = 0.8;
@@ -39,7 +38,7 @@ pub enum LineColor {
 pub struct Config {
     // ROI band as fractions of the frame height — the road just ahead of the robot.
     pub roi_top_fraction: f64,
-    pub roi_bottom: f64,
+    pub roi_bottom_fraction: f64,
     // White = bright and unsaturated.
     pub white_max_saturation: f64,
     pub white_min_value: f64,
@@ -56,7 +55,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             roi_top_fraction: 0.55,
-            roi_bottom: 1.0,
+            roi_bottom_fraction: 1.0,
             white_max_saturation: 0.25,
             white_min_value: 0.65,
             yellow_min_hue: 35.0,
@@ -82,7 +81,7 @@ pub struct LineDetection {
     pub centroid_y: f64,
     // Horizontal position of the line relative to frame center, normalized to [-1, 1]
     // (negative = line is left of center, positive = right). This is the steering error.
-    pub offset: f64,
+    pub normalized_offset: f64,
     pub bounding_box: BoundingBox,
     pub color: Option<LineColor>,
     pub pixel_count: usize,
@@ -94,7 +93,7 @@ impl LineDetection {
             found: false,
             centroid_x: 0.0,
             centroid_y: 0.0,
-            offset: 0.0,
+            normalized_offset: 0.0,
             bounding_box: BoundingBox::default(),
             color: None,
             pixel_count: 0,
@@ -144,7 +143,7 @@ pub fn detect(
     height: usize,
 ) -> LineDetection {
     let row_start = (config.roi_top_fraction * height as f64) as usize;
-    let row_end = ((config.roi_bottom * height as f64) as usize).min(height);
+    let row_end = ((config.roi_bottom_fraction * height as f64) as usize).min(height);
 
     let (mut sum_x, mut sum_y, mut count) = (0.0, 0.0, 0usize);
     let mut bounding = BoundingBox {
@@ -181,7 +180,7 @@ pub fn detect(
         found: true,
         centroid_x,
         centroid_y: sum_y / count as f64,
-        offset: (centroid_x - half_width) / half_width,
+        normalized_offset: (centroid_x - half_width) / half_width,
         bounding_box: bounding,
         color: Some(target_color),
         pixel_count: count,
@@ -242,7 +241,7 @@ fn overlay(
         min_x: 0.0,
         min_y: config.roi_top_fraction * height as f64,
         max_x: width as f64 - 1.0,
-        max_y: config.roi_bottom * height as f64 - 1.0,
+        max_y: config.roi_bottom_fraction * height as f64 - 1.0,
     };
     annotations
         .points
@@ -276,7 +275,7 @@ fn overlay(
             .map(|c| format!("{c:?}"))
             .unwrap_or_default();
         annotations.texts.push(label(
-            format!("{color_label}  offset {:+.2}", detection.offset),
+            format!("{color_label}  offset {:+.2}", detection.normalized_offset),
             detection.bounding_box.min_x,
             detection.bounding_box.min_y - LABEL_FONT_SIZE_PIXELS,
             line_color,
@@ -294,7 +293,7 @@ fn overlay(
 
 fn follow(detection: &LineDetection, forward_speed_meters_per_second: f64, steer_gain: f64) -> TwistStamped {
     if detection.found {
-        twist(forward_speed_meters_per_second, -steer_gain * detection.offset)
+        twist(forward_speed_meters_per_second, -steer_gain * detection.normalized_offset)
     } else {
         twist(0.0, 0.0)
     }
@@ -331,7 +330,7 @@ pub async fn run_line_follower(
     let ctrl_c = tokio::signal::ctrl_c();
     tokio::pin!(ctrl_c);
     let mut watchdog = tokio::time::interval(WATCHDOG_TIMEOUT);
-    let mut last_frame = Instant::now();
+    let mut latest_frame_time = Instant::now();
     loop {
         tokio::select! {
             _ = &mut ctrl_c => break,
@@ -347,7 +346,7 @@ pub async fn run_line_follower(
                 tracing::info!("autonomy {}", if enabled { "enabled" } else { "disabled" });
             }
             _ = watchdog.tick() => {
-                if last_frame.elapsed() >= WATCHDOG_TIMEOUT {
+                if latest_frame_time.elapsed() >= WATCHDOG_TIMEOUT {
                     overlay_channel.log(&ImageAnnotations::default());
                     if enabled {
                         let _ = cmd_vel.send(&twist(0.0, 0.0));
@@ -355,7 +354,7 @@ pub async fn run_line_follower(
                 }
             }
             message = images.recv() => {
-                last_frame = Instant::now();
+                latest_frame_time = Instant::now();
                 match decode_rgb(message?.sample.data.as_slice()) {
                     Err(error) => tracing::warn!("{error}"),
                     Ok((rgb, width, height)) => {
@@ -368,7 +367,7 @@ pub async fn run_line_follower(
                             match detection.color {
                                 Some(color) => tracing::info!(
                                     "line {color:?} offset {:+.2} ({} px)",
-                                    detection.offset,
+                                    detection.normalized_offset,
                                     detection.pixel_count
                                 ),
                                 None => tracing::info!("no line"),
@@ -423,7 +422,7 @@ mod tests {
         let rgb = frame_with_stripe(width, height, 45..55);
         let detection = detect(&Config::default(), LineColor::White, &rgb, width, height);
         assert!(detection.found);
-        assert!(detection.offset.abs() < 0.05, "offset {}", detection.offset);
+        assert!(detection.normalized_offset.abs() < 0.05, "offset {}", detection.normalized_offset);
     }
 
     #[test]
@@ -432,7 +431,7 @@ mod tests {
         let rgb = frame_with_stripe(width, height, 80..90);
         let detection = detect(&Config::default(), LineColor::White, &rgb, width, height);
         assert!(detection.found);
-        assert!(detection.offset > 0.3, "offset {}", detection.offset);
+        assert!(detection.normalized_offset > 0.3, "offset {}", detection.normalized_offset);
     }
 
     #[test]

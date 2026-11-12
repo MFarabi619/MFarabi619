@@ -214,10 +214,10 @@ class SsdMobilenetPersonDetector(Node):
                 left * width, top * height,
                 (right - left) * width, (bottom - top) * height,
             )
-            distance, point = self.bounding_box_range(bounding_box, width, height)
+            distance_meters, point = self.bounding_box_range(bounding_box, width, height)
             detections.detections.append(
                 self.detection(stamp, bounding_box, score, point))
-            self.annotate(overlay, stamp, bounding_box, distance)
+            self.annotate(overlay, stamp, bounding_box, distance_meters)
         self.detections_publisher.publish(detections)
         self.overlay_publisher.publish(overlay)
 
@@ -228,25 +228,25 @@ class SsdMobilenetPersonDetector(Node):
         depth_height, depth_width = self.latest_depth_millimeters.shape[:2]
         depth_x = int((x + width / 2.0) / color_width * depth_width)
         depth_y = int((y + height / 2.0) / color_height * depth_height)
-        radius = self.depth_sample_radius_pixels
+        radius_pixels = self.depth_sample_radius_pixels
         depth_patch = self.latest_depth_millimeters[
-            max(depth_y - radius, 0):depth_y + radius + 1,
-            max(depth_x - radius, 0):depth_x + radius + 1,
+            max(depth_y - radius_pixels, 0):depth_y + radius_pixels + 1,
+            max(depth_x - radius_pixels, 0):depth_x + radius_pixels + 1,
         ]
         valid_depths = depth_patch[np.isfinite(depth_patch) & (depth_patch > 0)]
         if valid_depths.size == 0:
             return None, None
-        distance = float(np.median(valid_depths)) / MILLIMETERS_PER_METER
-        return distance, self.deproject(depth_x, depth_y, distance)
+        distance_meters = float(np.median(valid_depths)) / MILLIMETERS_PER_METER
+        return distance_meters, self.deproject(depth_x, depth_y, distance_meters)
 
-    def deproject(self, depth_x, depth_y, distance):
+    def deproject(self, depth_x, depth_y, distance_meters):
         if self.camera_model is None:
             return None
         ray_x, ray_y, ray_z = self.camera_model.project_pixel_to_3d_ray((depth_x, depth_y))
         return Point(
-            x=ray_x / ray_z * distance,
-            y=ray_y / ray_z * distance,
-            z=distance,
+            x=ray_x / ray_z * distance_meters,
+            y=ray_y / ray_z * distance_meters,
+            z=distance_meters,
         )
 
     def depth_is_stale(self):
@@ -274,7 +274,7 @@ class SsdMobilenetPersonDetector(Node):
         detection.results.append(hypothesis)
         return detection
 
-    def annotate(self, overlay, stamp, bounding_box, distance):
+    def annotate(self, overlay, stamp, bounding_box, distance_meters):
         x, y, width, height = bounding_box
         box = PointsAnnotation()
         box.timestamp = stamp
@@ -292,7 +292,7 @@ class SsdMobilenetPersonDetector(Node):
         label.timestamp = stamp
         label.position = Point2(
             x=float(x), y=max(float(y) - LABEL_MARGIN_PIXELS, 0.0))
-        distance_text = f'{distance:.1f}m' if distance is not None else '?'
+        distance_text = f'{distance_meters:.1f}m' if distance_meters is not None else '?'
         label.text = f'{self.class_label} {distance_text}'
         label.font_size = LABEL_FONT_SIZE_PIXELS
         label.text_color = TEXT_COLOR

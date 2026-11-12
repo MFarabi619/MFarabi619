@@ -65,7 +65,7 @@ LIVE_PARAMETERS = frozenset({
     'steer_gain', 'max_angular_speed_radians_per_second', 'max_missing_frames',
     'target_class', 'command_smoothing_seconds', 'distance_deadband_meters',
     'steer_deadband_meters', 'distance_damping', 'steer_damping',
-    'max_backward_speed_meters_per_second',
+    'max_backward_speed_meters_per_second', 'reacquire_angular_decay',
 })
 
 
@@ -78,7 +78,6 @@ class TwistCommand(NamedTuple):
     angular_speed_radians_per_second: float
 
 
-REACQUIRE_ANGULAR_DECAY = 0.85
 TARGET_MATCH_RADIUS_METERS = 0.6
 NEARER_TAKEOVER_MARGIN_METERS = 0.4
 
@@ -113,6 +112,8 @@ class Follow(Node):
         self.steer_damping = self.declare_parameter('steer_damping', 0.0).value
         self.max_backward_speed_meters_per_second = self.declare_parameter(
             'max_backward_speed_meters_per_second', 0.0).value
+        self.reacquire_angular_decay = self.declare_parameter(
+            'reacquire_angular_decay', 0.85).value
 
         self.is_enabled = self.declare_parameter('start_enabled', False).value
         self.target_timeout_seconds = self.declare_parameter(
@@ -154,7 +155,7 @@ class Follow(Node):
             self.missing_frames += 1
             is_reacquiring = self.missing_frames <= self.max_missing_frames
             if is_reacquiring:
-                self.latest_angular_speed_radians_per_second *= REACQUIRE_ANGULAR_DECAY
+                self.latest_angular_speed_radians_per_second *= self.reacquire_angular_decay
                 angular_speed_radians_per_second = self.latest_angular_speed_radians_per_second
             else:
                 self.tracked_position = None

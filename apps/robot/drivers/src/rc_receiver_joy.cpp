@@ -42,7 +42,7 @@ constexpr double JOY_RATE_HZ = 50.0;
 constexpr int64_t NANOSECONDS_PER_MICROSECOND = 1'000;
 constexpr int64_t PULSE_TIMEOUT_NANOSECONDS = 100'000'000;
 constexpr int64_t EVENT_WAIT_TIMEOUT_NANOSECONDS = 100'000'000;
-constexpr int64_t PULSE_CENTER_MICROSECONDS = 1500;
+constexpr int64_t PULSE_NEUTRAL_MICROSECONDS = 1500;
 constexpr int64_t PULSE_HALF_RANGE_MICROSECONDS = 500;
 constexpr int64_t PULSE_MIN_VALID_MICROSECONDS = 800;
 constexpr int64_t PULSE_MAX_VALID_MICROSECONDS = 2200;
@@ -53,7 +53,7 @@ struct RcChannel
 {
   unsigned int line = 0;
   int64_t rising_nanoseconds = 0;
-  std::atomic<double> position{0.0};
+  std::atomic<double> position_fraction{0.0};
   std::atomic<int64_t> last_pulse_nanoseconds{0};
 };
 
@@ -66,10 +66,10 @@ public:
     declare_parameter("gpio_chip", 0);
     declare_parameter("channel_1_line", 0);
     declare_parameter("channel_2_line", 0);
-    declare_parameter("deadzone", 0.05);
+    declare_parameter("deadzone_fraction", 0.05);
     declare_parameter("tank_mixed", false);
 
-    deadzone = get_parameter("deadzone").as_double();
+    deadzone_fraction = get_parameter("deadzone_fraction").as_double();
     is_tank_mixed = get_parameter("tank_mixed").as_bool();
     channels[CHANNEL_1].line =
       static_cast<unsigned int>(get_parameter("channel_1_line").as_int());
@@ -163,20 +163,20 @@ private:
     {
       return;
     }
-    channel.position.store(normalize(pulse_width_microseconds));
+    channel.position_fraction.store(normalize(pulse_width_microseconds));
     channel.last_pulse_nanoseconds.store(timestamp_nanoseconds);
   }
 
   double normalize(int64_t pulse_width_microseconds) const
   {
-    const double raw_position = std::clamp(
-      static_cast<double>(pulse_width_microseconds - PULSE_CENTER_MICROSECONDS) /
+    const double raw_position_fraction = std::clamp(
+      static_cast<double>(pulse_width_microseconds - PULSE_NEUTRAL_MICROSECONDS) /
       PULSE_HALF_RANGE_MICROSECONDS, -1.0, 1.0);
-    if (std::abs(raw_position) < deadzone) {
+    if (std::abs(raw_position_fraction) < deadzone_fraction) {
       return 0.0;
     }
-    const double sign = raw_position > 0.0 ? 1.0 : -1.0;
-    return (raw_position - sign * deadzone) / (1.0 - deadzone);
+    const double sign = raw_position_fraction > 0.0 ? 1.0 : -1.0;
+    return (raw_position_fraction - sign * deadzone_fraction) / (1.0 - deadzone_fraction);
   }
 
   void publish_joy()
@@ -188,8 +188,8 @@ private:
         return;
       }
     }
-    const double channel_1 = channels[CHANNEL_1].position.load();
-    const double channel_2 = channels[CHANNEL_2].position.load();
+    const double channel_1 = channels[CHANNEL_1].position_fraction.load();
+    const double channel_2 = channels[CHANNEL_2].position_fraction.load();
     double steering = channel_1;
     double throttle = channel_2;
     if (is_tank_mixed) {
@@ -204,7 +204,7 @@ private:
     joy_publisher->publish(message);
   }
 
-  double deadzone;
+  double deadzone_fraction;
   bool is_tank_mixed;
   std::array<RcChannel, 2> channels;
   gpiod_chip *chip = nullptr;

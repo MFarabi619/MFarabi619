@@ -46,13 +46,13 @@
     },
     {
       "arguments": {
+        "left_is_reversed": false,
         "left_pwm_channel": 0,
         "left_pwm_chip": 0,
-        "left_reversed": false,
         "max_wheel_speed": 7.833047455688965,
+        "right_is_reversed": true,
         "right_pwm_channel": 1,
-        "right_pwm_chip": 0,
-        "right_reversed": true
+        "right_pwm_chip": 0
       },
       "kind": "include",
       "launchfile": "rc_pulse_motor_driver.launch.py",
@@ -68,13 +68,13 @@
       "namespace": "/taro",
       "package": "robot_drivers",
       "params": {
+        "left_is_reversed": false,
         "left_pwm_channel": 0,
         "left_pwm_chip": 0,
-        "left_reversed": false,
         "max_wheel_speed": 7.833047455688965,
+        "right_is_reversed": true,
         "right_pwm_channel": 1,
-        "right_pwm_chip": 0,
-        "right_reversed": true
+        "right_pwm_chip": 0
       },
       "respawn_delay": 2.0
     },
@@ -248,7 +248,7 @@
       "namespace": "/taro",
       "package": "robot_localization",
       "param_files": [
-        "control/config/localization.yaml"
+        "control/config/robot_localization.yaml"
       ],
       "remaps": {
         "/tf": "tf",
@@ -264,7 +264,7 @@
       "namespace": "/taro",
       "package": "robot_localization",
       "param_files": [
-        "control/config/localization.yaml"
+        "control/config/robot_localization.yaml"
       ],
       "remaps": {
         "/tf": "tf",
@@ -276,7 +276,7 @@
     },
     {
       "arguments": {
-        "baud": 115200,
+        "baud_rate": 115200,
         "flash": "CFG_RATE_MEAS=200,CFG_RATE_NAV=1",
         "frame_id": "gps_link",
         "gps": "gps_0",
@@ -381,7 +381,7 @@
       "executable": "point_cloud_xyz_node",
       "kind": "node",
       "max_respawns": -1,
-      "name": "depth_to_pointcloud",
+      "name": "depth_to_point_cloud",
       "namespace": "/taro/sensors/camera_0",
       "package": "depth_image_proc",
       "remaps": {
@@ -397,7 +397,7 @@
         "scan_time": 0.06666666666666667
       },
       "kind": "include",
-      "launchfile": "pointcloud_to_laserscan.launch.py",
+      "launchfile": "point_cloud_to_laserscan.launch.py",
       "namespace": "/taro",
       "package": "robot_boot",
       "subdir": null
@@ -406,7 +406,7 @@
       "executable": "pointcloud_to_laserscan_node",
       "kind": "node",
       "max_respawns": -1,
-      "name": "camera_0_pointcloud_to_laserscan",
+      "name": "camera_0_point_cloud_to_laserscan",
       "namespace": "/taro",
       "package": "pointcloud_to_laserscan",
       "params": {
@@ -444,8 +444,8 @@
       "package": "robot_perception",
       "params": {
         "camera_info_topic": "sensors/camera_0/color/camera_info",
-        "cloud_topic": "sensors/camera_0/depth/points",
-        "overlay_topic": "perception/collision/overlay"
+        "overlay_topic": "perception/collision/overlay",
+        "point_cloud_topic": "sensors/camera_0/depth/points"
       },
       "remaps": {
         "/tf": "tf",

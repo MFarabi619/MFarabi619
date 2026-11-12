@@ -30,7 +30,7 @@ from robot_machines.machine import (
 
 ZENOH_ROUTER_SERVICE_MAX_ATTEMPTS = 600
 ZENOH_ROUTER_SERVICE_RETRY_DELAY_SECONDS = 1.0
-STEREOLABS_ZED_DEFAULT_POINT_CLOUD_FREQUENCY_HZ = 10.0
+STEREOLABS_ZED_DEFAULT_POINT_CLOUD_RATE_HZ = 10.0
 FOLLOWED_SURFACES = ('sidewalk', 'park_path', 'path')
 LUXONIS_OAK_LASERSCAN_ARGUMENTS = {
     'max_height': 0.6, 'range_min': 0.2, 'range_max': 3.0, 'scan_time': 0.05}
@@ -76,7 +76,7 @@ def flash_declarations(flash):
     return declarations
 
 
-def motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius):
+def launch_motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius):
     drivetrain = machine.platform.drivetrain
     if drivetrain_model == 'odrive_usb':
         include(
@@ -84,9 +84,9 @@ def motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius):
             gear_ratio=drivetrain.gear_ratio,
             max_wheel_speed=max_wheel_speed,
             left_serial_number=drivetrain.left.serial_number,
-            left_reversed=drivetrain.left.is_reversed,
+            left_is_reversed=drivetrain.left.is_reversed,
             right_serial_number=drivetrain.right.serial_number,
-            right_reversed=drivetrain.right.is_reversed,
+            right_is_reversed=drivetrain.right.is_reversed,
         )
     elif drivetrain_model == 'svd48v':
         include(
@@ -96,8 +96,8 @@ def motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius):
             max_wheel_speed=max_wheel_speed,
             acceleration_rpm_per_second=drivetrain.acceleration_rpm_per_second,
             speed_smoothing_time=drivetrain.speed_smoothing_time,
-            left_reversed=drivetrain.left.is_reversed,
-            right_reversed=drivetrain.right.is_reversed,
+            left_is_reversed=drivetrain.left.is_reversed,
+            right_is_reversed=drivetrain.right.is_reversed,
         )
     elif drivetrain_model == 'roboteq':
         full_scale_linear_velocity_meters_per_second = (
@@ -109,8 +109,8 @@ def motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius):
             counts_per_revolution=drivetrain.counts_per_revolution,
             control_mode=(
                 'speed' if drivetrain.control_mode is None else drivetrain.control_mode),
-            left_reversed=drivetrain.left.is_reversed,
-            right_reversed=drivetrain.right.is_reversed,
+            left_is_reversed=drivetrain.left.is_reversed,
+            right_is_reversed=drivetrain.right.is_reversed,
             max_wheel_speed=max_wheel_speed or 0.0,
             full_scale_wheel_speed=(
                 full_scale_linear_velocity_meters_per_second / wheel_radius
@@ -123,8 +123,8 @@ def motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius):
         include(
             'robot_drivers', 'rc_pulse_motor_driver.launch.py',
             max_wheel_speed=max_wheel_speed,
-            left_reversed=drivetrain.left.is_reversed,
-            right_reversed=drivetrain.right.is_reversed,
+            left_is_reversed=drivetrain.left.is_reversed,
+            right_is_reversed=drivetrain.right.is_reversed,
             **pwm_channels(machine.board_pins, drivetrain),
         )
     else:
@@ -143,7 +143,7 @@ def motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius):
         )
 
 
-def platform(machine, drivetrain_model, urdf_path, depth_camera):
+def launch_platform(machine, drivetrain_model, urdf_path, depth_camera):
     drivetrain = machine.platform.drivetrain
     drivetrain_model = drivetrain_model or drivetrain.model
     wheel_separation, wheel_radius = wheel_geometry(urdf_path)
@@ -161,7 +161,7 @@ def platform(machine, drivetrain_model, urdf_path, depth_camera):
         anonymous=False,
         remaps=TF_REMAPS,
     )
-    motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius)
+    launch_motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius)
     include(
         'robot_boot', 'controller_manager.launch.py',
         wheel_separation=wheel_separation,
@@ -177,7 +177,7 @@ def platform(machine, drivetrain_model, urdf_path, depth_camera):
         if channel_1_chip != channel_2_chip:
             raise RuntimeError('rc channel pins must share one gpio chip')
         include(
-            'robot_drivers', 'rc_teleop.launch.py',
+            'robot_drivers', 'rc_receiver_joy.launch.py',
             gpio_chip=channel_1_chip,
             channel_1_line=channel_1_line,
             channel_2_line=channel_2_line,
@@ -191,10 +191,10 @@ def platform(machine, drivetrain_model, urdf_path, depth_camera):
     if collision_guarded:
         include(
             'robot_boot', 'collision_monitor.launch.py',
-            cloud_topic=f'sensors/{depth_camera.name}/depth/points')
+            point_cloud_topic=f'sensors/{depth_camera.name}/depth/points')
 
 
-def manipulation(bl, machine):
+def launch_manipulation(bl, machine):
     include(
         'robot_manipulation', f'{machine.arm.model}.launch.py',
         description_package=machine.arm.description_package,
@@ -235,12 +235,12 @@ def laserscan_arguments(camera):
         return LUXONIS_OAK_LASERSCAN_ARGUMENTS
     if camera.model == STEREOLABS_ZED_MODEL:
         point_cloud_freq = camera.parameters.get('depth', {}).get(
-            'point_cloud_freq', STEREOLABS_ZED_DEFAULT_POINT_CLOUD_FREQUENCY_HZ)
+            'point_cloud_freq', STEREOLABS_ZED_DEFAULT_POINT_CLOUD_RATE_HZ)
         return {'scan_time': 1.0 / point_cloud_freq}
     return {'scan_time': 1.0 / camera.parameters['depth_frames_per_second']}
 
 
-def sensors(bl, machine):
+def launch_sensors(bl, machine):
     point_cloud_enabled = machine.point_cloud_enabled
     for gps in machine.sensors.gps:
         ntrip = gps.ntrip or {}
@@ -260,11 +260,11 @@ def sensors(bl, machine):
             camera=camera.name, **camera_arguments(bl, camera, point_cloud_enabled))
         if point_cloud_enabled and camera.has_depth:
             include(
-                'robot_boot', 'pointcloud_to_laserscan.launch.py',
+                'robot_boot', 'point_cloud_to_laserscan.launch.py',
                 camera=camera.name, **laserscan_arguments(camera))
 
 
-def perception(machine, depth_camera, camera_height_meters, overrides_file):
+def launch_perception(machine, depth_camera, camera_height_meters, overrides_file):
     behaviors = machine.behaviors
     if behaviors.hand_gesture_teleop:
         include('robot_perception', 'hand_gesture_teleop.launch.py')
@@ -308,7 +308,7 @@ def perception(machine, depth_camera, camera_height_meters, overrides_file):
         )
 
 
-def navigation(machine, depth_camera, overrides_file):
+def launch_navigation(machine, depth_camera, overrides_file):
     if machine.behaviors.nav2_person_follow:
         include('robot_boot', 'nav2_person_follow.launch.py')
     if machine.behaviors.gps_navigation and machine.sensors.gps and depth_camera:
@@ -352,7 +352,7 @@ def robot(robot: str = '', drivetrain_model: str = '', domain: str = ''):
     with bl.group(namespace) if namespace else nullcontext():
         if launches('platform'):
             if machine.platform:
-                platform(machine, drivetrain_model, urdf_path, depth_camera)
+                launch_platform(machine, drivetrain_model, urdf_path, depth_camera)
             if machine.foxglove_enabled:
                 include('robot_boot', 'foxglove_bridge.launch.py')
             include('robot_boot', 'diagnostic_aggregator.launch.py')
@@ -361,10 +361,10 @@ def robot(robot: str = '', drivetrain_model: str = '', domain: str = ''):
                     'robot_boot', 'robot_localization.launch.py',
                     gps_topic_prefix=f'sensors/{machine.sensors.gps[0].name}')
         if launches('manipulation') and machine.arm:
-            manipulation(bl, machine)
+            launch_manipulation(bl, machine)
         if launches('sensors'):
-            sensors(bl, machine)
+            launch_sensors(bl, machine)
         if launches('perception'):
-            perception(machine, depth_camera, camera_height_meters, overrides_file)
+            launch_perception(machine, depth_camera, camera_height_meters, overrides_file)
         if launches('navigation'):
-            navigation(machine, depth_camera, overrides_file)
+            launch_navigation(machine, depth_camera, overrides_file)

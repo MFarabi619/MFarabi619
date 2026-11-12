@@ -97,8 +97,9 @@ def finite_or(value, fallback):
     return value if math.isfinite(value) else fallback
 
 
-def alignment_fraction(error, aligned, pivoting):
-    return float(np.clip((pivoting - abs(error)) / (pivoting - aligned), 0.0, 1.0))
+def alignment_fraction(error, aligned_threshold, pivot_threshold):
+    return float(np.clip(
+        (pivot_threshold - abs(error)) / (pivot_threshold - aligned_threshold), 0.0, 1.0))
 
 
 def blended(start, end, fraction):
@@ -113,11 +114,11 @@ def faded(color, alpha):
     return Color(r=color.r, g=color.g, b=color.b, a=float(alpha))
 
 
-def error_color(lateral_error):
-    drift = min(abs(lateral_error) / FULL_DRIFT_ERROR_METERS, 1.0)
-    if drift < 0.5:
-        return blended(CENTERED_COLOR, DRIFTING_COLOR, drift * 2.0)
-    return blended(DRIFTING_COLOR, OFF_ROW_COLOR, drift * 2.0 - 1.0)
+def error_color(lateral_error_meters):
+    drift_fraction = min(abs(lateral_error_meters) / FULL_DRIFT_ERROR_METERS, 1.0)
+    if drift_fraction < 0.5:
+        return blended(CENTERED_COLOR, DRIFTING_COLOR, drift_fraction * 2.0)
+    return blended(DRIFTING_COLOR, OFF_ROW_COLOR, drift_fraction * 2.0 - 1.0)
 
 
 class HarvestLaneNavigator(Node):
@@ -162,11 +163,11 @@ class HarvestLaneNavigator(Node):
         self.goal_distance_meters = 0.0
         self.goal_forward_speed_meters_per_second = 0.0
         self.distance_traveled_meters = 0.0
-        self.previous_odom_position = None
+        self.previous_odometry_position = None
         self.row_miss_count = 0
         self.goal_outcome = None
-        self.tracked_lateral_error = None
-        self.last_steering = 0.0
+        self.tracked_lateral_error_meters = None
+        self.latest_angular_speed_radians_per_second = 0.0
         self.smoothed_forward_speed_meters_per_second = 0.0
         self.smoothed_angular_speed_radians_per_second = 0.0
         self.previous_drive_time_seconds = None
@@ -184,7 +185,7 @@ class HarvestLaneNavigator(Node):
             Image, depth_topic, self.on_depth, qos_profile_sensor_data,
             callback_group=self.callback_group)
         self.create_subscription(
-            Odometry, odom_topic, self.on_odom, 10,
+            Odometry, odom_topic, self.on_odometry, 10,
             callback_group=self.callback_group)
         self.create_subscription(
             CompressedImage, mask_topic, self.on_mask, qos_profile_sensor_data,
@@ -200,7 +201,7 @@ class HarvestLaneNavigator(Node):
 
     def on_enable(self, request, response):
         self.is_enabled = request.data
-        self.tracked_lateral_error = None
+        self.tracked_lateral_error_meters = None
         self.row_miss_count = 0
         if not request.data:
             self.halt()
@@ -217,13 +218,14 @@ class HarvestLaneNavigator(Node):
         return CancelResponse.ACCEPT
 
     def execute_follow_row(self, goal_handle):
-        self.goal_distance_meters = goal_handle.request.travel_distance_m
-        self.goal_forward_speed_meters_per_second = goal_handle.request.forward_speed_mps
+        self.goal_distance_meters = goal_handle.request.travel_distance_meters
+        self.goal_forward_speed_meters_per_second = (
+            goal_handle.request.forward_speed_meters_per_second)
         self.distance_traveled_meters = 0.0
-        self.previous_odom_position = None
+        self.previous_odometry_position = None
         self.row_miss_count = 0
         self.goal_outcome = None
-        self.tracked_lateral_error = None
+        self.tracked_lateral_error_meters = None
         self.goal_handle = goal_handle
         self.get_logger().info(
             f'follow_row goal: {self.goal_distance_meters:.1f} m')
@@ -237,12 +239,12 @@ class HarvestLaneNavigator(Node):
         self.goal_handle = None
         self.halt()
         result = FollowRow.Result()
-        result.distance_traveled_m = float(self.distance_traveled_meters)
+        result.distance_traveled_meters = float(self.distance_traveled_meters)
         result.outcome = self.goal_outcome or FollowRow.Result.OUTCOME_CANCELED
         self.conclude(goal_handle, result.outcome)
         self.get_logger().info(
             f'follow_row done: {result.outcome} after '
-            f'{result.distance_traveled_m:.1f} m')
+            f'{result.distance_traveled_meters:.1f} m')
         return result
 
     def conclude(self, goal_handle, outcome):
@@ -257,15 +259,15 @@ class HarvestLaneNavigator(Node):
         else:
             goal_handle.abort()
 
-    def on_odom(self, message):
+    def on_odometry(self, message):
         if self.goal_handle is None:
             return
         position = message.pose.pose.position
-        if self.previous_odom_position is not None:
+        if self.previous_odometry_position is not None:
             self.distance_traveled_meters += math.hypot(
-                position.x - self.previous_odom_position[0],
-                position.y - self.previous_odom_position[1])
-        self.previous_odom_position = (position.x, position.y)
+                position.x - self.previous_odometry_position[0],
+                position.y - self.previous_odometry_position[1])
+        self.previous_odometry_position = (position.x, position.y)
         if 0.0 < self.goal_distance_meters <= self.distance_traveled_meters:
             self.goal_outcome = FollowRow.Result.OUTCOME_DISTANCE_REACHED
 
@@ -317,27 +319,28 @@ class HarvestLaneNavigator(Node):
             self.overlay_publisher.publish(ImageAnnotations())
             self.row_miss_count += 1
             if self.row_miss_count >= ROW_LOST_MISS_LIMIT:
-                self.tracked_lateral_error = None
+                self.tracked_lateral_error_meters = None
                 if self.row_miss_count == ROW_LOST_MISS_LIMIT:
                     self.halt()
                 if self.goal_handle is not None:
                     self.goal_outcome = FollowRow.Result.OUTCOME_ROW_LOST
             return
-        lateral_error, heading_error, strip_points = fit
-        self.overlay_publisher.publish(
-            self.annotations(message, strip_points, lateral_error, heading_error))
+        lateral_error_meters, heading_error_radians, strip_points = fit
+        self.overlay_publisher.publish(self.annotations(
+            message, strip_points, lateral_error_meters, heading_error_radians))
         self.row_miss_count = 0
         if self.goal_handle is not None:
             feedback = FollowRow.Feedback()
-            feedback.lateral_error_m = float(lateral_error)
-            feedback.heading_error_rad = float(heading_error)
-            feedback.distance_traveled_m = float(self.distance_traveled_meters)
+            feedback.lateral_error_meters = float(lateral_error_meters)
+            feedback.heading_error_radians = float(heading_error_radians)
+            feedback.distance_traveled_meters = float(self.distance_traveled_meters)
             self.goal_handle.publish_feedback(feedback)
         if self.is_enabled or self.goal_handle is not None:
-            self.last_steering = self.steering(lateral_error, heading_error)
+            self.latest_angular_speed_radians_per_second = self.steering(
+                lateral_error_meters, heading_error_radians)
             self.drive(
-                self.commanded_forward_speed(lateral_error, heading_error),
-                self.last_steering)
+                self.commanded_forward_speed(lateral_error_meters, heading_error_radians),
+                self.latest_angular_speed_radians_per_second)
 
     def lattice_fit(self, mask):
         height, width = mask.shape
@@ -424,27 +427,30 @@ class HarvestLaneNavigator(Node):
                 f'residual {np.abs(residuals).max():.2f}m'
                 f' [{" | ".join(strip_reports)}]')
             return None
-        lateral_error = -float(phase_intercept + phase_slope * np.mean(distances))
-        lateral_error += self.lateral_trim_meters
-        if self.tracked_lateral_error is not None:
-            lattice_shift = self.row_pitch_meters * round(
-                (self.tracked_lateral_error - lateral_error) / self.row_pitch_meters)
-            lateral_error += lattice_shift
-            if abs(lateral_error - self.tracked_lateral_error) > MAX_LATERAL_JUMP_METERS:
+        lateral_error_meters = -float(phase_intercept + phase_slope * np.mean(distances))
+        lateral_error_meters += self.lateral_trim_meters
+        if self.tracked_lateral_error_meters is not None:
+            lattice_shift_meters = self.row_pitch_meters * round(
+                (self.tracked_lateral_error_meters - lateral_error_meters)
+                / self.row_pitch_meters)
+            lateral_error_meters += lattice_shift_meters
+            lateral_jump_meters = lateral_error_meters - self.tracked_lateral_error_meters
+            if abs(lateral_jump_meters) > MAX_LATERAL_JUMP_METERS:
                 self.fit_report = (
-                    f'lateral jump {lateral_error - self.tracked_lateral_error:+.2f}m'
+                    f'lateral jump {lateral_jump_meters:+.2f}m'
                     f' [{" | ".join(strip_reports)}]')
                 return None
-        self.tracked_lateral_error = lateral_error
-        heading_error = float(math.atan(-phase_slope))
-        return lateral_error, heading_error, strip_points
+        self.tracked_lateral_error_meters = lateral_error_meters
+        heading_error_radians = float(math.atan(-phase_slope))
+        return lateral_error_meters, heading_error_radians, strip_points
 
-    def steering(self, lateral_error, heading_error):
-        clamped_lateral_error = float(np.clip(
-            lateral_error, -MAX_LATERAL_CORRECTION_METERS, MAX_LATERAL_CORRECTION_METERS))
+    def steering(self, lateral_error_meters, heading_error_radians):
+        clamped_lateral_error_meters = float(np.clip(
+            lateral_error_meters,
+            -MAX_LATERAL_CORRECTION_METERS, MAX_LATERAL_CORRECTION_METERS))
         return float(np.clip(
-            -(self.lateral_gain * clamped_lateral_error
-              + self.heading_gain * heading_error),
+            -(self.lateral_gain * clamped_lateral_error_meters
+              + self.heading_gain * heading_error_radians),
             -self.max_angular_speed_radians_per_second,
             self.max_angular_speed_radians_per_second))
 
@@ -495,7 +501,7 @@ class HarvestLaneNavigator(Node):
         self.cmd_vel_publisher.publish(message)
 
     def halt(self):
-        self.last_steering = 0.0
+        self.latest_angular_speed_radians_per_second = 0.0
         self.smoothed_forward_speed_meters_per_second = 0.0
         self.smoothed_angular_speed_radians_per_second = 0.0
         self.previous_drive_time_seconds = None
@@ -508,12 +514,12 @@ class HarvestLaneNavigator(Node):
             y=float(self.camera_center_row + self.camera_focal_rows
                     * self.camera_height_meters / distance))
 
-    def corridor(self, stamp, lateral_error, heading_error, color):
+    def corridor(self, stamp, lateral_error_meters, heading_error_radians, color):
         distances = np.arange(
             CORRIDOR_START_METERS, CORRIDOR_START_METERS + CORRIDOR_LENGTH_METERS,
             CORRIDOR_STEP_METERS)
-        row_slope = math.tan(-heading_error)
-        centers = -lateral_error + row_slope * distances
+        row_slope = math.tan(-heading_error_radians)
+        centers = -lateral_error_meters + row_slope * distances
         alphas = np.linspace(NEAR_ALPHA, FAR_ALPHA, distances.size)
         pieces = []
         for lateral_offset_meters, line_color, thickness in (
@@ -546,11 +552,11 @@ class HarvestLaneNavigator(Node):
         pieces.append(rungs)
         return pieces
 
-    def annotations(self, message, strip_points, lateral_error, heading_error):
+    def annotations(self, message, strip_points, lateral_error_meters, heading_error_radians):
         overlay = ImageAnnotations()
-        color = error_color(lateral_error)
+        color = error_color(lateral_error_meters)
         overlay.points.extend(self.corridor(
-            message.header.stamp, lateral_error, heading_error, color))
+            message.header.stamp, lateral_error_meters, heading_error_radians, color))
         alphas = np.linspace(FAR_ALPHA, NEAR_ALPHA, len(strip_points))
         line = PointsAnnotation()
         line.timestamp = message.header.stamp
@@ -578,7 +584,7 @@ class HarvestLaneNavigator(Node):
         label.position = Point2(
             x=float(near_column) + LABEL_MARGIN_PIXELS,
             y=float(near_row) - LABEL_MARGIN_PIXELS)
-        label.text = f'{lateral_error:+.2f}m'
+        label.text = f'{lateral_error_meters:+.2f}m'
         label.font_size = LABEL_FONT_SIZE_PIXELS
         label.text_color = faded(color, 1.0)
         label.background_color = TEXT_BACKGROUND_COLOR

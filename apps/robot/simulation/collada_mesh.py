@@ -105,7 +105,7 @@ def replicated(source, placements, scale=1.0):
         source.texture, source.color)
 
 
-def floats(values):
+def format_floats(values):
     return ' '.join(f'{value:g}' for row in values for value in row)
 
 
@@ -127,7 +127,7 @@ class TexturedMesh:
         self.uvs = []
         self.triangles = []
 
-    def quad(self, corners, normal, uv_corners):
+    def add_quad(self, corners, normal, uv_corners):
         base = len(self.positions)
         self.positions.extend(corners)
         self.normals.extend([normal] * 4)
@@ -143,8 +143,8 @@ class TexturedMesh:
             self.triangles.append((base, base + 2, base + 3))
 
 
-def document(geometry_id, positions, normals, triangles, texture=None, uvs=None,
-             color=None):
+def collada_document(geometry_id, positions, normals, triangles, texture=None, uvs=None,
+                     color=None):
     position_count = len(positions)
     if texture:
         image_library = (
@@ -159,7 +159,7 @@ def document(geometry_id, positions, normals, triangles, texture=None, uvs=None,
         diffuse = f'<texture texture="{geometry_id}_sampler" texcoord="UVSET0"/>'
         uv_source = f'''
         <source id="{geometry_id}_uv">
-          <float_array id="{geometry_id}_uv_array" count="{position_count * 2}">{floats(uvs)}</float_array>
+          <float_array id="{geometry_id}_uv_array" count="{position_count * 2}">{format_floats(uvs)}</float_array>
           <technique_common><accessor source="#{geometry_id}_uv_array" count="{position_count}" stride="2"><param name="S" type="float"/><param name="T" type="float"/></accessor></technique_common>
         </source>'''
         uv_input = f'<input semantic="TEXCOORD" source="#{geometry_id}_uv" offset="2" set="0"/>'
@@ -197,11 +197,11 @@ def document(geometry_id, positions, normals, triangles, texture=None, uvs=None,
     <geometry id="{geometry_id}_geometry">
       <mesh>
         <source id="{geometry_id}_positions">
-          <float_array id="{geometry_id}_positions_array" count="{position_count * 3}">{floats(positions)}</float_array>
+          <float_array id="{geometry_id}_positions_array" count="{position_count * 3}">{format_floats(positions)}</float_array>
           <technique_common><accessor source="#{geometry_id}_positions_array" count="{position_count}" stride="3"><param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/></accessor></technique_common>
         </source>
         <source id="{geometry_id}_normals">
-          <float_array id="{geometry_id}_normals_array" count="{position_count * 3}">{floats(normals)}</float_array>
+          <float_array id="{geometry_id}_normals_array" count="{position_count * 3}">{format_floats(normals)}</float_array>
           <technique_common><accessor source="#{geometry_id}_normals_array" count="{position_count}" stride="3"><param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/></accessor></technique_common>
         </source>{uv_source}
         <vertices id="{geometry_id}_vertices"><input semantic="POSITION" source="#{geometry_id}_positions"/></vertices>

@@ -120,7 +120,7 @@ public:
     const double fraction = std::min(std::abs(wheel_speed) / max_wheel_speed, 1.0);
     set_duty(static_cast<float>(fraction) * FULL_DUTY_PERCENT);
     duty_fraction = forward ? fraction : -fraction;
-    velocity = wheel_speed;
+    velocity_radians_per_second = wheel_speed;
   }
 
   void halt()
@@ -129,12 +129,12 @@ public:
     // "cancel waveform" and leaves the pin in an undefined level, so never send it.
     set_duty(0.0f);
     duty_fraction = 0.0;
-    velocity = 0.0;
+    velocity_radians_per_second = 0.0;
   }
 
   double duty_fraction = 0.0;
-  double velocity = 0.0;
-  double travel = 0.0;
+  double velocity_radians_per_second = 0.0;
+  double travel_radians = 0.0;
 
 private:
   void set_direction(bool level)
@@ -259,10 +259,10 @@ private:
     message.commanded_mode = commanded_mode;
     message.actual_mode = has_timed_out ? Drive::MODE_NONE : commanded_mode;
     for (size_t side = 0; side < wheels.size(); ++side) {
-      wheels[side]->travel += wheels[side]->velocity / FEEDBACK_RATE_HZ;
+      wheels[side]->travel_radians += wheels[side]->velocity_radians_per_second / FEEDBACK_RATE_HZ;
       message.drivers[side].duty_cycle = wheels[side]->duty_fraction;
-      message.drivers[side].measured_velocity = wheels[side]->velocity;
-      message.drivers[side].measured_travel = wheels[side]->travel;
+      message.drivers[side].measured_velocity = wheels[side]->velocity_radians_per_second;
+      message.drivers[side].measured_travel = wheels[side]->travel_radians;
     }
     feedback_publisher->publish(message);
   }

@@ -18,8 +18,8 @@ import xml.etree.ElementTree as ElementTree
 
 
 def ground_offset_meters(urdf_path):
-    robot = ElementTree.parse(urdf_path).getroot()
-    for joint in robot.iter('joint'):
+    robot_element = ElementTree.parse(urdf_path).getroot()
+    for joint in robot_element.iter('joint'):
         child = joint.find('child')
         if child is None or child.get('link') != 'base_footprint':
             continue
@@ -31,9 +31,9 @@ def ground_offset_meters(urdf_path):
 
 
 def wheel_geometry(urdf_path):
-    robot = ElementTree.parse(urdf_path).getroot()
+    robot_element = ElementTree.parse(urdf_path).getroot()
     joint_by_child = {}
-    for joint in robot.iter('joint'):
+    for joint in robot_element.iter('joint'):
         parent = joint.find('parent')
         if parent is None:
             continue
@@ -61,7 +61,7 @@ def wheel_geometry(urdf_path):
 
     radii_meters = {
         float(cylinder.get('radius'))
-        for link in robot.iter('link')
+        for link in robot_element.iter('link')
         if link.get('name').endswith('_wheel_link')
         for cylinder in link.find('collision').iter('cylinder')
     }

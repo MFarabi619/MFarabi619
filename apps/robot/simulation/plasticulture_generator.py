@@ -34,7 +34,7 @@ BED_HEIGHT_METERS = 0.04
 BED_COUNT = 10
 BED_PITCH_METERS = 1.2
 PLANT_LINE_OFFSET_METERS = 0.1
-TEXTURE_METERS_PER_TILE = 0.5
+METERS_PER_TEXTURE_TILE = 0.5
 
 CROPS = {
     'carrot': {'spacing': 0.25, 'lines': 2, 'color': (0.30, 0.60, 0.20)},
@@ -57,6 +57,7 @@ MAIZE_PLANT_SPACING_METERS = 0.35
 TURTLE_PLANT_SPACING_METERS = 0.8
 WEED_COUNT = 70
 PLANT_JITTER_METERS = 0.04
+JITTER_SEED = 20260808
 
 APRILTAG_ID = 0
 APRILTAG_TEXTURE_PIXELS = 400
@@ -82,25 +83,25 @@ cv2.imwrite(f'{SIMULATION_DIRECTORY}/models/materials/textures/woven_ground_fabr
 
 def bed_mesh(variant, texture_phase):
     half = BED_LENGTH_METERS / 2.0
-    tiles = BED_LENGTH_METERS / TEXTURE_METERS_PER_TILE
+    tiles = BED_LENGTH_METERS / METERS_PER_TEXTURE_TILE
     mesh = collada_mesh.TexturedMesh()
     slope = np.array([BED_BOTTOM_HALF_WIDTH_METERS - BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS])
     side = slope / np.linalg.norm(slope)
-    mesh.quad(
+    mesh.add_quad(
         [(-half, -BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
          (half, -BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
          (half, BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
          (-half, BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS)],
         (0.0, 0.0, 1.0),
         [(texture_phase, 0.3), (texture_phase + tiles, 0.3), (texture_phase + tiles, 0.7), (texture_phase, 0.7)])
-    mesh.quad(
+    mesh.add_quad(
         [(-half, -BED_BOTTOM_HALF_WIDTH_METERS, 0.0),
          (half, -BED_BOTTOM_HALF_WIDTH_METERS, 0.0),
          (half, -BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
          (-half, -BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS)],
         (0.0, float(-side[1]), float(side[0])),
         [(texture_phase, 0), (texture_phase + tiles, 0), (texture_phase + tiles, 0.28), (texture_phase, 0.28)])
-    mesh.quad(
+    mesh.add_quad(
         [(-half, BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
          (half, BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
          (half, BED_BOTTOM_HALF_WIDTH_METERS, 0.0),
@@ -115,38 +116,41 @@ def bed_mesh(variant, texture_phase):
                    (x, BED_BOTTOM_HALF_WIDTH_METERS, 0.0)]
         if sign > 0:
             corners.reverse()
-        mesh.quad(corners, normal, [(0, 0), (0.15, 0), (0.85, 0.15), (1, 0.15)])
-    return collada_mesh.document(f'plasticulture_bed_{variant}', mesh.positions, mesh.normals,
-                   mesh.triangles, texture='textures/woven_ground_fabric.jpg', uvs=mesh.uvs)
+        mesh.add_quad(corners, normal, [(0, 0), (0.15, 0), (0.85, 0.15), (1, 0.15)])
+    return collada_mesh.collada_document(
+        f'plasticulture_bed_{variant}', mesh.positions, mesh.normals, mesh.triangles,
+        texture='textures/woven_ground_fabric.jpg', uvs=mesh.uvs)
 
 
 def flat_tarp_mesh():
     half_length = FLAT_TARP_LENGTH_METERS / 2.0
     half_width = FLAT_TARP_WIDTH_METERS / 2.0
     mesh = collada_mesh.TexturedMesh()
-    mesh.quad(
+    mesh.add_quad(
         [(-half_length, -half_width, 0.0), (half_length, -half_width, 0.0),
          (half_length, half_width, 0.0), (-half_length, half_width, 0.0)],
         (0.0, 0.0, 1.0),
         [(0, 0), (FLAT_TARP_LENGTH_METERS, 0), (FLAT_TARP_LENGTH_METERS, FLAT_TARP_WIDTH_METERS),
          (0, FLAT_TARP_WIDTH_METERS)])
-    return collada_mesh.document('flat_tarp', mesh.positions, mesh.normals, mesh.triangles,
-                   texture='textures/woven_ground_fabric.jpg', uvs=mesh.uvs)
+    return collada_mesh.collada_document(
+        'flat_tarp', mesh.positions, mesh.normals, mesh.triangles,
+        texture='textures/woven_ground_fabric.jpg', uvs=mesh.uvs)
 
 
 def dirt_mesh():
     half_length = BED_LENGTH_METERS / 2.0 + 2.0
     half_width = BED_COUNT * BED_PITCH_METERS / 2.0 + 1.0
-    tiles_x = 2 * half_length / TEXTURE_METERS_PER_TILE
-    tiles_y = 2 * half_width / TEXTURE_METERS_PER_TILE
+    tiles_x = 2 * half_length / METERS_PER_TEXTURE_TILE
+    tiles_y = 2 * half_width / METERS_PER_TEXTURE_TILE
     mesh = collada_mesh.TexturedMesh()
-    mesh.quad(
+    mesh.add_quad(
         [(-half_length, -half_width, 0.0), (half_length, -half_width, 0.0),
          (half_length, half_width, 0.0), (-half_length, half_width, 0.0)],
         (0.0, 0.0, 1.0),
         [(0, 0), (tiles_x, 0), (tiles_x, tiles_y), (0, tiles_y)])
-    return collada_mesh.document('dirt_patch', mesh.positions, mesh.normals, mesh.triangles,
-                   texture='textures/dirt_diffusespecular.png', uvs=mesh.uvs)
+    return collada_mesh.collada_document(
+        'dirt_patch', mesh.positions, mesh.normals, mesh.triangles,
+        texture='textures/dirt_diffusespecular.png', uvs=mesh.uvs)
 
 
 class SolidMesh:
@@ -155,7 +159,7 @@ class SolidMesh:
         self.normals = []
         self.triangles = []
 
-    def triangle(self, corners):
+    def add_triangle(self, corners):
         edge_a = np.subtract(corners[1], corners[0])
         edge_b = np.subtract(corners[2], corners[0])
         normal = np.cross(edge_a, edge_b)
@@ -168,13 +172,13 @@ class SolidMesh:
                                  else tuple(-value for value in normal)] * 3)
             self.triangles.append((base, base + 1, base + 2))
 
-    def blade(self, angle, length, width, height, tilt):
+    def add_blade(self, angle, length, width, height, tilt):
         direction = np.array([np.cos(angle), np.sin(angle), 0.0])
         side = np.array([-np.sin(angle), np.cos(angle), 0.0]) * width / 2.0
         tip = direction * length * np.cos(tilt) + np.array([0, 0, height])
-        self.triangle([tuple(side), tuple(-side), tuple(tip)])
+        self.add_triangle([tuple(side), tuple(-side), tuple(tip)])
 
-    def leaf(self, angle, reach, size, height):
+    def add_leaf(self, angle, reach, size, height):
         direction = np.array([np.cos(angle), np.sin(angle), 0.0])
         side = np.array([-np.sin(angle), np.cos(angle), 0.0]) * size / 2.0
         stem_base = direction * reach * 0.2 + np.array([0.0, 0.0, 0.005])
@@ -182,9 +186,9 @@ class SolidMesh:
             [0.0, 0.0, max(height - size * 0.6, 0.02)])
         tip = direction * (reach + size * 0.7) + np.array(
             [0.0, 0.0, height + size * 0.6])
-        self.triangle([tuple(blade_base - side), tuple(blade_base + side), tuple(tip)])
-        self.triangle([tuple(blade_base - side * 0.4),
-                       tuple(blade_base + side * 0.4), tuple(stem_base)])
+        self.add_triangle([tuple(blade_base - side), tuple(blade_base + side), tuple(tip)])
+        self.add_triangle([tuple(blade_base - side * 0.4),
+                           tuple(blade_base + side * 0.4), tuple(stem_base)])
 
 
 def crop_mesh(crop):
@@ -193,39 +197,40 @@ def crop_mesh(crop):
     if crop == 'pepper':
         for index in range(4):
             angle = index * 2 * np.pi / 4 + rng.uniform(0, 0.6)
-            mesh.blade(angle, 0.02, 0.02, 0.16 + rng.uniform(0, 0.08), 0.15)
+            mesh.add_blade(angle, 0.02, 0.02, 0.16 + rng.uniform(0, 0.08), 0.15)
         for index in range(16):
             angle = index * 2 * np.pi / 16 + rng.uniform(0, 0.4)
-            mesh.leaf(angle, 0.02 + rng.uniform(0, 0.05), 0.07 + rng.uniform(0, 0.05),
-                      0.10 + rng.uniform(0, 0.20))
+            mesh.add_leaf(angle, 0.02 + rng.uniform(0, 0.05), 0.07 + rng.uniform(0, 0.05),
+                          0.10 + rng.uniform(0, 0.20))
     elif crop == 'onion':
         for index in range(7):
             angle = index * 2 * np.pi / 7 + rng.uniform(0, 0.4)
-            mesh.blade(angle, 0.03 + rng.uniform(0, 0.02), 0.015,
-                       0.18 + rng.uniform(0, 0.08), 0.1)
+            mesh.add_blade(angle, 0.03 + rng.uniform(0, 0.02), 0.015,
+                           0.18 + rng.uniform(0, 0.08), 0.1)
     elif crop == 'carrot':
         for index in range(10):
             angle = index * 2 * np.pi / 10 + rng.uniform(0, 0.3)
-            mesh.blade(angle, 0.08 + rng.uniform(0, 0.04), 0.02,
-                       0.10 + rng.uniform(0, 0.05), 0.5)
+            mesh.add_blade(angle, 0.08 + rng.uniform(0, 0.04), 0.02,
+                           0.10 + rng.uniform(0, 0.05), 0.5)
     elif crop == 'potato':
         for index in range(4):
             angle = index * 2 * np.pi / 4 + rng.uniform(0, 0.6)
-            mesh.blade(angle, 0.02, 0.02, 0.10 + rng.uniform(0, 0.05), 0.2)
+            mesh.add_blade(angle, 0.02, 0.02, 0.10 + rng.uniform(0, 0.05), 0.2)
         for index in range(12):
             angle = index * 2 * np.pi / 12 + rng.uniform(0, 0.5)
-            mesh.leaf(angle, 0.02 + rng.uniform(0, 0.03), 0.06 + rng.uniform(0, 0.03),
-                      0.08 + rng.uniform(0, 0.10))
+            mesh.add_leaf(angle, 0.02 + rng.uniform(0, 0.03), 0.06 + rng.uniform(0, 0.03),
+                          0.08 + rng.uniform(0, 0.10))
     else:
         for index in range(3):
             angle = index * 2 * np.pi / 3 + rng.uniform(0, 0.6)
-            mesh.blade(angle, 0.03, 0.025, 0.12 + rng.uniform(0, 0.05), 0.3)
+            mesh.add_blade(angle, 0.03, 0.025, 0.12 + rng.uniform(0, 0.05), 0.3)
         for index in range(5):
             angle = index * 2 * np.pi / 5 + rng.uniform(0, 0.5)
-            mesh.leaf(angle, 0.04 + rng.uniform(0, 0.04), 0.14 + rng.uniform(0, 0.05),
-                      0.10 + rng.uniform(0, 0.08))
-    return collada_mesh.document(f'{crop}_plant', mesh.positions, mesh.normals, mesh.triangles,
-                   color=CROPS[crop]['color'])
+            mesh.add_leaf(angle, 0.04 + rng.uniform(0, 0.04), 0.14 + rng.uniform(0, 0.05),
+                          0.10 + rng.uniform(0, 0.08))
+    return collada_mesh.collada_document(
+        f'{crop}_plant', mesh.positions, mesh.normals, mesh.triangles,
+        color=CROPS[crop]['color'])
 
 
 MODEL_CONFIG = '''<?xml version="1.0"?>
@@ -276,14 +281,15 @@ def apriltag_model():
                   / APRILTAG_TEXTURE_PIXELS)
     half = board_edge / 2.0
     mesh = collada_mesh.TexturedMesh()
-    mesh.quad(
+    mesh.add_quad(
         [(0.0, half, -half), (0.0, -half, -half),
          (0.0, -half, half), (0.0, half, half)],
         (1.0, 0.0, 0.0),
         [(0, 0), (1, 0), (1, 1), (0, 1)])
     with open(f'{model_directory}/meshes/{name}.dae', 'w') as mesh_file:
-        mesh_file.write(collada_mesh.document(name, mesh.positions, mesh.normals, mesh.triangles,
-                                texture=f'{name}.png', uvs=mesh.uvs))
+        mesh_file.write(collada_mesh.collada_document(
+            name, mesh.positions, mesh.normals, mesh.triangles,
+            texture=f'{name}.png', uvs=mesh.uvs))
     with open(f'{model_directory}/model.config', 'w') as config_file:
         config_file.write(MODEL_CONFIG.format(
             name=name, description=f'AprilTag 36h11 id {APRILTAG_ID} on a post'))
@@ -344,7 +350,7 @@ for index, center in enumerate(bed_centers):
     </model>''')
 
 
-jitter_rng = np.random.default_rng(20260808)
+jitter_rng = np.random.default_rng(JITTER_SEED)
 
 
 def jittered(value):

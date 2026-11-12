@@ -87,7 +87,7 @@ class VoiceTranscriber(Node):
         model_directory = self.declare_parameter(
             'model_directory',
             default_model_directory('voice_transcriber')).value
-        num_threads = self.declare_parameter('num_threads', 2).value
+        num_threads = self.declare_parameter('inference_threads', 2).value
         trailing_silence_seconds = self.declare_parameter(
             'trailing_silence_seconds', 0.8).value
         gain_target_level = self.declare_parameter(

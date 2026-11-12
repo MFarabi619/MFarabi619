@@ -18,15 +18,14 @@ use oxidros::{
 use super::{
     line::{box_outline, color, label, rgb_to_hsv, BoundingBox},
     palm::{decode_rgb, RGB_CHANNELS},
-    twist, WATCHDOG_TIMEOUT,
+    twist, LOG_STRIDE_FRAMES, WATCHDOG_TIMEOUT,
 };
 
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
-const LOG_STRIDE_FRAMES: u64 = 15;
 const LABEL_FONT_SIZE_PIXELS: f64 = 28.0;
 // Normalized forward command while approaching — deliberately gentle.
-const FORWARD_SPEED: f64 = 0.35;
+const FORWARD_SPEED_METERS_PER_SECOND: f64 = 0.35;
 
 pub struct Config {
     pub min_hue: f64,
@@ -127,25 +126,26 @@ pub async fn run_green_approach(node: Arc<Node>) -> Result<(), BoxError> {
     let ctrl_c = tokio::signal::ctrl_c();
     tokio::pin!(ctrl_c);
     let mut watchdog = tokio::time::interval(WATCHDOG_TIMEOUT);
-    let mut last_frame = Instant::now();
+    let mut latest_frame_time = Instant::now();
     loop {
         tokio::select! {
             _ = &mut ctrl_c => break,
             _ = watchdog.tick() => {
                 // No frames: stop and clear the overlay (the driver deadman is the backstop).
-                if last_frame.elapsed() >= WATCHDOG_TIMEOUT {
+                if latest_frame_time.elapsed() >= WATCHDOG_TIMEOUT {
                     let _ = cmd_vel.send(&twist(0.0, 0.0));
                     overlay_channel.log(&ImageAnnotations::default());
                 }
             }
             message = images.recv() => {
-                last_frame = Instant::now();
+                latest_frame_time = Instant::now();
                 match decode_rgb(message?.sample.data.as_slice()) {
                     Err(error) => tracing::warn!("{error}"),
                     Ok((rgb, width, height)) => {
                         let gate = detect_green(&config, &rgb, width, height);
-                        let forward = if gate.reached { 0.0 } else { FORWARD_SPEED };
-                        cmd_vel.send(&twist(forward, 0.0))?;
+                        let forward_speed_meters_per_second =
+                            if gate.reached { 0.0 } else { FORWARD_SPEED_METERS_PER_SECOND };
+                        cmd_vel.send(&twist(forward_speed_meters_per_second, 0.0))?;
                         overlay_channel.log(&overlay(&gate, &config, width, height));
                         if frames.fetch_add(1, Ordering::Relaxed).is_multiple_of(LOG_STRIDE_FRAMES) {
                             tracing::info!(

@@ -112,7 +112,7 @@ def simulation(world: str = 'farm', robots: str = 'taro,jiro', headless: bool = 
     if world not in KNOWN_WORLDS:
         raise SystemExit(
             f'unknown world {world!r}; pixi task arguments are positional, so'
-            f' write `pixi r -m apps/robot sim <world> <robots>`.'
+            f' write `pixi r -m apps/robot simulation <world> <robots>`.'
             f' Known worlds: {", ".join(sorted(KNOWN_WORLDS))}')
     base_pose = dict(WORLD_SPAWN_POSES.get(world, {}))
     spacing = base_pose.pop('spacing', ROBOT_SPACING_METERS)

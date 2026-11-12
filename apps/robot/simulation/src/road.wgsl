@@ -1,11 +1,11 @@
 struct Camera {
     position: vec2<f32>,
-    heading: f32,
-    camera_height: f32,
+    heading_radians: f32,
+    camera_mount_height_meters: f32,
     tan_half_fov: f32,
-    aspect: f32,
-    time: f32,
-    pad: f32,
+    aspect_ratio: f32,
+    elapsed_seconds: f32,
+    padding: f32,
 };
 @group(0) @binding(0) var<uniform> cam: Camera;
 
@@ -152,7 +152,7 @@ fn atmosphere(dir: vec3<f32>) -> vec3<f32> {
     col = mix(col, vec3<f32>(1.25, 0.55, 0.32), pow(1.0 - up, 5.0) * azimuth * 0.60);
 
     if (dir.z > 0.015) {
-        let cloud_uv = dir.xy / dir.z * 1.6 + cam.time * 0.01;
+        let cloud_uv = dir.xy / dir.z * 1.6 + cam.elapsed_seconds * 0.01;
         let cloud = fbm(cloud_uv * 1.8);
         let cover = smoothstep(0.50, 0.85, cloud) * smoothstep(0.02, 0.22, dir.z);
         let lit = mix(vec3<f32>(0.52, 0.46, 0.52), vec3<f32>(1.35, 0.88, 0.58), pow(mu, 1.5));
@@ -204,15 +204,15 @@ fn surface_color(p: vec3<f32>, view: vec3<f32>) -> vec3<f32> {
 }
 
 fn scene(ndc: vec2<f32>) -> vec3<f32> {
-    let ch = cos(cam.heading);
-    let sh = sin(cam.heading);
+    let ch = cos(cam.heading_radians);
+    let sh = sin(cam.heading_radians);
     let forward = vec3<f32>(ch, sh, 0.0);
     let right = vec3<f32>(sh, -ch, 0.0);
     let up = vec3<f32>(0.0, 0.0, 1.0);
     let dir = normalize(forward
-        + right * (ndc.x * cam.tan_half_fov * cam.aspect)
+        + right * (ndc.x * cam.tan_half_fov * cam.aspect_ratio)
         + up * (ndc.y * cam.tan_half_fov));
-    let origin = vec3<f32>(cam.position, cam.camera_height);
+    let origin = vec3<f32>(cam.position, cam.camera_mount_height_meters);
 
     let sky = atmosphere(dir);
     if (dir.z < 0.0) {

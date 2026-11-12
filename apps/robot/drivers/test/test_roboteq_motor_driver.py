@@ -178,7 +178,7 @@ def test_mode_none_stops_both_wheels(make_roboteq_driver):
 
 
 def test_reversed_side_flips_command_sign(make_roboteq_driver):
-    node, port = make_roboteq_driver(left_reversed=True)
+    node, port = make_roboteq_driver(left_is_reversed=True)
     node.on_drive(command(Drive.MODE_VELOCITY, [math.tau, math.tau]))
     assert b'!S 1 -60\r' in port.written
     assert b'!S 2 60\r' in port.written
@@ -246,10 +246,12 @@ def test_command_timeout_zeroes_the_motors(make_roboteq_driver):
     assert messages[0].actual_mode == Drive.MODE_NONE
 
 
-def test_fault_flags_mark_both_drivers_faulted(make_roboteq_driver):
+def test_fault_flags_mark_both_drivers_faulted(
+        make_roboteq_driver, roboteq_motor_driver_module):
     node, port = make_roboteq_driver()
     messages = capture(node)
-    node.feedback_tick = node.FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ - 1
+    node.feedback_tick = (
+        roboteq_motor_driver_module.FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ - 1)
     port.read_queue = list(IDLE_FAST_REPLIES) + list(SLOW_REPLIES)
     node.publish_feedback()
     left, right = messages[0].drivers
@@ -260,11 +262,13 @@ def test_fault_flags_mark_both_drivers_faulted(make_roboteq_driver):
     assert right.bridge_temperature == pytest.approx(41.0)
 
 
-def test_diagnostics_report_volts_amperes_and_loop_error(make_roboteq_driver):
+def test_diagnostics_report_volts_amperes_and_loop_error(
+        make_roboteq_driver, roboteq_motor_driver_module):
     node, port = make_roboteq_driver()
     capture(node)
     diagnostics = capture_diagnostics(node)
-    node.feedback_tick = node.FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ - 1
+    node.feedback_tick = (
+        roboteq_motor_driver_module.FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ - 1)
     port.read_queue = list(IDLE_FAST_REPLIES) + list(SLOW_REPLIES)
     node.publish_feedback()
     controller, channel_1, channel_2, _configuration = diagnostics[0].status
@@ -284,11 +288,13 @@ def test_diagnostics_report_volts_amperes_and_loop_error(make_roboteq_driver):
     assert channel_2.values[0].key == 'motor_amperes'
 
 
-def test_power_stage_off_warns_on_controller_status(make_roboteq_driver):
+def test_power_stage_off_warns_on_controller_status(
+        make_roboteq_driver, roboteq_motor_driver_module):
     node, port = make_roboteq_driver()
     capture(node)
     diagnostics = capture_diagnostics(node)
-    node.feedback_tick = node.FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ - 1
+    node.feedback_tick = (
+        roboteq_motor_driver_module.FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ - 1)
     replies = [
         b'A=0:0\r', b'T=25:30:31\r', b'FF=0\r', b'FS=8\r',
         b'V=135:246:4730\r', b'BA=0:0\r', b'E=0:0\r', b'FM=0:0\r',
@@ -318,12 +324,14 @@ def test_refresh_configuration_service_rereads(make_roboteq_driver):
     assert response.message.startswith('2/')
 
 
-def test_diagnostics_include_configuration_snapshot(make_roboteq_driver):
+def test_diagnostics_include_configuration_snapshot(
+        make_roboteq_driver, roboteq_motor_driver_module):
     node, port = make_roboteq_driver(
         connect_replies=[b'TRN=SBLMG2360T\r', b'FID=v3.0d\r', b'MMOD=5:5\r'])
     capture(node)
     diagnostics = capture_diagnostics(node)
-    node.feedback_tick = node.FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ - 1
+    node.feedback_tick = (
+        roboteq_motor_driver_module.FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ - 1)
     port.read_queue = list(IDLE_FAST_REPLIES) + list(SLOW_REPLIES)
     node.publish_feedback()
     configuration = diagnostics[0].status[3]
@@ -333,10 +341,12 @@ def test_diagnostics_include_configuration_snapshot(make_roboteq_driver):
     assert values['ALIM'] == 'unavailable'
 
 
-def test_short_temperature_reply_warns_instead_of_crashing(make_roboteq_driver):
+def test_short_temperature_reply_warns_instead_of_crashing(
+        make_roboteq_driver, roboteq_motor_driver_module):
     node, port = make_roboteq_driver()
     messages = capture(node)
-    node.feedback_tick = node.FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ - 1
+    node.feedback_tick = (
+        roboteq_motor_driver_module.FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ - 1)
     port.read_queue = list(IDLE_FAST_REPLIES) + [b'A=0:0\r', b'T=25\r']
     node.publish_feedback()
     assert messages == []

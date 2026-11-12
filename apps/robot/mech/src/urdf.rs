@@ -7,12 +7,12 @@ use std::{
 
 use cadrum::{DVec3, Solid};
 use crate::{
-    datums::{CASTER_WHEEL_DIAMETER_MM, WHEEL_TREAD_DIAMETER_MM, WHEEL_TREAD_WIDTH_MM},
+    datums::{CASTER_WHEEL_DIAMETER_MILLIMETERS, WHEEL_TREAD_DIAMETER_MILLIMETERS, WHEEL_TREAD_WIDTH_MILLIMETERS},
     dimensions::Dimensions,
     link::LinkId,
-    parameters::RAIL_CROSS_HEIGHT_MM,
+    parameters::RAIL_CROSS_HEIGHT_MILLIMETERS,
     placement::{caster_wheel_center, ground_z, Corner, CAMERA_OPTICAL_RPY},
-    MESH_URI_PREFIX, MM_TO_M,
+    MESH_URI_PREFIX, METERS_PER_MILLIMETER,
 };
 
 use crate::{
@@ -91,25 +91,25 @@ fn ros2_control_block(variant: UrdfVariant, namespace: &str, drivetrain_model: &
 const CASTER_ROLLING_FRICTION_COEFFICIENT: f64 = 0.0;
 const CASTER_LATERAL_FRICTION_COEFFICIENT: f64 = 0.0;
 const CASTER_ROLLING_DIRECTION: &str = "1 0 0";
-const CASTER_CONTACT_STIFFNESS_N_PER_M: f64 = 1_000_000.0;
-const CASTER_CONTACT_DAMPING_N_S_PER_M: f64 = 5_000.0;
-const CASTER_CONTACT_MIN_DEPTH_M: f64 = 0.001;
+const CASTER_CONTACT_STIFFNESS_NEWTONS_PER_METER: f64 = 1_000_000.0;
+const CASTER_CONTACT_DAMPING_NEWTON_SECONDS_PER_METER: f64 = 5_000.0;
+const CASTER_CONTACT_MIN_DEPTH_METERS: f64 = 0.001;
 
 const POSE_PUBLISHER_UPDATE_RATE_HZ: u32 = 50;
 const GPS_UPDATE_RATE_HZ: u32 = 1;
-const CAMERA_CLIP_NEAR_M: f64 = 0.1;
-const CAMERA_CLIP_FAR_M: f64 = 40.0;
+const CAMERA_CLIP_NEAR_METERS: f64 = 0.1;
+const CAMERA_CLIP_FAR_METERS: f64 = 40.0;
 const SIMULATION_CAMERA_WIDTH: u32 = 640;
 const SIMULATION_CAMERA_HEIGHT: u32 = 480;
 const SIMULATION_CAMERA_RATE_HZ: f64 = 30.0;
-const CAMERA_LENS_OFFSET_M: f64 = 0.025;
+const CAMERA_LENS_OFFSET_METERS: f64 = 0.025;
 const CAMERA_FOCAL_COLUMNS: f64 = 368.1;
 const CAMERA_FOCAL_ROWS: f64 = 368.1;
 const CAMERA_CENTER_COLUMN: f64 = 316.1;
 const CAMERA_CENTER_ROW: f64 = 234.9;
-const CAMERA_HORIZONTAL_FOV_RAD: f64 = 1.4312;
-const DEPTH_CLIP_NEAR_M: f64 = 0.25;
-const DEPTH_CLIP_FAR_M: f64 = 20.0;
+const CAMERA_HORIZONTAL_FOV_RADIANS: f64 = 1.4312;
+const DEPTH_CLIP_NEAR_METERS: f64 = 0.25;
+const DEPTH_CLIP_FAR_METERS: f64 = 20.0;
 const IMU_DEFAULT_RATE_HZ: f64 = 25.0;
 
 fn caster_contact_surfaces(links: &[Link]) -> String {
@@ -117,7 +117,7 @@ fn caster_contact_surfaces(links: &[Link]) -> String {
     for link in links {
         if matches!(link.id, LinkId::CasterFrontLeft | LinkId::CasterFrontRight) {
             xml.push_str(&format!(
-                "  <gazebo reference=\"{}\">\n    <mu1>{CASTER_ROLLING_FRICTION_COEFFICIENT}</mu1>\n    <mu2>{CASTER_LATERAL_FRICTION_COEFFICIENT}</mu2>\n    <fdir1>{CASTER_ROLLING_DIRECTION}</fdir1>\n    <kp>{CASTER_CONTACT_STIFFNESS_N_PER_M}</kp>\n    <kd>{CASTER_CONTACT_DAMPING_N_S_PER_M}</kd>\n    <minDepth>{CASTER_CONTACT_MIN_DEPTH_M}</minDepth>\n  </gazebo>\n\n",
+                "  <gazebo reference=\"{}\">\n    <mu1>{CASTER_ROLLING_FRICTION_COEFFICIENT}</mu1>\n    <mu2>{CASTER_LATERAL_FRICTION_COEFFICIENT}</mu2>\n    <fdir1>{CASTER_ROLLING_DIRECTION}</fdir1>\n    <kp>{CASTER_CONTACT_STIFFNESS_NEWTONS_PER_METER}</kp>\n    <kd>{CASTER_CONTACT_DAMPING_NEWTON_SECONDS_PER_METER}</kd>\n    <minDepth>{CASTER_CONTACT_MIN_DEPTH_METERS}</minDepth>\n  </gazebo>\n\n",
                 link.id.link_name(),
             ));
         }
@@ -142,7 +142,7 @@ fn simulation_sensor_plugins(config: &RobotConfig) -> String {
             (
                 "rgbd_camera",
                 format!(
-                    "\n        <depth_camera>\n          <clip>\n            <near>{DEPTH_CLIP_NEAR_M}</near>\n            <far>{DEPTH_CLIP_FAR_M}</far>\n          </clip>\n        </depth_camera>"
+                    "\n        <depth_camera>\n          <clip>\n            <near>{DEPTH_CLIP_NEAR_METERS}</near>\n            <far>{DEPTH_CLIP_FAR_METERS}</far>\n          </clip>\n        </depth_camera>"
                 ),
             )
         } else {
@@ -151,19 +151,19 @@ fn simulation_sensor_plugins(config: &RobotConfig) -> String {
         xml.push_str(&format!(
             r#"  <gazebo reference="{link}">
     <sensor name="{name}" type="{sensor_type}">
-      <pose>{CAMERA_LENS_OFFSET_M} 0 0 0 0 0</pose>
+      <pose>{CAMERA_LENS_OFFSET_METERS} 0 0 0 0 0</pose>
       <update_rate>{update_rate}</update_rate>
       <always_on>true</always_on>
       <frame_id>{optical}</frame_id>
       <camera>
-        <horizontal_fov>{CAMERA_HORIZONTAL_FOV_RAD}</horizontal_fov>
+        <horizontal_fov>{CAMERA_HORIZONTAL_FOV_RADIANS}</horizontal_fov>
         <image>
           <width>{width}</width>
           <height>{height}</height>
         </image>
         <clip>
-          <near>{CAMERA_CLIP_NEAR_M}</near>
-          <far>{CAMERA_CLIP_FAR_M}</far>
+          <near>{CAMERA_CLIP_NEAR_METERS}</near>
+          <far>{CAMERA_CLIP_FAR_METERS}</far>
         </clip>
         <lens>
           <intrinsics>
@@ -301,7 +301,7 @@ pub fn write(
                 solid
                     .clone()
                     .translate(-link.origin_world)
-                    .scale(DVec3::ZERO, MM_TO_M)
+                    .scale(DVec3::ZERO, METERS_PER_MILLIMETER)
             })
             .collect();
         let mesh = Solid::mesh(&local_solids, TESSELLATION)?;
@@ -394,32 +394,32 @@ fn collision_xml(id: LinkId, dimensions: &Dimensions, variant: UrdfVariant) -> O
         | LinkId::WheelRearRight => Some(format!(
             "    <collision><origin rpy=\"{:.4} 0 0\"/><geometry><cylinder radius=\"{:.4}\" length=\"{:.4}\"/></geometry></collision>\n",
             std::f64::consts::FRAC_PI_2,
-            WHEEL_TREAD_DIAMETER_MM / 2.0 * MM_TO_M,
-            WHEEL_TREAD_WIDTH_MM * MM_TO_M,
+            WHEEL_TREAD_DIAMETER_MILLIMETERS / 2.0 * METERS_PER_MILLIMETER,
+            WHEEL_TREAD_WIDTH_MILLIMETERS * METERS_PER_MILLIMETER,
         )),
         LinkId::CasterFrontLeft | LinkId::CasterFrontRight => (variant
             == UrdfVariant::Simulation)
             .then(|| {
-                let caster_wheel_radius_mm = CASTER_WHEEL_DIAMETER_MM / 2.0;
-                let caster_wheel_bottom_z_mm =
+                let caster_wheel_radius_millimeters = CASTER_WHEEL_DIAMETER_MILLIMETERS / 2.0;
+                let caster_wheel_bottom_z_millimeters =
                     caster_wheel_center(Corner::FrontLeft, dimensions).z
-                        - caster_wheel_radius_mm;
-                let contact_lift_mm =
-                    ground_z(dimensions) - caster_wheel_bottom_z_mm;
+                        - caster_wheel_radius_millimeters;
+                let contact_lift_millimeters =
+                    ground_z(dimensions) - caster_wheel_bottom_z_millimeters;
                 format!(
                     "    <collision><origin xyz=\"0 0 {:.4}\" rpy=\"{:.4} 0 0\"/><geometry><cylinder radius=\"{:.4}\" length=\"{:.4}\"/></geometry></collision>\n",
-                    contact_lift_mm * MM_TO_M,
+                    contact_lift_millimeters * METERS_PER_MILLIMETER,
                     std::f64::consts::FRAC_PI_2,
-                    caster_wheel_radius_mm * MM_TO_M,
-                    WHEEL_TREAD_WIDTH_MM * MM_TO_M,
+                    caster_wheel_radius_millimeters * METERS_PER_MILLIMETER,
+                    WHEEL_TREAD_WIDTH_MILLIMETERS * METERS_PER_MILLIMETER,
                 )
             }),
         LinkId::Chassis => Some(format!(
             "    <collision><origin xyz=\"0 0 {:.4}\"/><geometry><box size=\"{:.4} {:.4} {:.4}\"/></geometry></collision>\n",
-            (dimensions.frame_top_z_mm - RAIL_CROSS_HEIGHT_MM / 2.0) * MM_TO_M,
-            dimensions.frame_length_mm * MM_TO_M,
-            dimensions.frame_width_mm * MM_TO_M,
-            RAIL_CROSS_HEIGHT_MM * MM_TO_M,
+            (dimensions.frame_top_z_millimeters - RAIL_CROSS_HEIGHT_MILLIMETERS / 2.0) * METERS_PER_MILLIMETER,
+            dimensions.frame_length_millimeters * METERS_PER_MILLIMETER,
+            dimensions.frame_width_millimeters * METERS_PER_MILLIMETER,
+            RAIL_CROSS_HEIGHT_MILLIMETERS * METERS_PER_MILLIMETER,
         )),
         _ => None,
     }
@@ -464,7 +464,7 @@ fn push_joint(xml: &mut String, joint: &Joint, links: &[Link]) {
         .find(|link| link.id == joint.parent)
         .map(|link| link.origin_world)
         .unwrap_or(DVec3::ZERO);
-    let joint_origin_m = (child_origin_world - parent_origin_world) * MM_TO_M;
+    let joint_origin_meters = (child_origin_world - parent_origin_world) * METERS_PER_MILLIMETER;
     let joint_type_name = match joint.joint_type {
         JointType::Fixed => "fixed",
         JointType::Continuous => "continuous",
@@ -484,7 +484,7 @@ fn push_joint(xml: &mut String, joint: &Joint, links: &[Link]) {
     let rpy = joint.rpy.unwrap_or([0.0; 3]);
     xml.push_str(&format!(
         "    <origin xyz=\"{:.4} {:.4} {:.4}\" rpy=\"{:.4} {:.4} {:.4}\"/>\n",
-        joint_origin_m.x, joint_origin_m.y, joint_origin_m.z, rpy[0], rpy[1], rpy[2],
+        joint_origin_meters.x, joint_origin_meters.y, joint_origin_meters.z, rpy[0], rpy[1], rpy[2],
     ));
     if let Some(axis) = joint.axis {
         xml.push_str(&format!(

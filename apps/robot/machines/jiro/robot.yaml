@@ -69,7 +69,7 @@ ros_parameters:
     max_angular_speed_radians_per_second: 1.5
   park_path_detector:
     roi_top_fraction: 0.6
-    min_fraction: 0.95
+    min_column_fraction: 0.95
   park_path_follow:
     forward_speed_meters_per_second: 0.9
     steer_gain: 1.5

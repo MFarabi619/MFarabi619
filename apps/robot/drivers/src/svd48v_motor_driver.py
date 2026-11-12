@@ -102,8 +102,8 @@ def decode_error_bits(error_code):
 
 
 class Svd48vBus:
-    def __init__(self, port, baud, address):
-        self.port = serial.Serial(port, baud, timeout=SERIAL_TIMEOUT_SECONDS)
+    def __init__(self, port, baud_rate, address):
+        self.port = serial.Serial(port, baud_rate, timeout=SERIAL_TIMEOUT_SECONDS)
         self.address = address
 
     def transact(self, frame, reply_length):
@@ -143,22 +143,22 @@ class Svd48vMotorDriver(Node):
         super().__init__('svd48v_motor_driver')
         self.declare_parameter('serial_port', '/dev/ttyUSB0')
         self.declare_parameter('baud_rate', 115200)
-        self.declare_parameter('address', 0xEE)
+        self.declare_parameter('modbus_address', 0xEE)
         self.declare_parameter('max_wheel_speed', 1.0)
         self.declare_parameter('acceleration_rpm_per_second', 1000)
         self.declare_parameter('speed_smoothing_time', 50)
         for side in ('left', 'right'):
-            self.declare_parameter(f'{side}_reversed', False)
+            self.declare_parameter(f'{side}_is_reversed', False)
 
         self.max_wheel_speed = self.get_parameter('max_wheel_speed').value
         self.direction_signs = [
-            -1.0 if self.get_parameter(f'{side}_reversed').value else 1.0
+            -1.0 if self.get_parameter(f'{side}_is_reversed').value else 1.0
             for side in ('left', 'right')
         ]
         self.bus = Svd48vBus(
             self.get_parameter('serial_port').value,
             self.get_parameter('baud_rate').value,
-            self.get_parameter('address').value,
+            self.get_parameter('modbus_address').value,
         )
         self.last_error_codes = [0, 0]
         self.currents = [0.0, 0.0]

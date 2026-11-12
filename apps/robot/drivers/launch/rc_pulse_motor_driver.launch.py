@@ -24,10 +24,10 @@ def rc_pulse_motor_driver(
     max_wheel_speed: float = 0.0,
     left_pwm_chip: int = 0,
     left_pwm_channel: int = 0,
-    left_reversed: bool = False,
+    left_is_reversed: bool = False,
     right_pwm_chip: int = 0,
     right_pwm_channel: int = 1,
-    right_reversed: bool = False,
+    right_is_reversed: bool = False,
 ):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
@@ -38,10 +38,10 @@ def rc_pulse_motor_driver(
             'max_wheel_speed': max_wheel_speed,
             'left_pwm_chip': left_pwm_chip,
             'left_pwm_channel': left_pwm_channel,
-            'left_reversed': left_reversed,
+            'left_is_reversed': left_is_reversed,
             'right_pwm_chip': right_pwm_chip,
             'right_pwm_channel': right_pwm_channel,
-            'right_reversed': right_reversed,
+            'right_is_reversed': right_is_reversed,
         },
         **RESPAWN,
     )

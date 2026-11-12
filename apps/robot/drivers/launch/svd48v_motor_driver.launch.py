@@ -26,8 +26,8 @@ def svd48v_motor_driver(
     max_wheel_speed: float = 0.0,
     acceleration_rpm_per_second: float = 0.0,
     speed_smoothing_time: float = 0.0,
-    left_reversed: bool = False,
-    right_reversed: bool = False,
+    left_is_reversed: bool = False,
+    right_is_reversed: bool = False,
 ):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
@@ -40,8 +40,8 @@ def svd48v_motor_driver(
             'max_wheel_speed': max_wheel_speed,
             'acceleration_rpm_per_second': acceleration_rpm_per_second,
             'speed_smoothing_time': speed_smoothing_time,
-            'left_reversed': left_reversed,
-            'right_reversed': right_reversed,
+            'left_is_reversed': left_is_reversed,
+            'right_is_reversed': right_is_reversed,
         },
         **RESPAWN,
     )

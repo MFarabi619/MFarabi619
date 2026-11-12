@@ -73,16 +73,16 @@ def walkable_surfaces(farm_generator):
         'ground': farm_generator.ground_mesh(),
         'road': farm_generator.ribbon(
             segments, -half_road, half_road, 0.01,
-            farm_generator.METERS_PER_ROAD_TILE),
+            farm_generator.METERS_PER_ROAD_TEXTURE_TILE),
         'curb_top': farm_generator.ribbon(
             segments, half_road, curb_outer, farm_generator.CURB_HEIGHT_METERS,
-            farm_generator.METERS_PER_CURB_TILE),
+            farm_generator.METERS_PER_CURB_TEXTURE_TILE),
         'sidewalk': farm_generator.ribbon(
             segments, curb_outer, curb_outer + farm_generator.SIDEWALK_WIDTH_METERS,
-            farm_generator.CURB_HEIGHT_METERS, farm_generator.METERS_PER_SIDEWALK_TILE),
+            farm_generator.CURB_HEIGHT_METERS, farm_generator.METERS_PER_SIDEWALK_TEXTURE_TILE),
         'track': farm_generator.straight_ribbon(
             0.0, 5.0, 5.0 + farm_generator.TRACK_LENGTH_METERS,
-            farm_generator.TRACK_WIDTH_METERS, farm_generator.METERS_PER_TRACK_TILE),
+            farm_generator.TRACK_WIDTH_METERS, farm_generator.METERS_PER_TRACK_TEXTURE_TILE),
     }
 
 
@@ -93,7 +93,7 @@ def textured_surfaces(farm_generator):
     return walkable_surfaces(farm_generator) | {
         'curb_face': farm_generator.curb_face(
             segments, farm_generator.ROAD_WIDTH_METERS / 2.0,
-            farm_generator.METERS_PER_CURB_TILE),
+            farm_generator.METERS_PER_CURB_TEXTURE_TILE),
         'bed': farm_generator.bed_mesh(0.0),
     }
 

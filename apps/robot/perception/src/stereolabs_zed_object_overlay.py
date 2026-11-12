@@ -128,8 +128,8 @@ class StereolabsZedObjectOverlay(Node):
         label.timestamp = stamp
         label.position = Point2(
             x=left, y=max(top - LABEL_MARGIN_PIXELS, 0.0))
-        distance = math.hypot(*tracked_object.position)
-        label.text = f'{tracked_object.label.lower()} {distance:.1f}m'
+        distance_meters = math.hypot(*tracked_object.position)
+        label.text = f'{tracked_object.label.lower()} {distance_meters:.1f}m'
         label.font_size = LABEL_FONT_SIZE_PIXELS
         label.text_color = TEXT_COLOR
         label.background_color = TEXT_BACKGROUND_COLOR

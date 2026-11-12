@@ -181,12 +181,12 @@ class ColorBlobDetector(Node):
         detections.header.frame_id = self.depth_frame_id
         overlay = ImageAnnotations()
         for bounding_box, triangularity in self.detect_blobs(self.blob_mask(bgr)):
-            distance, point = self.bounding_box_range(bounding_box, width, height)
+            distance_meters, point = self.bounding_box_range(bounding_box, width, height)
             if point is None:
                 point = self.fallback_point(bounding_box, width, height)
             detections.detections.append(
                 self.detection(message.header.stamp, bounding_box, triangularity, point))
-            self.annotate(overlay, message.header.stamp, bounding_box, distance)
+            self.annotate(overlay, message.header.stamp, bounding_box, distance_meters)
         self.detections_publisher.publish(detections)
         self.overlay_publisher.publish(overlay)
 
@@ -235,8 +235,8 @@ class ColorBlobDetector(Node):
         valid_depths = depth_patch[np.isfinite(depth_patch) & (depth_patch > 0)]
         if valid_depths.size == 0:
             return None, None
-        distance = float(np.median(valid_depths)) / MILLIMETERS_PER_METER
-        return distance, self.deproject(depth_x, depth_y, distance)
+        distance_meters = float(np.median(valid_depths)) / MILLIMETERS_PER_METER
+        return distance_meters, self.deproject(depth_x, depth_y, distance_meters)
 
     def fallback_point(self, bounding_box, color_width, color_height):
         if self.fallback_range_meters <= 0.0 or self.camera_model is None:
@@ -248,14 +248,14 @@ class ColorBlobDetector(Node):
         depth_y = int((y + height / 2.0) / color_height * self.camera_model.height)
         return self.deproject(depth_x, depth_y, self.fallback_range_meters)
 
-    def deproject(self, depth_x, depth_y, distance):
+    def deproject(self, depth_x, depth_y, distance_meters):
         if self.camera_model is None:
             return None
         ray_x, ray_y, ray_z = self.camera_model.project_pixel_to_3d_ray((depth_x, depth_y))
         return Point(
-            x=ray_x / ray_z * distance,
-            y=ray_y / ray_z * distance,
-            z=distance,
+            x=ray_x / ray_z * distance_meters,
+            y=ray_y / ray_z * distance_meters,
+            z=distance_meters,
         )
 
     def depth_is_stale(self):
@@ -283,7 +283,7 @@ class ColorBlobDetector(Node):
         detection.results.append(hypothesis)
         return detection
 
-    def annotate(self, overlay, stamp, bounding_box, distance):
+    def annotate(self, overlay, stamp, bounding_box, distance_meters):
         x, y, width, height = bounding_box
         left, right, top, bottom = float(x), float(x + width), float(y), float(y + height)
         bracket = BRACKET_FRACTION * min(width, height)
@@ -306,7 +306,7 @@ class ColorBlobDetector(Node):
         label = TextAnnotation()
         label.timestamp = stamp
         label.position = Point2(x=float(x), y=max(float(y) - LABEL_MARGIN_PIXELS, 0.0))
-        distance_text = '?' if distance is None else f'{distance:.2f} m'
+        distance_text = '?' if distance_meters is None else f'{distance_meters:.2f} m'
         label.text = f'{self.class_label} {distance_text}'
         label.font_size = LABEL_FONT_SIZE_PIXELS
         label.text_color = TEXT_COLOR

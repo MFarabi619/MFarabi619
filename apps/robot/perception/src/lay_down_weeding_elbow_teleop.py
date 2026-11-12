@@ -63,7 +63,7 @@ OPERATOR_ABSENT = 'absent'
 LIVE_PARAMETERS = frozenset({
     'forward_speed_meters_per_second', 'reverse_speed_meters_per_second',
     'forward_threshold_fraction', 'reverse_threshold_fraction', 'commit_frames',
-    'command_smoothing_seconds', 'min_elbow_visibility', 'invert_drive_axis',
+    'command_smoothing_seconds', 'min_elbow_visibility', 'drive_axis_is_reversed',
 })
 RECALIBRATING_PARAMETERS = frozenset({'drive_axis', 'arm_side'})
 
@@ -99,8 +99,8 @@ class LayDownWeedingElbowTeleop(Node):
         self.frame_id = self.declare_parameter('frame_id', 'base_link').value
         self.arm_side = self.declare_parameter('arm_side', 'either').value
         self.drive_axis = self.declare_parameter('drive_axis', 'y').value
-        self.invert_drive_axis = self.declare_parameter(
-            'invert_drive_axis', False).value
+        self.drive_axis_is_reversed = self.declare_parameter(
+            'drive_axis_is_reversed', False).value
         self.forward_threshold_fraction = self.declare_parameter(
             'forward_threshold_fraction', 0.06).value
         self.reverse_threshold_fraction = self.declare_parameter(
@@ -239,7 +239,7 @@ class LayDownWeedingElbowTeleop(Node):
 
     def classify(self, position):
         displacement = position - self.neutral_position
-        if self.invert_drive_axis:
+        if self.drive_axis_is_reversed:
             displacement = -displacement
         if displacement > self.forward_threshold_fraction:
             return ZONE_FORWARD
@@ -255,7 +255,7 @@ class LayDownWeedingElbowTeleop(Node):
             self.previous_drive_time_seconds = None
         self.zone_frames += 1
         if not self.is_creeping():
-            self.publish(0.0)
+            self.publish_twist(0.0)
             return
         if zone == ZONE_FORWARD:
             self.drive(self.forward_speed_meters_per_second)
@@ -279,7 +279,7 @@ class LayDownWeedingElbowTeleop(Node):
         self.zone_frames = 0
         self.smoothed_forward_speed_meters_per_second = 0.0
         self.previous_drive_time_seconds = None
-        self.publish(0.0)
+        self.publish_twist(0.0)
 
     def claim_smoothing_fraction(self):
         now_seconds = self.get_clock().now().nanoseconds / NANOSECONDS_PER_SECOND
@@ -293,9 +293,9 @@ class LayDownWeedingElbowTeleop(Node):
         fraction = self.claim_smoothing_fraction()
         self.smoothed_forward_speed_meters_per_second += fraction * (
             forward_speed_meters_per_second - self.smoothed_forward_speed_meters_per_second)
-        self.publish(self.smoothed_forward_speed_meters_per_second)
+        self.publish_twist(self.smoothed_forward_speed_meters_per_second)
 
-    def publish(self, forward_speed_meters_per_second):
+    def publish_twist(self, forward_speed_meters_per_second):
         message = TwistStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.header.frame_id = self.frame_id
@@ -328,7 +328,7 @@ class LayDownWeedingElbowTeleop(Node):
         annotation = PointsAnnotation()
         annotation.timestamp = stamp
         annotation.type = PointsAnnotation.LINE_LIST
-        direction_sign = -1.0 if self.invert_drive_axis else 1.0
+        direction_sign = -1.0 if self.drive_axis_is_reversed else 1.0
         boundaries = (
             self.neutral_position
             + self.forward_threshold_fraction * direction_sign,

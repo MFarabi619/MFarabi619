@@ -29,7 +29,7 @@ def collision_overlay(camera: str = 'camera_0'):
         name='collision_overlay',
         remaps=TF_REMAPS,
         params={
-            'cloud_topic': f'sensors/{camera}/depth/points',
+            'point_cloud_topic': f'sensors/{camera}/depth/points',
             'camera_info_topic': f'sensors/{camera}/color/camera_info',
             'overlay_topic': 'perception/collision/overlay',
         },

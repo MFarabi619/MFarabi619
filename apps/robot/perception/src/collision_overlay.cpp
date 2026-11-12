@@ -39,7 +39,7 @@ constexpr double POINT_DIAMETER_PIXELS = 5.0;
 constexpr double POINT_THICKNESS_PIXELS = 1.0;
 constexpr size_t MAX_POINTS_PER_ZONE = 200;
 constexpr double LABEL_MARGIN_PIXELS = 10.0;
-constexpr double LABEL_FONT_SIZE = 18.0;
+constexpr double LABEL_FONT_SIZE_PIXELS = 18.0;
 
 Color make_color(float red, float green, float blue, float alpha)
 {
@@ -73,8 +73,8 @@ public:
     tf_buffer_(get_clock()),
     tf_listener_(tf_buffer_)
   {
-    const std::string cloud_topic =
-      declare_parameter("cloud_topic", std::string("sensors/camera_0/depth/points"));
+    const std::string point_cloud_topic =
+      declare_parameter("point_cloud_topic", std::string("sensors/camera_0/depth/points"));
     const std::string camera_info_topic =
       declare_parameter("camera_info_topic", std::string("sensors/camera_0/color/camera_info"));
     const std::string overlay_topic =
@@ -95,12 +95,12 @@ public:
     camera_info_subscription_ = create_subscription<sensor_msgs::msg::CameraInfo>(
       camera_info_topic, rclcpp::SensorDataQoS(),
       [this](const sensor_msgs::msg::CameraInfo & message) {on_camera_info(message);});
-    cloud_subscription_ = create_subscription<sensor_msgs::msg::PointCloud2>(
-      cloud_topic, rclcpp::SensorDataQoS(),
-      [this](const sensor_msgs::msg::PointCloud2 & message) {on_cloud(message);});
+    point_cloud_subscription_ = create_subscription<sensor_msgs::msg::PointCloud2>(
+      point_cloud_topic, rclcpp::SensorDataQoS(),
+      [this](const sensor_msgs::msg::PointCloud2 & message) {on_point_cloud(message);});
     RCLCPP_INFO(
       get_logger(), "collision overlay: %s -> %s",
-      cloud_topic.c_str(), overlay_topic.c_str());
+      point_cloud_topic.c_str(), overlay_topic.c_str());
   }
 
 private:
@@ -112,7 +112,7 @@ private:
     has_camera_model_ = true;
   }
 
-  void on_cloud(const sensor_msgs::msg::PointCloud2 & message)
+  void on_point_cloud(const sensor_msgs::msg::PointCloud2 & message)
   {
     if (!has_camera_model_) {
       return;
@@ -175,7 +175,7 @@ private:
         char text[16];
         std::snprintf(text, sizeof(text), "%.1fm", zone->nearest_distance);
         label.text = text;
-        label.font_size = LABEL_FONT_SIZE;
+        label.font_size = LABEL_FONT_SIZE_PIXELS;
         label.text_color = zone->color;
         label.background_color = TEXT_BACKGROUND_COLOR;
         overlay.texts.push_back(label);
@@ -232,7 +232,7 @@ private:
   int64_t sample_stride_pixels_;
   rclcpp::Publisher<ImageAnnotations>::SharedPtr overlay_publisher_;
   rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_subscription_;
-  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr cloud_subscription_;
+  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr point_cloud_subscription_;
 };
 
 int main(int argc, char ** argv)

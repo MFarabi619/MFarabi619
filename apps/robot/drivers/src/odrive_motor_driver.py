@@ -53,7 +53,7 @@ WATCHDOG_TIMEOUT_SECONDS = 1.0
 REARM_INTERVAL_SECONDS = 1.0
 FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ = 25
 TURNS_PER_RADIAN = 1.0 / math.tau
-VEL_LIMIT_HEADROOM = 1.2
+VELOCITY_LIMIT_HEADROOM_FACTOR = 1.2
 
 
 class WheelDriver:
@@ -75,7 +75,7 @@ class WheelDriver:
         controller_config.input_mode = INPUT_MODE_PASSTHROUGH
         controller_config.vel_limit = (
             max_wheel_speed * gear_ratio * TURNS_PER_RADIAN
-            * VEL_LIMIT_HEADROOM
+            * VELOCITY_LIMIT_HEADROOM_FACTOR
         )
         self.axis.config.watchdog_timeout = WATCHDOG_TIMEOUT_SECONDS
         self.axis.config.enable_watchdog = True
@@ -150,12 +150,12 @@ class OdriveMotorDriver(Node):
         self.declare_parameter('max_wheel_speed', 1.0)
         for side in ('left', 'right'):
             self.declare_parameter(f'{side}_serial_number', '')
-            self.declare_parameter(f'{side}_reversed', False)
+            self.declare_parameter(f'{side}_is_reversed', False)
 
         self.max_wheel_speed = self.get_parameter('max_wheel_speed').value
         self.wheels = find_wheels(
             [self.get_parameter(f'{side}_serial_number').value for side in ('left', 'right')],
-            [self.get_parameter(f'{side}_reversed').value for side in ('left', 'right')],
+            [self.get_parameter(f'{side}_is_reversed').value for side in ('left', 'right')],
             self.get_parameter('gear_ratio').value,
             self.max_wheel_speed,
             self.get_logger(),

@@ -10,7 +10,7 @@
     base_shift_correction: false
     stop_pub_timeout: 2.0
     enable_stamped_cmd_vel: true
-    polygons: ["FootprintApproach", "PolygonSlow"]
+    polygons: ["FootprintApproach", "PolygonSlowdown"]
     FootprintApproach:
       type: polygon
       action_type: approach
@@ -21,7 +21,7 @@
       visualize: true
       polygon_pub_topic: platform/polygon_stop
       enabled: true
-    PolygonSlow:
+    PolygonSlowdown:
       type: velocity_polygon
       action_type: slowdown
       slowdown_ratio: 0.4

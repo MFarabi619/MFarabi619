@@ -1,4 +1,4 @@
-pub mod config;
+pub mod beagleyai;
 pub mod diagnostics;
 pub mod driver;
 #[allow(
@@ -46,8 +46,8 @@ pub async fn ensure_router() -> Result<(), Box<dyn std::error::Error + Send + Sy
         return Ok(());
     }
     tokio::spawn(async {
-        let argv = ["ros2", "run", "rmw_zenoh_cpp", "rmw_zenohd"].map(String::from);
-        match pixi::run(&argv, &[], None).await {
+        let command = ["ros2", "run", "rmw_zenoh_cpp", "rmw_zenohd"].map(String::from);
+        match pixi::run(&command, &[], None).await {
             Ok(status) => tracing::error!("zenoh router exited: {status}"),
             Err(error) => tracing::error!("zenoh router failed: {error}"),
         }
@@ -83,21 +83,21 @@ pub fn spawn_perception(
 pub fn beagleyai_chip(
 ) -> Result<&'static robot_drivers::gpio::Chip<'static>, Box<dyn std::error::Error + Send + Sync>> {
     let connection: &'static robot_drivers::gpio::Connection = Box::leak(Box::new(
-        robot_drivers::gpio::Connection::connect(config::RGPIOD_HOST, config::RGPIOD_PORT)?,
+        robot_drivers::gpio::Connection::connect(beagleyai::RGPIOD_HOST, beagleyai::RGPIOD_PORT)?,
     ));
     Ok(Box::leak(Box::new(
-        connection.open_chip(config::GPIO_CHIP)?,
+        connection.open_chip(beagleyai::GPIO_CHIP)?,
     )))
 }
 
 pub fn spawn_beagleyai_driver(
     context: &Arc<Context>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let drivetrain = config::beagleyai_drivetrain(beagleyai_chip()?)?;
+    let drivetrain = beagleyai::beagleyai_drivetrain(beagleyai_chip()?)?;
     let driver_node = context.create_node("base_controller", None)?;
     spawn_logged(
         "driver",
-        run_driver(driver_node, drivetrain, config::beagleyai_config()),
+        run_driver(driver_node, drivetrain, beagleyai::beagleyai_config()),
     );
     Ok(())
 }

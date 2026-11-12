@@ -78,7 +78,7 @@ fn number(value: String, color: Color) -> Cell {
 
 pub fn report_drivetrain(dimensions: &crate::dimensions::Dimensions) {
     use crate::{
-        datums::WHEEL_TREAD_DIAMETER_MM,
+        datums::WHEEL_TREAD_DIAMETER_MILLIMETERS,
         placement::{ground_z, wheel_origin, Corner},
     };
     let rear = wheel_origin(Corner::RearLeft, dimensions);
@@ -88,7 +88,7 @@ pub fn report_drivetrain(dimensions: &crate::dimensions::Dimensions) {
         ("track", 2.0 * rear.y),
         ("caster pivot x", Corner::FrontLeft.axle_x(dimensions)),
         ("rear axle x", rear.x),
-        ("tread radius", WHEEL_TREAD_DIAMETER_MM / 2.0),
+        ("tread radius", WHEEL_TREAD_DIAMETER_MILLIMETERS / 2.0),
         ("ground clearance", ground_z(dimensions)),
     ] {
         table.add_row(vec![

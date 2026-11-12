@@ -176,10 +176,10 @@ class Yolo26PersonDetector(Node):
             if score < self.min_score:
                 continue
             track_id = int(box.id.item()) if box.id is not None else None
-            distance, point = self.bounding_box_range(box)
+            distance_meters, point = self.bounding_box_range(box)
             detections.detections.append(
                 self.detection(message.header.stamp, box, score, point, track_id))
-            self.annotate(overlay, message.header.stamp, box, distance, track_id)
+            self.annotate(overlay, message.header.stamp, box, distance_meters, track_id)
         self.detections_publisher.publish(detections)
         self.overlay_publisher.publish(overlay)
 
@@ -190,25 +190,25 @@ class Yolo26PersonDetector(Node):
         depth_height, depth_width = self.latest_depth_millimeters.shape[:2]
         depth_x = int(center_x_fraction * depth_width)
         depth_y = int(center_y_fraction * depth_height)
-        radius = self.depth_sample_radius_pixels
+        radius_pixels = self.depth_sample_radius_pixels
         depth_patch = self.latest_depth_millimeters[
-            max(depth_y - radius, 0):depth_y + radius + 1,
-            max(depth_x - radius, 0):depth_x + radius + 1,
+            max(depth_y - radius_pixels, 0):depth_y + radius_pixels + 1,
+            max(depth_x - radius_pixels, 0):depth_x + radius_pixels + 1,
         ]
         valid_depths = depth_patch[np.isfinite(depth_patch) & (depth_patch > 0)]
         if valid_depths.size == 0:
             return None, None
-        distance = float(np.median(valid_depths)) / MILLIMETERS_PER_METER
-        return distance, self.deproject(depth_x, depth_y, distance)
+        distance_meters = float(np.median(valid_depths)) / MILLIMETERS_PER_METER
+        return distance_meters, self.deproject(depth_x, depth_y, distance_meters)
 
-    def deproject(self, depth_x, depth_y, distance):
+    def deproject(self, depth_x, depth_y, distance_meters):
         if self.camera_model is None:
             return None
         ray_x, ray_y, ray_z = self.camera_model.project_pixel_to_3d_ray((depth_x, depth_y))
         return Point(
-            x=ray_x / ray_z * distance,
-            y=ray_y / ray_z * distance,
-            z=distance,
+            x=ray_x / ray_z * distance_meters,
+            y=ray_y / ray_z * distance_meters,
+            z=distance_meters,
         )
 
     def depth_is_stale(self):
@@ -236,7 +236,7 @@ class Yolo26PersonDetector(Node):
         detection.results.append(hypothesis)
         return detection
 
-    def annotate(self, overlay, stamp, box, distance, track_id):
+    def annotate(self, overlay, stamp, box, distance_meters, track_id):
         left, top, right, bottom = box.xyxy[0].tolist()
         outline = PointsAnnotation()
         outline.timestamp = stamp
@@ -254,7 +254,7 @@ class Yolo26PersonDetector(Node):
         label.timestamp = stamp
         label.position = Point2(
             x=left, y=max(top - LABEL_MARGIN_PIXELS, 0.0))
-        distance_text = f'{distance:.1f}m' if distance is not None else '?'
+        distance_text = f'{distance_meters:.1f}m' if distance_meters is not None else '?'
         identity_text = (
             f'{self.class_label} {track_id}' if track_id is not None
             else self.class_label)

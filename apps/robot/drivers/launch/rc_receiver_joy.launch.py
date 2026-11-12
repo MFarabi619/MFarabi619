@@ -20,8 +20,8 @@ from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
-def rc_teleop(
-    gpio_chip: str = 'gpiochip0',
+def rc_receiver_joy(
+    gpio_chip: int = 0,
     channel_1_line: int = 0,
     channel_2_line: int = 1,
     tank_mixed: bool = False,
@@ -29,7 +29,7 @@ def rc_teleop(
 ):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
-    params_file = params_file or bl.find('robot_boot', 'rc_teleop.yaml')
+    params_file = params_file or bl.find('robot_boot', 'rc_receiver_teleop.yaml')
     bl.node(
         package='robot_drivers',
         executable='rc_receiver_joy',
@@ -46,7 +46,7 @@ def rc_teleop(
     bl.node(
         package='teleop_twist_joy',
         executable='teleop_node',
-        name='rc_teleop',
+        name='rc_receiver_teleop',
         param_files=[params_file],
         remaps={
             'joy': 'joy_teleop/joy',

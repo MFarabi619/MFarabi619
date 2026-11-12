@@ -73,7 +73,7 @@ sensors:
         CFG_RATE_NAV: 1  # navigation solutions per measurement
       parameters:
         port: /dev/robot/gnss
-        baud: 115200
+        baud_rate: 115200
         frame_id: gps_link
       ntrip:
         mountpoint: OsgoodeFarms

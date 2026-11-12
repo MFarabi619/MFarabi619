@@ -44,7 +44,7 @@ def luxonis_oak_d_sr(
             bl.node(
                 package='depth_image_proc',
                 executable='point_cloud_xyz_node',
-                name='depth_to_pointcloud',
+                name='depth_to_point_cloud',
                 remaps={
                     'image_rect': 'depth/image_raw',
                     'camera_info': 'depth/camera_info',

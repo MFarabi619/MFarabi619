@@ -30,7 +30,7 @@ RAMP_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 2.5
 CONTROL_RATE_HZ = 50.0
 RENDER_RATE_HZ = 15.0
 SETTLE_WINDOW_SECONDS = 0.75
-ODOM_TIMEOUT_SECONDS = 15.0
+ODOMETRY_TIMEOUT_SECONDS = 15.0
 MOTION_EPSILON = 0.02
 
 SETTLE_LINEAR_TOLERANCE_METERS_PER_SECOND = 0.12
@@ -130,19 +130,21 @@ class DriveProfile(Node):
         self.live = None
 
         self.publisher = self.create_publisher(TwistStamped, self.command_topic, 10)
-        odom_qos = QoSProfile(
+        odometry_qos = QoSProfile(
             reliability=QoSReliabilityPolicy.RELIABLE,
             history=QoSHistoryPolicy.KEEP_LAST,
             depth=50,
         )
-        self.odom = Subscriber(self, Odometry, self.odom_topic, qos_profile=odom_qos)
-        self.odom_cache = Cache(self.odom, cache_size=400)
-        self.odom_cache.registerCallback(self.on_odom)
+        self.odometry = Subscriber(
+            self, Odometry, self.odom_topic, qos_profile=odometry_qos
+        )
+        self.odometry_cache = Cache(self.odometry, cache_size=400)
+        self.odometry_cache.registerCallback(self.on_odometry)
 
         self.create_timer(1.0 / CONTROL_RATE_HZ, self.on_control)
         self.create_timer(1.0 / RENDER_RATE_HZ, self.on_render)
 
-    def on_odom(self, message):
+    def on_odometry(self, message):
         self.latest_odometry = message
         self.linear_samples.append(message.twist.twist.linear.x)
 
@@ -152,7 +154,7 @@ class DriveProfile(Node):
             if self.latest_odometry is not None:
                 self.is_armed = True
                 self.phase_start = now
-            elif (now - self.started_at) > Duration(seconds=ODOM_TIMEOUT_SECONDS):
+            elif (now - self.started_at) > Duration(seconds=ODOMETRY_TIMEOUT_SECONDS):
                 raise ProfileComplete
             return
 
@@ -201,10 +203,10 @@ class DriveProfile(Node):
         self.publisher.publish(message)
 
     def settle_mean(self):
-        latest_time = self.odom_cache.getLatestTime()
+        latest_time = self.odometry_cache.getLatestTime()
         if latest_time is None:
             return None, None
-        messages = self.odom_cache.getInterval(
+        messages = self.odometry_cache.getInterval(
             latest_time - Duration(seconds=SETTLE_WINDOW_SECONDS), latest_time
         )
         if not messages:
@@ -214,10 +216,10 @@ class DriveProfile(Node):
         return linear, angular
 
     def phase_series(self):
-        latest_time = self.odom_cache.getLatestTime()
+        latest_time = self.odometry_cache.getLatestTime()
         if latest_time is None or self.phase_start is None:
             return None, None
-        messages = self.odom_cache.getInterval(self.phase_start, latest_time)
+        messages = self.odometry_cache.getInterval(self.phase_start, latest_time)
         if len(messages) < 5:
             return None, None
         times = np.array(

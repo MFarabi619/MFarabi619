@@ -16,7 +16,8 @@ use robot_control::{
     odometry::Odometry,
     parameters::{bool_parameter, f64_parameter},
     ruckig_profile::{
-        axis_limits, RuckigProfile, DEFAULT_ANGULAR, DEFAULT_LINEAR, DEFAULT_UPDATE_RATE,
+        axis_limits, RuckigProfile, DEFAULT_ANGULAR_LIMITS, DEFAULT_LINEAR_LIMITS,
+        DEFAULT_UPDATE_RATE,
     },
 };
 use crate::diagnostics::{diagnostic_array, Status};
@@ -67,8 +68,8 @@ pub async fn run_driver(
         deadman_seconds,
         shaping,
         publish_odometry,
-        linear,
-        angular,
+        linear_limits,
+        angular_limits,
     ) = {
         let parameters = node.create_parameter_server()?;
         let store = parameters.params.read();
@@ -95,8 +96,8 @@ pub async fn run_driver(
                 ),
             },
             bool_parameter(&store, "publish_odometry", config.publish_odometry),
-            axis_limits(&store, "linear.x", DEFAULT_LINEAR),
-            axis_limits(&store, "angular.z", DEFAULT_ANGULAR),
+            axis_limits(&store, "linear.x", DEFAULT_LINEAR_LIMITS),
+            axis_limits(&store, "angular.z", DEFAULT_ANGULAR_LIMITS),
         )
     };
 
@@ -106,14 +107,14 @@ pub async fn run_driver(
         None
     };
 
-    let mut target_linear = 0.0;
-    let mut target_angular = 0.0;
+    let mut target_linear_meters_per_second = 0.0;
+    let mut target_angular_radians_per_second = 0.0;
     let delta_seconds = 1.0 / update_rate;
-    let mut profile = RuckigProfile::new(delta_seconds, linear, angular);
+    let mut profile = RuckigProfile::new(delta_seconds, linear_limits, angular_limits);
 
     let mut last_command = Instant::now();
-    let mut last_written: Option<DriveCommand> = None;
-    let mut control = interval(Duration::from_secs_f64(delta_seconds));
+    let mut last_drive_command: Option<DriveCommand> = None;
+    let mut control_tick = interval(Duration::from_secs_f64(delta_seconds));
     let mut odometry_tick = interval(Duration::from_secs_f64(1.0 / odometry_rate));
     let mut diagnostics_tick = interval(Duration::from_secs_f64(1.0 / diagnostics_rate));
 
@@ -125,30 +126,31 @@ pub async fn run_driver(
             _ = &mut ctrl_c => break,
             message = cmd_vel.recv() => {
                 let command = message?.sample;
-                target_linear = command.twist.linear.x;
-                target_angular = command.twist.angular.z;
+                target_linear_meters_per_second = command.twist.linear.x;
+                target_angular_radians_per_second = command.twist.angular.z;
                 last_command = Instant::now();
             }
-            _ = control.tick() => {
-                let output = if command_is_stale(last_command.elapsed().as_secs_f64(), deadman_seconds) {
+            _ = control_tick.tick() => {
+                let drive_command = if command_is_stale(last_command.elapsed().as_secs_f64(), deadman_seconds) {
                     // Comms lost: hard stop and forget stored motion — a safety halt must not ease out.
                     profile.reset();
-                    target_linear = 0.0;
-                    target_angular = 0.0;
+                    target_linear_meters_per_second = 0.0;
+                    target_angular_radians_per_second = 0.0;
                     if let Some(odometry) = odometry.as_mut() {
                         odometry.stop();
                     }
                     HALT
                 } else {
-                    let (linear, angular) = profile.step(target_linear, target_angular);
+                    let (linear_meters_per_second, angular_radians_per_second) =
+                        profile.step(target_linear_meters_per_second, target_angular_radians_per_second);
                     if let Some(odometry) = odometry.as_mut() {
-                        odometry.set_velocity_command(linear, angular);
+                        odometry.set_velocity_command(linear_meters_per_second, angular_radians_per_second);
                     }
-                    shape(mix(linear, angular), shaping)
+                    shape(mix(linear_meters_per_second, angular_radians_per_second), shaping)
                 };
-                if last_written != Some(output) {
-                    drivetrain.drive(output)?;
-                    last_written = Some(output);
+                if last_drive_command != Some(drive_command) {
+                    drivetrain.drive(drive_command)?;
+                    last_drive_command = Some(drive_command);
                 }
             }
             _ = odometry_tick.tick() => {

@@ -50,38 +50,38 @@ const SPI_CLOCK_HZ: u32 = 6_400_000;
 const BITS_PER_CHANNEL: usize = 8;
 const WS2812_BIT_ZERO: u8 = 0x80;
 const WS2812_BIT_ONE: u8 = 0xF8;
-const WHEEL_SPAN: u8 = 85;
-const WHEEL_SPAN_LAST: u8 = 84;
-const WHEEL_SPAN_TWICE_LAST: u8 = 169;
+const COLOR_WHEEL_SPAN: u8 = 85;
+const COLOR_WHEEL_SPAN_LAST: u8 = 84;
+const COLOR_WHEEL_SPAN_TWICE_LAST: u8 = 169;
 const CHASE_STEPS: u16 = 64;
 const CHASE_STRIDE: u16 = 4;
 const CHANNEL_MAX: u8 = 255;
-const WHEEL_RAMP_SLOPE: u8 = 3;
-const WHEEL_SIZE: u32 = 256;
-const WHEEL_INDEX_MASK: u32 = 0xFF;
+const COLOR_WHEEL_RAMP_SLOPE: u8 = 3;
+const COLOR_WHEEL_SIZE: u32 = 256;
+const COLOR_WHEEL_INDEX_MASK: u32 = 0xFF;
 const CHANNELS_PER_LED: usize = 3;
 
 pub fn color_wheel(position: u8) -> Color {
     match position {
-        0..=WHEEL_SPAN_LAST => Color {
-            red: position * WHEEL_RAMP_SLOPE,
-            green: CHANNEL_MAX - position * WHEEL_RAMP_SLOPE,
+        0..=COLOR_WHEEL_SPAN_LAST => Color {
+            red: position * COLOR_WHEEL_RAMP_SLOPE,
+            green: CHANNEL_MAX - position * COLOR_WHEEL_RAMP_SLOPE,
             blue: 0,
         },
-        WHEEL_SPAN..=WHEEL_SPAN_TWICE_LAST => {
-            let position = position - WHEEL_SPAN;
+        COLOR_WHEEL_SPAN..=COLOR_WHEEL_SPAN_TWICE_LAST => {
+            let position = position - COLOR_WHEEL_SPAN;
             Color {
-                red: CHANNEL_MAX - position * WHEEL_RAMP_SLOPE,
+                red: CHANNEL_MAX - position * COLOR_WHEEL_RAMP_SLOPE,
                 green: 0,
-                blue: position * WHEEL_RAMP_SLOPE,
+                blue: position * COLOR_WHEEL_RAMP_SLOPE,
             }
         }
         _ => {
-            let position = position - 2 * WHEEL_SPAN;
+            let position = position - 2 * COLOR_WHEEL_SPAN;
             Color {
                 red: 0,
-                green: position * WHEEL_RAMP_SLOPE,
-                blue: CHANNEL_MAX - position * WHEEL_RAMP_SLOPE,
+                green: position * COLOR_WHEEL_RAMP_SLOPE,
+                blue: CHANNEL_MAX - position * COLOR_WHEEL_RAMP_SLOPE,
             }
         }
     }
@@ -98,7 +98,7 @@ fn rainbow_frame(shift: u8) -> Frame {
 fn rainbow_cycle_frame(shift: u8) -> Frame {
     let mut frame = DARK;
     for (index, color) in frame.iter_mut().enumerate() {
-        let position = (index * WHEEL_SIZE as usize / LED_COUNT) as u8;
+        let position = (index * COLOR_WHEEL_SIZE as usize / LED_COUNT) as u8;
         *color = color_wheel(position.wrapping_add(shift));
     }
     frame
@@ -161,16 +161,16 @@ impl<'a> LedStrip<'a> {
     }
 
     pub fn rainbow(&mut self, wait: Duration, cycles: u16) -> Result<(), Error> {
-        for step in 0..(WHEEL_SIZE * cycles as u32) {
-            self.show(rainbow_frame((step & WHEEL_INDEX_MASK) as u8))?;
+        for step in 0..(COLOR_WHEEL_SIZE * cycles as u32) {
+            self.show(rainbow_frame((step & COLOR_WHEEL_INDEX_MASK) as u8))?;
             sleep(wait);
         }
         Ok(())
     }
 
     pub fn rainbow_cycle(&mut self, wait: Duration, cycles: u16) -> Result<(), Error> {
-        for step in 0..(WHEEL_SIZE * cycles as u32) {
-            self.show(rainbow_cycle_frame((step & WHEEL_INDEX_MASK) as u8))?;
+        for step in 0..(COLOR_WHEEL_SIZE * cycles as u32) {
+            self.show(rainbow_cycle_frame((step & COLOR_WHEEL_INDEX_MASK) as u8))?;
             sleep(wait);
         }
         Ok(())

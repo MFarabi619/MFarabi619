@@ -39,7 +39,7 @@ def apply_receiver_flash(bl, port, flash):
 def ublox_zed_f9p(
     gps: str = 'gps_0',
     port: str = '/dev/ttyACM0',
-    baud: int = 115200,
+    baud_rate: int = 115200,
     frame_id: str = 'gps_link',
     flash: str = '',
     ntrip_mountpoint: str = '',
@@ -54,7 +54,7 @@ def ublox_zed_f9p(
             package='nmea_navsat_driver',
             executable='nmea_serial_driver',
             name='nmea_navsat_driver',
-            params={'port': port, 'baud': baud, 'frame_id': frame_id},
+            params={'port': port, 'baud': baud_rate, 'frame_id': frame_id},
             **RESPAWN,
         )
         if ntrip_mountpoint:
@@ -64,7 +64,7 @@ def ublox_zed_f9p(
                 f' --mountpoint {ntrip_mountpoint}'
                 f' --ntripuser {ntrip_username} --ntrippassword none'
                 f' --clioutput {OUTPUT_SERIAL}'
-                f' --output {port}@{baud}',
+                f' --output {port}@{baud_rate}',
                 name='ntrip_client',
                 **NTRIP_RESPAWN,
             )

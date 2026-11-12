@@ -1,11 +1,11 @@
 use std::{thread::sleep, time::Duration};
 
-use robot::config::{GPIO_CHIP, RGPIOD_HOST, I2C_BUS, PCA9685_ADDRESS, RGPIOD_PORT};
+use robot::beagleyai::{GPIO_CHIP, RGPIOD_HOST, I2C_BUS, PCA9685_ADDRESS, RGPIOD_PORT};
 use robot_drivers::{gpio::Connection, i2c::I2c, led::Led, pca9685::Pca9685};
 
 const SERVO_CHANNELS: [u8; 3] = [0, 1, 2];
-const CENTER_DEG: f64 = 90.0;
-const SWEEP_DEG: [f64; 4] = [90.0, 0.0, 180.0, 90.0];
+const CENTER_DEGREES: f64 = 90.0;
+const SWEEP_DEGREES: [f64; 4] = [90.0, 0.0, 180.0, 90.0];
 const SERVO_SETTLE: Duration = Duration::from_millis(500);
 
 const PORT1_GPIO5: u32 = 5;
@@ -19,13 +19,13 @@ fn servos_sweep() -> Result<(), Box<dyn std::error::Error>> {
     let pca9685 = Pca9685::new(i2c)?;
 
     for &channel in &SERVO_CHANNELS {
-        pca9685.set_servo_angle(channel, CENTER_DEG)?;
+        pca9685.set_servo_angle(channel, CENTER_DEGREES)?;
     }
     sleep(SERVO_SETTLE);
 
     for &channel in &SERVO_CHANNELS {
         println!("servo channel {channel}");
-        for angle in SWEEP_DEG {
+        for angle in SWEEP_DEGREES {
             pca9685.set_servo_angle(channel, angle)?;
             sleep(SERVO_SETTLE);
         }
@@ -72,14 +72,14 @@ fn servos_and_leds() -> Result<(), Box<dyn std::error::Error>> {
     ];
 
     for &channel in &SERVO_CHANNELS {
-        pca9685.set_servo_angle(channel, CENTER_DEG)?;
+        pca9685.set_servo_angle(channel, CENTER_DEGREES)?;
     }
     sleep(SERVO_SETTLE);
 
     for (&channel, led) in SERVO_CHANNELS.iter().zip(&leds) {
         println!("channel {channel}");
         led.on()?;
-        for angle in SWEEP_DEG {
+        for angle in SWEEP_DEGREES {
             pca9685.set_servo_angle(channel, angle)?;
             sleep(SERVO_SETTLE);
         }

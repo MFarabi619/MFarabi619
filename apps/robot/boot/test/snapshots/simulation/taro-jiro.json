@@ -218,15 +218,15 @@
       }
     },
     {
-      "executable": "cloud_optical_adapter",
+      "executable": "point_cloud_optical_adapter",
       "kind": "node",
-      "name": "camera_0_cloud_optical_adapter",
+      "name": "camera_0_point_cloud_optical_adapter",
       "namespace": "/taro",
       "package": "robot_perception",
       "params": {
-        "body_cloud_topic": "sensors/camera_0/depth/points_body",
-        "optical_cloud_topic": "sensors/camera_0/depth/points",
-        "optical_frame": "camera_0_color_optical_frame"
+        "body_point_cloud_topic": "sensors/camera_0/depth/points_body",
+        "optical_frame": "camera_0_color_optical_frame",
+        "optical_point_cloud_topic": "sensors/camera_0/depth/points"
       }
     },
     {
@@ -828,7 +828,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -900,7 +900,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -973,7 +973,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },

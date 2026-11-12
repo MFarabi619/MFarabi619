@@ -180,7 +180,7 @@
         "tank_mixed": false
       },
       "kind": "include",
-      "launchfile": "rc_teleop.launch.py",
+      "launchfile": "rc_receiver_joy.launch.py",
       "namespace": "/jiro",
       "package": "robot_drivers",
       "subdir": null
@@ -207,11 +207,11 @@
       "executable": "teleop_node",
       "kind": "node",
       "max_respawns": -1,
-      "name": "rc_teleop",
+      "name": "rc_receiver_teleop",
       "namespace": "/jiro",
       "package": "teleop_twist_joy",
       "param_files": [
-        "boot/config/rc_teleop.yaml"
+        "boot/config/rc_receiver_teleop.yaml"
       ],
       "remaps": {
         "cmd_vel": "joy_teleop/cmd_vel",
@@ -337,7 +337,7 @@
         "scan_time": 0.05
       },
       "kind": "include",
-      "launchfile": "pointcloud_to_laserscan.launch.py",
+      "launchfile": "point_cloud_to_laserscan.launch.py",
       "namespace": "/jiro",
       "package": "robot_boot",
       "subdir": null
@@ -346,7 +346,7 @@
       "executable": "pointcloud_to_laserscan_node",
       "kind": "node",
       "max_respawns": -1,
-      "name": "camera_0_pointcloud_to_laserscan",
+      "name": "camera_0_point_cloud_to_laserscan",
       "namespace": "/jiro",
       "package": "pointcloud_to_laserscan",
       "params": {
@@ -384,8 +384,8 @@
       "package": "robot_perception",
       "params": {
         "camera_info_topic": "sensors/camera_0/color/camera_info",
-        "cloud_topic": "sensors/camera_0/depth/points",
-        "overlay_topic": "perception/collision/overlay"
+        "overlay_topic": "perception/collision/overlay",
+        "point_cloud_topic": "sensors/camera_0/depth/points"
       },
       "remaps": {
         "/tf": "tf",
@@ -407,7 +407,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -476,7 +476,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -548,7 +548,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -610,7 +610,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -679,7 +679,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -753,7 +753,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -817,7 +817,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -887,7 +887,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -958,7 +958,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -1024,7 +1024,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -1094,7 +1094,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -1165,7 +1165,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -1231,7 +1231,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -1301,7 +1301,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },
@@ -1372,7 +1372,7 @@
             },
             "/**/park_path_detector": {
               "ros__parameters": {
-                "min_fraction": 0.95,
+                "min_column_fraction": 0.95,
                 "roi_top_fraction": 0.6
               }
             },

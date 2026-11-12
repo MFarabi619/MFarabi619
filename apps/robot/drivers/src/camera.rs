@@ -96,14 +96,14 @@ pub async fn run_camera(
     let (source, image_topic, info_topic, frame_id) = {
         let parameters = node.create_parameter_server()?;
         let store = parameters.params.read();
-        let name = string_parameter(&store, "name", "camera_0");
+        let camera = string_parameter(&store, "camera", "camera_0");
         let host = string_parameter(&store, "host", &default_host);
         let port = f64_parameter(&store, "port", default_port as f64) as u16;
         (
             format!("{host}:{port}"),
-            format!("sensors/{name}/color/image_raw/compressed"),
-            format!("sensors/{name}/color/camera_info"),
-            format!("{name}_color_optical_frame"),
+            format!("sensors/{camera}/color/image_raw/compressed"),
+            format!("sensors/{camera}/color/camera_info"),
+            format!("{camera}_color_optical_frame"),
         )
     };
     let image_publisher =

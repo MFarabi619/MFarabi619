@@ -45,7 +45,7 @@ namespace
 constexpr double MILLIMETERS_PER_METER = 1000.0;
 constexpr int RGB_CHANNELS = 3;
 constexpr double LABEL_MARGIN_PIXELS = 8.0;
-constexpr double LABEL_FONT_SIZE = 18.0;
+constexpr double LABEL_FONT_SIZE_PIXELS = 18.0;
 constexpr double BOX_THICKNESS_PIXELS = 2.0;
 constexpr char MILLIMETER_DEPTH_ENCODING[] = "16UC1";
 constexpr char MONO16_DEPTH_ENCODING[] = "mono16";
@@ -488,7 +488,7 @@ private:
       snprintf(distance_text, sizeof(distance_text), "?");
     }
     label.text = class_label_ + " " + distance_text;
-    label.font_size = LABEL_FONT_SIZE;
+    label.font_size = LABEL_FONT_SIZE_PIXELS;
     label.text_color = TEXT_COLOR;
     label.background_color = TEXT_BACKGROUND_COLOR;
     overlay.texts.push_back(label);

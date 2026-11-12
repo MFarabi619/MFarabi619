@@ -38,13 +38,14 @@ GRIPPER_PLUGIN_NAMESPACE = 'robotiq_plugin'
 GRIPPER_NAME = 'Gripper A'
 GRIPPER_FULL_SCALE = 255
 JOINT_COUNT = 6
-MAX_JOINT_VELOCITY_DEGREES_PER_SECOND = 30.0
+MAX_JOINT_SPEED_DEGREES_PER_SECOND = 30.0
 STOP_AT_WAYPOINT_BLENDING = 0.0
 SESSION_INACTIVITY_TIMEOUT_MILLISECONDS = 60000
 CONNECTION_INACTIVITY_TIMEOUT_MILLISECONDS = 2000
 MODE_SETTLE_SECONDS = 1.0
 EXECUTE_TIMEOUT_SECONDS = 60.0
 GRIPPER_TIMEOUT_SECONDS = 15.0
+HOME_TOLERANCE_DEGREES = 15.0
 
 
 def load_poses():
@@ -62,7 +63,7 @@ def save_poses(poses):
 
 class KinovaLink6Arm:
     def __init__(self, address, username, password,
-                 joint_speed_degrees_per_second=MAX_JOINT_VELOCITY_DEGREES_PER_SECOND):
+                 joint_speed_degrees_per_second=MAX_JOINT_SPEED_DEGREES_PER_SECOND):
         self.joint_speed_degrees_per_second = joint_speed_degrees_per_second
         self.transport = MqttTransport()
         self.transport.connect(address)
@@ -99,10 +100,10 @@ class KinovaLink6Arm:
         return [actuator.position for actuator in feedback.actuators]
 
     def ensure_operating_mode(self, operating_mode):
-        current = self.base.GetCurrentOperatingMode().operating_mode
-        if current == operating_mode:
+        current_operating_mode = self.base.GetCurrentOperatingMode().operating_mode
+        if current_operating_mode == operating_mode:
             return
-        if current != OPERATING_MODE_MONITORED_STOP:
+        if current_operating_mode != OPERATING_MODE_MONITORED_STOP:
             self.base.SelectOperatingMode(
                 ModeSelection(operating_mode=OPERATING_MODE_MONITORED_STOP))
             time.sleep(MODE_SETTLE_SECONDS)
@@ -200,14 +201,11 @@ def record(arm, pose_name):
     print(f"recorded '{pose_name}': {poses[pose_name]}")
 
 
-START_TOLERANCE_DEGREES = 15.0
-
-
 def require_arm_at_home(arm, poses):
     offsets = [
         abs((actual - taught + 180.0) % 360.0 - 180.0)
         for taught, actual in zip(poses['home'], arm.joint_positions_degrees())]
-    if max(offsets) > START_TOLERANCE_DEGREES:
+    if max(offsets) > HOME_TOLERANCE_DEGREES:
         raise RuntimeError(
             f'arm is not at home (largest joint offset {max(offsets):.1f} '
             'deg). Hand-guide it back to home along the taught route first; '
@@ -316,7 +314,7 @@ def main():
     parser.add_argument('--force', type=int, default=10)
     parser.add_argument('--velocity', type=int, default=50)
     parser.add_argument('--joint-speed', type=float,
-                        default=MAX_JOINT_VELOCITY_DEGREES_PER_SECOND)
+                        default=MAX_JOINT_SPEED_DEGREES_PER_SECOND)
     arguments = parser.parse_args()
     arm = KinovaLink6Arm(arguments.robot_ip, arguments.robot_username,
                          arguments.robot_password,

@@ -100,7 +100,7 @@ def test_unknown_mask_source_falls_back_instead_of_crashing(brightness_detector_
 
 
 def test_unusable_live_values_are_rejected(brightness_detector_node):
-    for name, value in (('smooth_window', 0), ('smooth_window', -3),
+    for name, value in (('smooth_window_columns', 0), ('smooth_window_columns', -3),
                         ('max_value', 1.5), ('max_value', -0.2),
                         ('mask_source', 'segmentation')):
         result = brightness_detector_node.set_parameters(

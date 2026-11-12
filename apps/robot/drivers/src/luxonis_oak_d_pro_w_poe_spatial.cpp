@@ -55,7 +55,7 @@ constexpr double MAX_PREVIEW_DEPTH_MILLIMETERS = 8000.0;
 constexpr int SENSOR_WIDTH_PIXELS = 1280;
 constexpr int SENSOR_HEIGHT_PIXELS = 800;
 constexpr int IMU_RATE_HZ = 100;
-constexpr float POINTCLOUD_RATE_HZ = 10.0f;
+constexpr float POINT_CLOUD_RATE_HZ = 10.0f;
 constexpr double METERS_PER_MILLIMETER = 0.001;
 constexpr double MILLIMETERS_PER_METER = 1000.0;
 constexpr int BYTES_PER_CLOUD_POINT = 12;
@@ -74,7 +74,7 @@ constexpr int IMU_QUEUE_MAX_SIZE = 20;
 constexpr int DETECTIONS_QUEUE_MAX_SIZE = 4;
 
 constexpr double LABEL_MARGIN_PIXELS = 8.0;
-constexpr double LABEL_FONT_SIZE = 18.0;
+constexpr double LABEL_FONT_SIZE_PIXELS = 18.0;
 constexpr double BOX_THICKNESS_PIXELS = 2.0;
 
 foxglove_msgs::msg::Color make_color(float red, float green, float blue, float alpha)
@@ -117,7 +117,7 @@ public:
       declared_color_frames_per_second > 0.0 ?
       declared_color_frames_per_second : depth_frames_per_second;
     jpeg_quality_ = static_cast<int>(declare_parameter("jpeg_quality", 60));
-    frame_id_ = declare_parameter("frame_id", std::string("camera_0_link"));
+    frame_id_ = declare_parameter("frame_id", std::string("camera_0_color_optical_frame"));
     const int color_resolution_divisor =
       static_cast<int>(declare_parameter("color_resolution_divisor", 2));
     const int depth_resolution_divisor =
@@ -201,7 +201,7 @@ private:
     auto stereo = pipeline.create<dai::node::StereoDepth>();
     auto color_encoder = pipeline.create<dai::node::VideoEncoder>();
     auto imu = pipeline.create<dai::node::IMU>();
-    auto pointcloud = pipeline.create<dai::node::PointCloud>();
+    auto point_cloud = pipeline.create<dai::node::PointCloud>();
     auto yolo = pipeline.create<dai::node::YoloSpatialDetectionNetwork>();
     auto color_output = pipeline.create<dai::node::XLinkOut>();
     auto depth_output = pipeline.create<dai::node::XLinkOut>();
@@ -213,7 +213,7 @@ private:
     imu_output->setStreamName("imu");
     points_output->setStreamName("points");
     detections_output->setStreamName("detections");
-    points_output->setFpsLimit(POINTCLOUD_RATE_HZ);
+    points_output->setFpsLimit(POINT_CLOUD_RATE_HZ);
     color->setResolution(dai::ColorCameraProperties::SensorResolution::THE_800_P);
     color->setCamera("color");
     color->setFps(color_frames_per_second);
@@ -246,7 +246,7 @@ private:
       IMU_RATE_HZ);
     imu->setBatchReportThreshold(1);
     imu->setMaxBatchReports(10);
-    pointcloud->initialConfig.setSparse(true);
+    point_cloud->initialConfig.setSparse(true);
     yolo->input.setBlocking(false);
     yolo->input.setQueueSize(1);
     yolo->setBlobPath(model_path);
@@ -266,9 +266,9 @@ private:
     color->preview.link(yolo->input);
     color_encoder->bitstream.link(color_output->input);
     stereo->depth.link(depth_output->input);
-    stereo->depth.link(pointcloud->inputDepth);
+    stereo->depth.link(point_cloud->inputDepth);
     stereo->depth.link(yolo->inputDepth);
-    pointcloud->outputPointCloud.link(points_output->input);
+    point_cloud->outputPointCloud.link(points_output->input);
     yolo->out.link(detections_output->input);
     imu->out.link(imu_output->input);
     return pipeline;
@@ -477,7 +477,7 @@ private:
       snprintf(distance_text, sizeof(distance_text), "?");
     }
     label.text = class_label_ + " " + distance_text;
-    label.font_size = LABEL_FONT_SIZE;
+    label.font_size = LABEL_FONT_SIZE_PIXELS;
     label.text_color = TEXT_COLOR;
     label.background_color = TEXT_BACKGROUND_COLOR;
     overlay.texts.push_back(label);

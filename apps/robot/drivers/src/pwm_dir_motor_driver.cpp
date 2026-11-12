@@ -39,7 +39,7 @@
 using robot_platform_msgs::msg::Drive;
 using robot_platform_msgs::msg::Feedback;
 
-constexpr int PWM_EXPORT_RETRIES = 500;
+constexpr int PWM_EXPORT_MAX_ATTEMPTS = 500;
 constexpr auto PWM_EXPORT_RETRY_DELAY = std::chrono::milliseconds(10);
 constexpr int64_t NANOSECONDS_PER_SECOND = 1'000'000'000;
 constexpr double FEEDBACK_RATE_HZ = 50.0;
@@ -68,7 +68,7 @@ public:
       write_sysfs(
         "/sys/class/pwm/pwmchip" + std::to_string(chip) + "/export", std::to_string(channel));
     }
-    for (int attempt = 0; attempt < PWM_EXPORT_RETRIES; ++attempt) {
+    for (int attempt = 0; attempt < PWM_EXPORT_MAX_ATTEMPTS; ++attempt) {
       if (access(duty_path.c_str(), W_OK) == 0) {
         break;
       }
@@ -116,11 +116,13 @@ class WheelDriver
 {
 public:
   WheelDriver(
-    gpiod_line_request *dir_request, unsigned int dir_line, bool forward_level,
-    int64_t pwm_chip, int64_t pwm_channel, int64_t period_nanoseconds)
+    gpiod_line_request *dir_request, int64_t pwm_chip, int64_t pwm_channel,
+    unsigned int dir_line, bool forward_level, int64_t period_nanoseconds,
+    double min_duty_fraction)
   : dir_request(dir_request),
     dir_line(dir_line),
     forward_level(forward_level),
+    min_duty_fraction(min_duty_fraction),
     pwm(pwm_chip, pwm_channel, period_nanoseconds)
   {
   }
@@ -140,27 +142,31 @@ public:
         dir_level ? GPIOD_LINE_VALUE_ACTIVE : GPIOD_LINE_VALUE_INACTIVE);
       last_dir_level = dir_level;
     }
-    double fraction = std::min(std::abs(wheel_speed) / max_wheel_speed, 1.0);
-    pwm.write_duty_nanoseconds(static_cast<int64_t>(fraction * pwm.period_nanoseconds));
-    duty_fraction = wheel_speed >= 0.0 ? fraction : -fraction;
-    velocity = wheel_speed;
+    const double speed_fraction = std::min(std::abs(wheel_speed) / max_wheel_speed, 1.0);
+    const double applied_duty_fraction = speed_fraction == 0.0 ?
+      0.0 : min_duty_fraction + speed_fraction * (1.0 - min_duty_fraction);
+    pwm.write_duty_nanoseconds(
+      static_cast<int64_t>(applied_duty_fraction * pwm.period_nanoseconds));
+    duty_fraction = wheel_speed >= 0.0 ? applied_duty_fraction : -applied_duty_fraction;
+    velocity_radians_per_second = wheel_speed;
   }
 
   void halt()
   {
     pwm.write_duty_nanoseconds(0);
     duty_fraction = 0.0;
-    velocity = 0.0;
+    velocity_radians_per_second = 0.0;
   }
 
   double duty_fraction = 0.0;
-  double velocity = 0.0;
-  double travel = 0.0;
+  double velocity_radians_per_second = 0.0;
+  double travel_radians = 0.0;
 
 private:
   gpiod_line_request *dir_request;
   unsigned int dir_line;
   bool forward_level;
+  double min_duty_fraction;
   PwmChannel pwm;
   int last_dir_level = -1;
 };
@@ -174,6 +180,7 @@ public:
     declare_parameter("gpio_chip", 0);
     declare_parameter("pwm_frequency_hz", 20000.0);
     declare_parameter("max_wheel_speed", 1.0);
+    declare_parameter("min_duty_fraction", 0.0);
     for (const std::string side : {"left", "right"}) {
       declare_parameter(side + "_pwm_chip", 0);
       declare_parameter(side + "_pwm_channel", 0);
@@ -182,6 +189,7 @@ public:
     }
 
     max_wheel_speed = get_parameter("max_wheel_speed").as_double();
+    const double min_duty_fraction = get_parameter("min_duty_fraction").as_double();
     const auto period_nanoseconds = static_cast<int64_t>(
       NANOSECONDS_PER_SECOND / get_parameter("pwm_frequency_hz").as_double());
     const std::array<unsigned int, 2> dir_lines = {
@@ -213,11 +221,13 @@ public:
     for (size_t side_index = 0; side_index < wheels.size(); ++side_index) {
       const std::string side = side_index == 0 ? "left" : "right";
       wheels[side_index] = std::make_unique<WheelDriver>(
-        dir_request, dir_lines[side_index],
-        get_parameter(side + "_forward_level").as_bool(),
+        dir_request,
         get_parameter(side + "_pwm_chip").as_int(),
         get_parameter(side + "_pwm_channel").as_int(),
-        period_nanoseconds);
+        dir_lines[side_index],
+        get_parameter(side + "_forward_level").as_bool(),
+        period_nanoseconds,
+        min_duty_fraction);
     }
 
     last_command_time = now();
@@ -277,10 +287,12 @@ private:
     message.commanded_mode = commanded_mode;
     message.actual_mode = has_timed_out ? Drive::MODE_NONE : commanded_mode;
     for (size_t side_index = 0; side_index < wheels.size(); ++side_index) {
-      wheels[side_index]->travel += wheels[side_index]->velocity / FEEDBACK_RATE_HZ;
+      wheels[side_index]->travel_radians +=
+        wheels[side_index]->velocity_radians_per_second / FEEDBACK_RATE_HZ;
       message.drivers[side_index].duty_cycle = wheels[side_index]->duty_fraction;
-      message.drivers[side_index].measured_velocity = wheels[side_index]->velocity;
-      message.drivers[side_index].measured_travel = wheels[side_index]->travel;
+      message.drivers[side_index].measured_velocity =
+        wheels[side_index]->velocity_radians_per_second;
+      message.drivers[side_index].measured_travel = wheels[side_index]->travel_radians;
     }
     feedback_publisher->publish(message);
   }

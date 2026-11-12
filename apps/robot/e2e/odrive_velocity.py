@@ -36,7 +36,7 @@ from rich.console import Console
 from rich.table import Table
 
 FIND_TIMEOUT_SECONDS = 15.0
-EXTRA_MOTOR_TIMEOUT_SECONDS = 2.0
+EXTRA_ODRIVE_TIMEOUT_SECONDS = 2.0
 TELEMETRY_SAMPLE_RATE_HZ = 50.0
 SETTLE_MARGIN_SECONDS = 0.5
 STATE_ENTRY_TIMEOUT_SECONDS = 2.0
@@ -257,12 +257,12 @@ def results_table(results, serial_number):
     return table
 
 
-def find_all_motors():
+def find_all_odrives():
     devices = odrive.find_sync(count=1, timeout=FIND_TIMEOUT_SECONDS)
     while True:
         try:
             devices = odrive.find_sync(
-                count=len(devices) + 1, timeout=EXTRA_MOTOR_TIMEOUT_SECONDS
+                count=len(devices) + 1, timeout=EXTRA_ODRIVE_TIMEOUT_SECONDS
             )
         except TimeoutError:
             return devices
@@ -334,7 +334,7 @@ def run_suite(device, console):
 def main():
     console = Console()
     console.print("finding odrives...")
-    devices = find_all_motors()
+    devices = find_all_odrives()
     console.print(f"found {len(devices)}")
     failures = []
     for device in devices:

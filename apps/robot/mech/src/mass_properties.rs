@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use cadrum::{DMat3, DVec3};
-use crate::{link::LinkId, MM3_TO_M3, MM5_TO_M5, MM_TO_M};
+use crate::{link::LinkId, CUBIC_METERS_PER_CUBIC_MILLIMETER, QUINTIC_METERS_PER_QUINTIC_MILLIMETER, METERS_PER_MILLIMETER};
 
 use crate::{
     material::{dominant_material, Material},
@@ -26,11 +26,11 @@ pub fn summarize(link: &Link) -> LinkSummary {
         let Some(material) = dominant_material(solid) else {
             continue;
         };
-        let density = material.density_kg_per_m3();
-        let solid_mass = solid.volume().abs() * MM3_TO_M3 * density;
+        let density = material.density_kilograms_per_cubic_meter();
+        let solid_mass = solid.volume().abs() * CUBIC_METERS_PER_CUBIC_MILLIMETER * density;
         mass += solid_mass;
-        weighted_center += solid_mass * (solid.center() * MM_TO_M);
-        inertia_about_world_origin += solid.inertia() * (density * MM5_TO_M5);
+        weighted_center += solid_mass * (solid.center() * METERS_PER_MILLIMETER);
+        inertia_about_world_origin += solid.inertia() * (density * QUINTIC_METERS_PER_QUINTIC_MILLIMETER);
         *mass_by_material.entry(material).or_insert(0.0) += solid_mass;
     }
 
@@ -44,7 +44,7 @@ pub fn summarize(link: &Link) -> LinkSummary {
         let parallel_axis_shift = center.length_squared() * DMat3::IDENTITY
             - DMat3::from_cols(center * center.x, center * center.y, center * center.z);
         (
-            center - link.origin_world * MM_TO_M,
+            center - link.origin_world * METERS_PER_MILLIMETER,
             inertia_about_world_origin - parallel_axis_shift * mass,
         )
     } else {

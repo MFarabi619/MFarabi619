@@ -19,12 +19,11 @@ use oxidros::{
 use super::{
     line::{box_outline, color, label, point, rgb_to_hsv, BoundingBox},
     palm::{decode_rgb, RGB_CHANNELS},
-    twist, WATCHDOG_TIMEOUT,
+    twist, LOG_STRIDE_FRAMES, WATCHDOG_TIMEOUT,
 };
 
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
-const LOG_STRIDE_FRAMES: u64 = 15;
 const LABEL_OFFSET: f64 = 24.0;
 const DEFAULT_FORWARD_SPEED_METERS_PER_SECOND: f64 = 0.4;
 const DEFAULT_STEER_GAIN: f64 = 0.8;
@@ -32,7 +31,7 @@ const DEFAULT_STEER_GAIN: f64 = 0.8;
 pub struct Config {
     // ROI band as fractions of the frame height — the ground just ahead of the robot.
     pub roi_top_fraction: f64,
-    pub roi_bottom: f64,
+    pub roi_bottom_fraction: f64,
     // A crop pixel is chromatic and sits in the green or the red/burgundy hue band; bare
     // soil is orange-tan and drops out of both, so plain green-excess would miss the red rows.
     pub min_saturation: f64,
@@ -45,15 +44,15 @@ pub struct Config {
     // centers the row so the bed passes under it and the wheels ride the aisles either side.
     pub crop_min_fraction: f64,
     // Narrower bands than this fraction of the frame width are noise, not a row.
-    pub min_row_width: f64,
-    pub smooth_window: usize,
+    pub min_run_width_fraction: f64,
+    pub smooth_window_columns: usize,
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
             roi_top_fraction: 0.5,
-            roi_bottom: 1.0,
+            roi_bottom_fraction: 1.0,
             min_saturation: 0.30,
             min_value: 0.06,
             green_min_hue: 70.0,
@@ -61,8 +60,8 @@ impl Default for Config {
             red_min_hue: 315.0,
             red_max_hue: 18.0,
             crop_min_fraction: 0.40,
-            min_row_width: 0.04,
-            smooth_window: 9,
+            min_run_width_fraction: 0.04,
+            smooth_window_columns: 9,
         }
     }
 }
@@ -72,7 +71,7 @@ pub struct RowDetection {
     pub row_center_x: f64,
     // Horizontal position of the crop row relative to frame center, normalized to [-1, 1]
     // (negative = row is left of center, positive = right). This is the steering error.
-    pub offset: f64,
+    pub normalized_offset: f64,
     pub band: BoundingBox,
     pub vegetation: f64,
 }
@@ -82,7 +81,7 @@ impl RowDetection {
         Self {
             found: false,
             row_center_x: 0.0,
-            offset: 0.0,
+            normalized_offset: 0.0,
             band: BoundingBox::default(),
             vegetation: 0.0,
         }
@@ -128,7 +127,7 @@ fn nearer_to_center(
 
 pub fn detect(config: &Config, rgb: &[u8], width: usize, height: usize) -> RowDetection {
     let row_start = (config.roi_top_fraction * height as f64) as usize;
-    let row_end = ((config.roi_bottom * height as f64) as usize).min(height);
+    let row_end = ((config.roi_bottom_fraction * height as f64) as usize).min(height);
     let roi_rows = row_end.saturating_sub(row_start);
     if roi_rows == 0 || width == 0 {
         return RowDetection::none();
@@ -149,9 +148,9 @@ pub fn detect(config: &Config, rgb: &[u8], width: usize, height: usize) -> RowDe
         .iter()
         .map(|&count| count as f64 / roi_rows as f64)
         .collect();
-    let smoothed = smooth(&fraction, config.smooth_window);
+    let smoothed = smooth(&fraction, config.smooth_window_columns);
 
-    let min_run = ((config.min_row_width * width as f64) as usize).max(1);
+    let min_run_width_pixels = ((config.min_run_width_fraction * width as f64) as usize).max(1);
     let center = width as f64 / 2.0;
     let mut best: Option<(usize, usize)> = None;
     let mut run_start: Option<usize> = None;
@@ -162,7 +161,7 @@ pub fn detect(config: &Config, rgb: &[u8], width: usize, height: usize) -> RowDe
         if is_row {
             run_start.get_or_insert(x);
         } else if let Some(start) = run_start.take() {
-            if x - start >= min_run {
+            if x - start >= min_run_width_pixels {
                 best = nearer_to_center(best, (start, x), center);
             }
         }
@@ -176,7 +175,7 @@ pub fn detect(config: &Config, rgb: &[u8], width: usize, height: usize) -> RowDe
             RowDetection {
                 found: true,
                 row_center_x,
-                offset: (row_center_x - center) / center,
+                normalized_offset: (row_center_x - center) / center,
                 band: BoundingBox {
                     min_x: start as f64,
                     min_y: row_start as f64,
@@ -200,7 +199,7 @@ fn overlay(
         min_x: 0.0,
         min_y: config.roi_top_fraction * height as f64,
         max_x: width as f64 - 1.0,
-        max_y: config.roi_bottom * height as f64 - 1.0,
+        max_y: config.roi_bottom_fraction * height as f64 - 1.0,
     };
     annotations
         .points
@@ -222,7 +221,7 @@ fn overlay(
             ..Default::default()
         });
         annotations.texts.push(label(
-            format!("row offset {:+.2}", detection.offset),
+            format!("row offset {:+.2}", detection.normalized_offset),
             detection.band.min_x,
             detection.band.min_y - LABEL_OFFSET,
             marker,
@@ -240,7 +239,7 @@ fn overlay(
 
 fn follow(detection: &RowDetection, forward_speed_meters_per_second: f64, steer_gain: f64) -> TwistStamped {
     if detection.found {
-        twist(forward_speed_meters_per_second, -steer_gain * detection.offset)
+        twist(forward_speed_meters_per_second, -steer_gain * detection.normalized_offset)
     } else {
         twist(0.0, 0.0)
     }
@@ -272,7 +271,7 @@ pub async fn run_row_follower(node: Arc<Node>, start_enabled: bool) -> Result<()
     let ctrl_c = tokio::signal::ctrl_c();
     tokio::pin!(ctrl_c);
     let mut watchdog = tokio::time::interval(WATCHDOG_TIMEOUT);
-    let mut last_frame = Instant::now();
+    let mut latest_frame_time = Instant::now();
     loop {
         tokio::select! {
             _ = &mut ctrl_c => break,
@@ -288,7 +287,7 @@ pub async fn run_row_follower(node: Arc<Node>, start_enabled: bool) -> Result<()
                 tracing::info!("autonomy {}", if enabled { "enabled" } else { "disabled" });
             }
             _ = watchdog.tick() => {
-                if last_frame.elapsed() >= WATCHDOG_TIMEOUT {
+                if latest_frame_time.elapsed() >= WATCHDOG_TIMEOUT {
                     overlay_channel.log(&ImageAnnotations::default());
                     if enabled {
                         let _ = cmd_vel.send(&twist(0.0, 0.0));
@@ -296,7 +295,7 @@ pub async fn run_row_follower(node: Arc<Node>, start_enabled: bool) -> Result<()
                 }
             }
             message = images.recv() => {
-                last_frame = Instant::now();
+                latest_frame_time = Instant::now();
                 match decode_rgb(message?.sample.data.as_slice()) {
                     Err(error) => tracing::warn!("{error}"),
                     Ok((rgb, width, height)) => {
@@ -309,7 +308,7 @@ pub async fn run_row_follower(node: Arc<Node>, start_enabled: bool) -> Result<()
                             if detection.found {
                                 tracing::info!(
                                     "row offset {:+.2} (vegetation {:.0}%)",
-                                    detection.offset,
+                                    detection.normalized_offset,
                                     detection.vegetation * 100.0
                                 );
                             } else {
@@ -369,7 +368,7 @@ mod tests {
         let rgb = frame(width, height, &[45..75]);
         let detection = detect(&Config::default(), &rgb, width, height);
         assert!(detection.found);
-        assert!(detection.offset.abs() < 0.05, "offset {}", detection.offset);
+        assert!(detection.normalized_offset.abs() < 0.05, "offset {}", detection.normalized_offset);
     }
 
     #[test]
@@ -378,7 +377,7 @@ mod tests {
         let rgb = frame(width, height, &[85..115]);
         let detection = detect(&Config::default(), &rgb, width, height);
         assert!(detection.found);
-        assert!(detection.offset > 0.3, "offset {}", detection.offset);
+        assert!(detection.normalized_offset > 0.3, "offset {}", detection.normalized_offset);
     }
 
     #[test]
@@ -387,7 +386,7 @@ mod tests {
         let rgb = frame(width, height, &[10..30, 55..85]);
         let detection = detect(&Config::default(), &rgb, width, height);
         assert!(detection.found);
-        assert!(detection.offset > 0.0 && detection.offset < 0.3, "offset {}", detection.offset);
+        assert!(detection.normalized_offset > 0.0 && detection.normalized_offset < 0.3, "offset {}", detection.normalized_offset);
     }
 
     #[test]

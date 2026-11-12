@@ -47,12 +47,12 @@ TRACK_WIDTH_METERS = 2.6
 TRACK_LENGTH_METERS = 34.0
 TRACK_STATIONS = (0.22, 0.52, 0.82)
 
-METERS_PER_ROAD_TILE = 2.5
-METERS_PER_SIDEWALK_TILE = SIDEWALK_WIDTH_METERS / 2.0
-METERS_PER_CURB_TILE = 0.5
-METERS_PER_TRACK_TILE = 2.0
-METERS_PER_GRASS_TILE = 3.0
-METERS_PER_MULCH_TILE = 1.6
+METERS_PER_ROAD_TEXTURE_TILE = 2.5
+METERS_PER_SIDEWALK_TEXTURE_TILE = SIDEWALK_WIDTH_METERS / 2.0
+METERS_PER_CURB_TEXTURE_TILE = 0.5
+METERS_PER_TRACK_TEXTURE_TILE = 2.0
+METERS_PER_GRASS_TEXTURE_TILE = 3.0
+METERS_PER_MULCH_TEXTURE_TILE = 1.6
 
 SIDEWALK_LABEL = 12
 ROAD_LABEL = 13
@@ -74,7 +74,7 @@ BED_LENGTH_METERS = 20.0
 BED_PITCH_METERS = 1.2
 BED_HEIGHT_METERS = 0.04
 BED_COUNT = 10
-BED_HALF_WIDTH_METERS = 0.32
+BED_BOTTOM_HALF_WIDTH_METERS = 0.32
 BED_TOP_HALF_WIDTH_METERS = 0.18
 BED_TEXTURE_PHASES = (0.0, 3.5)
 PLANT_LINE_OFFSET_METERS = 0.1
@@ -193,17 +193,17 @@ def centerline_frames(points):
     return frames
 
 
-def ribbon(frames, inner_offset, outer_offset, height, meters_per_tile):
+def ribbon(frames, inner_offset, outer_offset, height, meters_per_texture_tile):
     mesh = collada_mesh.TexturedMesh()
-    across_tiles = abs(outer_offset - inner_offset) / meters_per_tile
+    across_tiles = abs(outer_offset - inner_offset) / meters_per_texture_tile
     for start, end, normal, start_distance, end_distance in frames:
         inner_start = (start[0] + normal[0] * inner_offset, start[1] + normal[1] * inner_offset)
         outer_start = (start[0] + normal[0] * outer_offset, start[1] + normal[1] * outer_offset)
         inner_end = (end[0] + normal[0] * inner_offset, end[1] + normal[1] * inner_offset)
         outer_end = (end[0] + normal[0] * outer_offset, end[1] + normal[1] * outer_offset)
-        start_tile = start_distance / meters_per_tile
-        end_tile = end_distance / meters_per_tile
-        mesh.quad(
+        start_tile = start_distance / meters_per_texture_tile
+        end_tile = end_distance / meters_per_texture_tile
+        mesh.add_quad(
             [(inner_start[0], inner_start[1], height), (outer_start[0], outer_start[1], height),
              (outer_end[0], outer_end[1], height), (inner_end[0], inner_end[1], height)],
             (0.0, 0.0, 1.0),
@@ -212,15 +212,15 @@ def ribbon(frames, inner_offset, outer_offset, height, meters_per_tile):
     return mesh
 
 
-def curb_face(frames, offset, meters_per_tile):
+def curb_face(frames, offset, meters_per_texture_tile):
     mesh = collada_mesh.TexturedMesh()
-    across_tiles = CURB_HEIGHT_METERS / meters_per_tile
+    across_tiles = CURB_HEIGHT_METERS / meters_per_texture_tile
     for start, end, normal, start_distance, end_distance in frames:
         face_start = (start[0] + normal[0] * offset, start[1] + normal[1] * offset)
         face_end = (end[0] + normal[0] * offset, end[1] + normal[1] * offset)
-        start_tile = start_distance / meters_per_tile
-        end_tile = end_distance / meters_per_tile
-        mesh.quad(
+        start_tile = start_distance / meters_per_texture_tile
+        end_tile = end_distance / meters_per_texture_tile
+        mesh.add_quad(
             [(face_start[0], face_start[1], 0.0),
              (face_start[0], face_start[1], CURB_HEIGHT_METERS),
              (face_end[0], face_end[1], CURB_HEIGHT_METERS),
@@ -231,10 +231,10 @@ def curb_face(frames, offset, meters_per_tile):
     return mesh
 
 
-def verge(frames, inner_offset, outer_offset, meters_per_tile):
+def verge(frames, inner_offset, outer_offset, meters_per_texture_tile):
     mesh = collada_mesh.TexturedMesh()
     across_offset = outer_offset - inner_offset
-    across_tiles = math.hypot(across_offset, CURB_HEIGHT_METERS) / meters_per_tile
+    across_tiles = math.hypot(across_offset, CURB_HEIGHT_METERS) / meters_per_texture_tile
     for start, end, normal, start_distance, end_distance in frames:
         inner_start = (start[0] + normal[0] * inner_offset, start[1] + normal[1] * inner_offset)
         outer_start = (start[0] + normal[0] * outer_offset, start[1] + normal[1] * outer_offset)
@@ -246,9 +246,9 @@ def verge(frames, inner_offset, outer_offset, meters_per_tile):
             surface_normal = tuple(-component for component in surface_normal)
         magnitude = math.hypot(*surface_normal)
         surface_normal = tuple(component / magnitude for component in surface_normal)
-        start_tile = start_distance / meters_per_tile
-        end_tile = end_distance / meters_per_tile
-        mesh.quad(
+        start_tile = start_distance / meters_per_texture_tile
+        end_tile = end_distance / meters_per_texture_tile
+        mesh.add_quad(
             [(inner_start[0], inner_start[1], CURB_HEIGHT_METERS),
              (outer_start[0], outer_start[1], 0.0),
              (outer_end[0], outer_end[1], 0.0),
@@ -259,12 +259,12 @@ def verge(frames, inner_offset, outer_offset, meters_per_tile):
     return mesh
 
 
-def straight_ribbon(center_y, start_x, end_x, width, meters_per_tile):
+def straight_ribbon(center_y, start_x, end_x, width, meters_per_texture_tile):
     mesh = collada_mesh.TexturedMesh()
-    along_tiles = abs(end_x - start_x) / meters_per_tile
-    across_tiles = width / meters_per_tile
+    along_tiles = abs(end_x - start_x) / meters_per_texture_tile
+    across_tiles = width / meters_per_texture_tile
     half = width / 2.0
-    mesh.quad(
+    mesh.add_quad(
         [(start_x, center_y - half, 0.005), (start_x, center_y + half, 0.005),
          (end_x, center_y + half, 0.005), (end_x, center_y - half, 0.005)],
         (0.0, 0.0, 1.0),
@@ -272,11 +272,11 @@ def straight_ribbon(center_y, start_x, end_x, width, meters_per_tile):
     return mesh
 
 
-def rectangle_mesh(half_length_x, half_length_y, meters_per_tile):
+def rectangle_mesh(half_length_x, half_length_y, meters_per_texture_tile):
     mesh = collada_mesh.TexturedMesh()
-    tiles_x = 2.0 * half_length_x / meters_per_tile
-    tiles_y = 2.0 * half_length_y / meters_per_tile
-    mesh.quad(
+    tiles_x = 2.0 * half_length_x / meters_per_texture_tile
+    tiles_y = 2.0 * half_length_y / meters_per_texture_tile
+    mesh.add_quad(
         [(-half_length_x, -half_length_y, 0.0), (-half_length_x, half_length_y, 0.0),
          (half_length_x, half_length_y, 0.0), (half_length_x, -half_length_y, 0.0)],
         (0.0, 0.0, 1.0),
@@ -285,58 +285,64 @@ def rectangle_mesh(half_length_x, half_length_y, meters_per_tile):
 
 
 def ground_mesh():
-    return rectangle_mesh(SITE_HALF_WIDTH_METERS, SITE_HALF_LENGTH_METERS, METERS_PER_GRASS_TILE)
+    return rectangle_mesh(
+        SITE_HALF_WIDTH_METERS, SITE_HALF_LENGTH_METERS, METERS_PER_GRASS_TEXTURE_TILE)
 
 
 def bed_mesh(texture_phase):
     half_length = BED_LENGTH_METERS / 2.0
-    slope_run = BED_HALF_WIDTH_METERS - BED_TOP_HALF_WIDTH_METERS
+    slope_run = BED_BOTTOM_HALF_WIDTH_METERS - BED_TOP_HALF_WIDTH_METERS
     slope_length = math.hypot(slope_run, BED_HEIGHT_METERS)
     slope_normal = (BED_HEIGHT_METERS / slope_length, slope_run / slope_length)
 
-    along = BED_LENGTH_METERS / METERS_PER_MULCH_TILE
-    slope_tiles = slope_length / METERS_PER_MULCH_TILE
-    top_tiles = 2.0 * BED_TOP_HALF_WIDTH_METERS / METERS_PER_MULCH_TILE
+    along = BED_LENGTH_METERS / METERS_PER_MULCH_TEXTURE_TILE
+    slope_tiles = slope_length / METERS_PER_MULCH_TEXTURE_TILE
+    top_tiles = 2.0 * BED_TOP_HALF_WIDTH_METERS / METERS_PER_MULCH_TEXTURE_TILE
 
     def band(lower, upper):
         return [(texture_phase, lower), (texture_phase + along, lower),
                 (texture_phase + along, upper), (texture_phase, upper)]
 
     mesh = collada_mesh.TexturedMesh()
-    mesh.quad(
-        [(-half_length, -BED_HALF_WIDTH_METERS, 0.0), (half_length, -BED_HALF_WIDTH_METERS, 0.0),
+    mesh.add_quad(
+        [(-half_length, -BED_BOTTOM_HALF_WIDTH_METERS, 0.0),
+         (half_length, -BED_BOTTOM_HALF_WIDTH_METERS, 0.0),
          (half_length, -BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
          (-half_length, -BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS)],
         (0.0, -slope_normal[0], slope_normal[1]),
         band(0.0, slope_tiles))
-    mesh.quad(
+    mesh.add_quad(
         [(-half_length, -BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
          (half_length, -BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
          (half_length, BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
          (-half_length, BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS)],
         (0.0, 0.0, 1.0),
         band(slope_tiles, slope_tiles + top_tiles))
-    mesh.quad(
+    mesh.add_quad(
         [(-half_length, BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
          (half_length, BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
-         (half_length, BED_HALF_WIDTH_METERS, 0.0), (-half_length, BED_HALF_WIDTH_METERS, 0.0)],
+         (half_length, BED_BOTTOM_HALF_WIDTH_METERS, 0.0),
+         (-half_length, BED_BOTTOM_HALF_WIDTH_METERS, 0.0)],
         (0.0, slope_normal[0], slope_normal[1]),
         band(slope_tiles + top_tiles, 2.0 * slope_tiles + top_tiles))
     for sign in (-1.0, 1.0):
         end_x = sign * half_length
-        profile = ((-BED_HALF_WIDTH_METERS, 0.0), (-BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
-                   (BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS), (BED_HALF_WIDTH_METERS, 0.0))
-        mesh.quad(
+        profile = ((-BED_BOTTOM_HALF_WIDTH_METERS, 0.0),
+                   (-BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
+                   (BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
+                   (BED_BOTTOM_HALF_WIDTH_METERS, 0.0))
+        mesh.add_quad(
             [(end_x, y, z) for y, z in profile],
             (sign, 0.0, 0.0),
-            [(y / METERS_PER_MULCH_TILE, z / METERS_PER_MULCH_TILE) for y, z in profile])
+            [(y / METERS_PER_MULCH_TEXTURE_TILE, z / METERS_PER_MULCH_TEXTURE_TILE)
+             for y, z in profile])
     return mesh
 
 
 def write_mesh(name, mesh, texture):
     path = os.path.join(MESH_DIRECTORY, f'{name}.dae')
     with open(path, 'w') as mesh_file:
-        mesh_file.write(collada_mesh.document(
+        mesh_file.write(collada_mesh.collada_document(
             name, mesh.positions, mesh.normals, mesh.triangles,
             texture=texture, uvs=mesh.uvs))
     return len(mesh.triangles)
@@ -394,7 +400,7 @@ def mulch_beds():
 jitter_rng = np.random.default_rng(JITTER_SEED)
 
 
-def scattered(value):
+def jittered(value):
     return value + jitter_rng.uniform(-PLANT_JITTER_METERS, PLANT_JITTER_METERS)
 
 
@@ -461,7 +467,7 @@ def write_baked_mesh(name, mesh):
     texture = (f'../{name}/materials/textures/{os.path.basename(mesh.texture)}'
                if mesh.texture else None)
     with open(os.path.join(MESH_DIRECTORY, f'farm_{name}.dae'), 'w') as mesh_file:
-        mesh_file.write(collada_mesh.document(
+        mesh_file.write(collada_mesh.collada_document(
             f'farm_{name}', mesh.positions, mesh.normals, mesh.triangles,
             texture=texture, uvs=mesh.uvs or None,
             color=None if texture else mesh.color))
@@ -496,7 +502,7 @@ def bed_plants():
                     plant - (plant_count - 1) / 2.0) * row.spacing
                 yaw = (index * 131 + line * 37 + plant * 17) % 63 / 10.0
                 placements.setdefault(row.uri, []).append(
-                    (scattered(plant_x), scattered(line_y), BED_HEIGHT_METERS, yaw))
+                    (jittered(plant_x), jittered(line_y), BED_HEIGHT_METERS, yaw))
     return placements
 
 
@@ -513,13 +519,13 @@ def field_weeds():
         if abs(weed_y - FIELD_CENTER_Y_METERS) > half_span:
             continue
         placements.setdefault(WEED_URIS[index % len(WEED_URIS)], []).append(
-            (scattered(weed_x), scattered(weed_y), 0.0,
+            (jittered(weed_x), jittered(weed_y), 0.0,
              (index * 29) % 63 / 10.0))
     return placements
 
 
 def bed_half_span():
-    return (BED_COUNT - 1) / 2.0 * BED_PITCH_METERS + BED_HALF_WIDTH_METERS
+    return (BED_COUNT - 1) / 2.0 * BED_PITCH_METERS + BED_BOTTOM_HALF_WIDTH_METERS
 
 
 def field_extents():
@@ -699,33 +705,33 @@ def build():
     counts = {}
     counts['ground'] = write_mesh('farm_ground', ground_mesh(), 'textures/grass_color.jpg')
     counts['road'] = write_mesh(
-        'farm_road', ribbon(frames, -half_road, half_road, 0.01, METERS_PER_ROAD_TILE),
+        'farm_road', ribbon(frames, -half_road, half_road, 0.01, METERS_PER_ROAD_TEXTURE_TILE),
         'textures/road_tile.jpg')
     for side_name, side in (('left', 1.0), ('right', -1.0)):
         counts[f'curb_top_{side_name}'] = write_mesh(
             f'farm_curb_top_{side_name}',
             ribbon(frames, half_road * side, curb_outer * side, CURB_HEIGHT_METERS,
-                   METERS_PER_CURB_TILE),
+                   METERS_PER_CURB_TEXTURE_TILE),
             'textures/curb_tile.jpg')
         counts[f'curb_face_{side_name}'] = write_mesh(
             f'farm_curb_face_{side_name}',
-            curb_face(frames, half_road * side, METERS_PER_CURB_TILE),
+            curb_face(frames, half_road * side, METERS_PER_CURB_TEXTURE_TILE),
             'textures/curb_tile.jpg')
         counts[f'sidewalk_{side_name}'] = write_mesh(
             f'farm_sidewalk_{side_name}',
             ribbon(frames, curb_outer * side, sidewalk_outer * side, CURB_HEIGHT_METERS,
-                   METERS_PER_SIDEWALK_TILE),
+                   METERS_PER_SIDEWALK_TEXTURE_TILE),
             'textures/sidewalk_tile.jpg')
         counts[f'verge_{side_name}'] = write_mesh(
             f'farm_verge_{side_name}',
             verge(frames, sidewalk_outer * side,
                   (sidewalk_outer + VERGE_WIDTH_METERS) * side,
-                  METERS_PER_GRASS_TILE),
+                  METERS_PER_GRASS_TEXTURE_TILE),
             'textures/grass_color.jpg')
 
     dirt_half_x, dirt_half_y, _ = field_extents()
     counts['field_dirt'] = write_mesh(
-        'farm_field_dirt', rectangle_mesh(dirt_half_x, dirt_half_y, METERS_PER_TRACK_TILE),
+        'farm_field_dirt', rectangle_mesh(dirt_half_x, dirt_half_y, METERS_PER_TRACK_TEXTURE_TILE),
         'textures/dirt_path_tile.jpg')
     for variant, phase in zip('ab', BED_TEXTURE_PHASES):
         counts[f'bed_{variant}'] = write_mesh(
@@ -738,7 +744,7 @@ def build():
             f'farm_track_{index}',
             straight_ribbon(start[1], track_start_x,
                             track_end_x(track_start_x, start[1]),
-                            TRACK_WIDTH_METERS, METERS_PER_TRACK_TILE),
+                            TRACK_WIDTH_METERS, METERS_PER_TRACK_TEXTURE_TILE),
             'textures/dirt_path_tile.jpg')
 
     write_plant_meshes(counts)

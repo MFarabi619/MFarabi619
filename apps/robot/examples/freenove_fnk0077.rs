@@ -6,9 +6,9 @@ use robot_drivers::{
     ws2812::{LedStrip, BLUE, GREEN, OFF, RED, WHITE},
 };
 
-const HOST: &str = "rpi5-16";
+const RGPIOD_HOST: &str = "rpi5-16";
 const RGPIOD_PORT: u16 = 8889;
-const SPEED: f64 = 0.5;
+const DRIVE_FRACTION: f64 = 0.5;
 const HOLD: Duration = Duration::from_millis(1500);
 
 const WIPE_WAIT: Duration = Duration::from_millis(50);
@@ -16,7 +16,7 @@ const CHASE_WAIT: Duration = Duration::from_millis(50);
 const RAINBOW_WAIT: Duration = Duration::from_millis(20);
 
 fn leds_run_animations() -> Result<(), Box<dyn std::error::Error>> {
-    let connection = Connection::connect(HOST, RGPIOD_PORT)?;
+    let connection = Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?;
     let mut leds = LedStrip::open(&connection)?;
 
     println!("index: red / green / blue / white");
@@ -45,7 +45,7 @@ fn leds_run_animations() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn motors_run_movement_sequence() -> Result<(), Box<dyn std::error::Error>> {
-    let connection = Connection::connect(HOST, RGPIOD_PORT)?;
+    let connection = Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?;
     let chip = connection.open_chip(0)?;
     let drivetrain = Drivetrain::new(
         Motor::dual_pwm(&chip, 24, 23, 1000.0)?,
@@ -53,14 +53,14 @@ fn motors_run_movement_sequence() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     let movements = [
-        ("forward", mix(SPEED, 0.0)),
-        ("backward", mix(-SPEED, 0.0)),
-        ("turn left", mix(0.0, SPEED)),
-        ("turn right", mix(0.0, -SPEED)),
+        ("forward", mix(DRIVE_FRACTION, 0.0)),
+        ("backward", mix(-DRIVE_FRACTION, 0.0)),
+        ("turn left", mix(0.0, DRIVE_FRACTION)),
+        ("turn right", mix(0.0, -DRIVE_FRACTION)),
     ];
-    for (label, velocity) in movements {
+    for (label, drive_command) in movements {
         println!("{label}");
-        drivetrain.drive(velocity)?;
+        drivetrain.drive(drive_command)?;
         sleep(HOLD);
     }
     println!("stop");

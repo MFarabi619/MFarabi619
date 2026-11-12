@@ -41,7 +41,7 @@ def pinhole_intrinsics(width_pixels, height_pixels, fov_degrees):
 class RpicamMjpegClient(Node):
     def __init__(self):
         super().__init__('rpicam_mjpeg_client')
-        self.name = self.declare_parameter('name', 'camera_0').value
+        self.camera = self.declare_parameter('camera', 'camera_0').value
         self.host = self.declare_parameter('host', '192.168.12.119').value
         self.port = self.declare_parameter('port', 8887).value
         self.image_topic = self.declare_parameter(
@@ -51,7 +51,7 @@ class RpicamMjpegClient(Node):
             'camera_info_topic', 'color/camera_info'
         ).value
         self.frame_id = self.declare_parameter(
-            'frame_id', f'{self.name}_color_optical_frame'
+            'frame_id', f'{self.camera}_color_optical_frame'
         ).value
         self.stream_path = self.declare_parameter('stream_path', '/stream').value
         width_pixels = self.declare_parameter('width_pixels', 1280).value

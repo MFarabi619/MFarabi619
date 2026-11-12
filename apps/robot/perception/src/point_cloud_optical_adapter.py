@@ -34,33 +34,35 @@ def body_to_optical_transform(optical_frame):
     return transform
 
 
-class CloudOpticalAdapter(Node):
+class PointCloudOpticalAdapter(Node):
     def __init__(self):
-        super().__init__('cloud_optical_adapter')
-        body_cloud_topic = self.declare_parameter(
-            'body_cloud_topic', '/sensors/camera_0/depth/points_body').value
-        optical_cloud_topic = self.declare_parameter(
-            'optical_cloud_topic', '/sensors/camera_0/depth/points').value
+        super().__init__('point_cloud_optical_adapter')
+        body_point_cloud_topic = self.declare_parameter(
+            'body_point_cloud_topic', '/sensors/camera_0/depth/points_body').value
+        optical_point_cloud_topic = self.declare_parameter(
+            'optical_point_cloud_topic', '/sensors/camera_0/depth/points').value
         optical_frame = self.declare_parameter(
             'optical_frame', 'camera_0_color_optical_frame').value
 
         self.body_to_optical = body_to_optical_transform(optical_frame)
-        self.optical_cloud_publisher = self.create_publisher(
-            PointCloud2, optical_cloud_topic, qos_profile_sensor_data)
+        self.optical_point_cloud_publisher = self.create_publisher(
+            PointCloud2, optical_point_cloud_topic, qos_profile_sensor_data)
         self.create_subscription(
-            PointCloud2, body_cloud_topic, self.on_cloud, qos_profile_sensor_data)
+            PointCloud2, body_point_cloud_topic, self.on_point_cloud,
+            qos_profile_sensor_data)
         self.get_logger().info(
-            f'cloud optical adapter: {body_cloud_topic} -> {optical_cloud_topic}')
+            'point cloud optical adapter: '
+            f'{body_point_cloud_topic} -> {optical_point_cloud_topic}')
 
-    def on_cloud(self, message):
-        optical_cloud = do_transform_cloud(message, self.body_to_optical)
-        optical_cloud.header.stamp = message.header.stamp
-        self.optical_cloud_publisher.publish(optical_cloud)
+    def on_point_cloud(self, message):
+        optical_point_cloud = do_transform_cloud(message, self.body_to_optical)
+        optical_point_cloud.header.stamp = message.header.stamp
+        self.optical_point_cloud_publisher.publish(optical_point_cloud)
 
 
 def main():
     rclpy.init()
-    node = CloudOpticalAdapter()
+    node = PointCloudOpticalAdapter()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

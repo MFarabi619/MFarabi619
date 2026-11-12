@@ -142,7 +142,7 @@ void hold_gripper(const rclcpp::Node::SharedPtr& node, double position_radians) 
 
 int main(int argc, char** argv) {
 	rclcpp::init(argc, argv);
-	auto node = rclcpp::Node::make_shared("pick_task");
+	auto node = rclcpp::Node::make_shared("kinova_link6_pick");
 	const std::string object =
 	    node->declare_parameter<std::string>("object", "apple");
 	std::thread node_spinner([node] { rclcpp::spin(node); });
