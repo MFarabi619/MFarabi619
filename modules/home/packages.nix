@@ -82,7 +82,7 @@
         espflash
         cargo-seek
         esp-generate
-        bossa-arduino
+        # bossa-arduino # FIXME: broken, found on Nov 12th 6:54PM
         cargo-embassy
         cargo-generate
         cargo-binstall
