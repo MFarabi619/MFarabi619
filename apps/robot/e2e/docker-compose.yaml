@@ -1,0 +1,150 @@
+name: robot
+
+services:
+  robot:
+    image: robot
+    pull_policy: build
+    platform: linux/arm64
+    init: true
+    build:
+      context: .
+      args:
+        JETSON_LINUX_MAJOR: 39
+        JETSON_LINUX_MINOR: 2
+        JETSON_LINUX_PATCH: 1
+        ZED_SDK_VERSION: 5.5.1
+      dockerfile_inline: |
+        # syntax=docker/dockerfile:1
+
+        FROM ghcr.io/prefix-dev/pixi:0.84.1-noble
+
+        ARG DEBIAN_FRONTEND=noninteractive
+        ARG JETSON_LINUX_MAJOR
+        ARG JETSON_LINUX_MINOR
+        ARG JETSON_LINUX_PATCH
+        ARG ZED_SDK_VERSION
+
+        # ====================================================================
+        # Installer tools
+        # ====================================================================
+
+        RUN apt-get update && apt-get install --yes --no-install-recommends \
+            curl \
+            sudo \
+            udev \
+            zstd \
+            lsb-release \
+            ca-certificates \
+            && rm -rf /var/lib/apt/lists/*
+
+        # ====================================================================
+        # NVIDIA Jetson package sources
+        # ====================================================================
+
+        ADD --chmod=644 https://repo.download.nvidia.com/jetson/jetson-ota-public.asc \
+            /etc/apt/keyrings/nvidia-jetson.asc
+
+        RUN cat > /etc/apt/sources.list.d/nvidia-jetson.sources <<EOF
+        Types: deb
+        URIs: https://repo.download.nvidia.com/jetson/common https://repo.download.nvidia.com/jetson/ffmpeg
+        Suites: r$${JETSON_LINUX_MAJOR}.$${JETSON_LINUX_MINOR}
+        Components: main
+        Signed-By: /etc/apt/keyrings/nvidia-jetson.asc
+        EOF
+
+        # ====================================================================
+        # JetPack packages
+        # ====================================================================
+
+        RUN apt-get update && apt-get install --yes --no-install-recommends \
+            vpi4-dev=4.1.4 \
+            libopencv-dev=4.8.0-4-g18251aa \
+            cuda-nvcc-13-2=13.2.86-1 \
+            cuda-cudart-dev-13-2=13.2.86-1 \
+            && rm -rf /var/lib/apt/lists/*
+
+        # ====================================================================
+        # ZED SDK
+        # ====================================================================
+
+        RUN echo "# R$${JETSON_LINUX_MAJOR} (release), REVISION: $${JETSON_LINUX_MINOR}.$${JETSON_LINUX_PATCH}" \
+                > /etc/nv_tegra_release \
+            && curl --fail --location --silent --show-error --output /tmp/zed_sdk.run \
+                "https://download.stereolabs.com/zedsdk/$${ZED_SDK_VERSION}/l4t$${JETSON_LINUX_MAJOR}.$${JETSON_LINUX_MINOR}/jetsons" \
+            && chmod +x /tmp/zed_sdk.run \
+            && /tmp/zed_sdk.run silent skip_tools skip_drivers \
+            && rm -rf /tmp/zed_sdk.run /usr/local/zed/resources/*
+
+        # ====================================================================
+        # Ubuntu packages
+        # ====================================================================
+
+        RUN apt-get update && apt-get install --yes --no-install-recommends \
+            git \
+            file \
+            wget \
+            bzip2 \
+            patch \
+            rsync \
+            unzip \
+            xz-utils \
+            build-essential \
+            libdrm-dev \
+            libpng-dev \
+            libtbb-dev \
+            uthash-dev \
+            libexif-dev \
+            libgdcm-dev \
+            libglew-dev \
+            libjbig-dev \
+            libjpeg-dev \
+            liblerc-dev \
+            libpopt-dev \
+            libtiff-dev \
+            libwebp-dev \
+            libxml2-dev \
+            python3-dev \
+            qtbase5-dev \
+            libglvnd-dev \
+            libimath-dev \
+            libjpeg8-dev \
+            freeglut3-dev \
+            libdc1394-dev \
+            libvulkan-dev \
+            libasound2-dev \
+            libdeflate-dev \
+            libglib2.0-dev \
+            libgphoto2-dev \
+            libopenexr-dev \
+            libraw1394-dev \
+            libgl1-mesa-dev \
+            libpixman-1-dev \
+            libsharpyuv-dev \
+            libjpeg-turbo8-dev \
+            libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            libgstreamer-plugins-good1.0-dev \
+            && rm -rf /var/lib/apt/lists/*
+    environment:
+      MAKEFLAGS: -j12
+      CMAKE_BUILD_PARALLEL_LEVEL: 12
+    working_dir: /workspace/apps/robot
+    command: pixi r build
+    volumes:
+      - ../../..:/workspace
+      - pixi:/workspace/apps/robot/.pixi
+      - build:/workspace/apps/robot/build
+      - install:/workspace/apps/robot/install
+      - log:/workspace/apps/robot/log
+      - ccache:/root/.cache/ccache
+      - rattler:/root/.cache/rattler
+      - hunter:/root/.hunter
+
+volumes:
+  pixi:
+  build:
+  install:
+  log:
+  ccache:
+  rattler:
+  hunter:
