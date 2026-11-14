@@ -192,10 +192,15 @@ class Imu(Sensor):
     model: ImuModel
 
 
+class Ntrip(StrictRecord):
+    mountpoint: str
+    username: str
+
+
 class Gps(Sensor):
     model: GpsModel
     flash: dict = {}
-    ntrip: dict | None = None
+    ntrip: Ntrip | None = None
 
 
 class Sensors(StrictRecord):
@@ -231,6 +236,11 @@ class Arm(StrictRecord):
     moveit_robot_name: str
 
 
+class Home(StrictRecord):
+    latitude: float
+    longitude: float
+
+
 class Behaviors(StrictRecord):
     hand_gesture_teleop: bool = False
     weeding: bool = False
@@ -261,7 +271,7 @@ class Machine(StrictRecord):
     foxglove_enabled: bool = True
     point_cloud_enabled: bool = True
     ros_parameters: dict[str, dict] = {}
-    home: dict = {}
+    home: Home | None = None
     manipulation: dict = {}
 
     @property

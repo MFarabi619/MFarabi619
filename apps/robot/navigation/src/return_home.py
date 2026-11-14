@@ -37,8 +37,8 @@ def main():
     rclpy.init()
     navigator = BasicNavigator(namespace=f'/{robot}')
     goal = GeoPose()
-    goal.position.latitude = home['latitude']
-    goal.position.longitude = home['longitude']
+    goal.position.latitude = home.latitude
+    goal.position.longitude = home.longitude
     goal.orientation.w = 1.0
     navigator.followGpsWaypoints([goal])
     try:

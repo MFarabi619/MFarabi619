@@ -271,13 +271,13 @@ def laserscan_arguments(camera):
 def launch_sensors(bl, machine):
     point_cloud_enabled = machine.point_cloud_enabled
     for gps in machine.sensors.gps:
-        ntrip = gps.ntrip or {}
+        ntrip = gps.ntrip
         include(
             'robot_drivers', f'{gps.model}.launch.py',
             gps=gps.name,
             flash=','.join(f'{key}={value}' for key, value in gps.flash.items()),
-            ntrip_mountpoint=ntrip.get('mountpoint', ''),
-            ntrip_username=ntrip.get('username', ''),
+            ntrip_mountpoint=ntrip.mountpoint if ntrip else '',
+            ntrip_username=ntrip.username if ntrip else '',
             **gps.parameters,
         )
     for imu in machine.sensors.imu:

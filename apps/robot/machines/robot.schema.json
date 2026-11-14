@@ -631,21 +631,38 @@
         "ntrip": {
           "anyOf": [
             {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/$defs/Ntrip"
             },
             {
               "type": "null"
             }
           ],
-          "default": null,
-          "title": "Ntrip"
+          "default": null
         }
       },
       "required": [
         "model"
       ],
       "title": "Gps",
+      "type": "object"
+    },
+    "Home": {
+      "additionalProperties": false,
+      "properties": {
+        "latitude": {
+          "title": "Latitude",
+          "type": "number"
+        },
+        "longitude": {
+          "title": "Longitude",
+          "type": "number"
+        }
+      },
+      "required": [
+        "latitude",
+        "longitude"
+      ],
+      "title": "Home",
       "type": "object"
     },
     "Host": {
@@ -771,6 +788,25 @@
         }
       },
       "title": "Mounts",
+      "type": "object"
+    },
+    "Ntrip": {
+      "additionalProperties": false,
+      "properties": {
+        "mountpoint": {
+          "title": "Mountpoint",
+          "type": "string"
+        },
+        "username": {
+          "title": "Username",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mountpoint",
+        "username"
+      ],
+      "title": "Ntrip",
       "type": "object"
     },
     "Platform": {
@@ -982,10 +1018,15 @@
       "type": "object"
     },
     "home": {
-      "additionalProperties": true,
-      "default": {},
-      "title": "Home",
-      "type": "object"
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Home"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "manipulation": {
       "additionalProperties": true,
