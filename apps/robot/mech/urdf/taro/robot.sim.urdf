@@ -211,7 +211,7 @@
   <gazebo reference="gps_link">
     <sensor name="gps" type="navsat">
       <always_on>true</always_on>
-      <update_rate>1</update_rate>
+      <update_rate>5</update_rate>
       <frame_id>gps_link</frame_id>
     </sensor>
   </gazebo>

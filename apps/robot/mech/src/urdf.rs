@@ -105,7 +105,7 @@ fn ros2_control_block(variant: UrdfVariant, namespace: &str, drivetrain_model: &
 // const CASTER_CONTACT_MIN_DEPTH_METERS: f64 = 0.001;
 
 const POSE_PUBLISHER_UPDATE_RATE_HZ: u32 = 50;
-const GPS_UPDATE_RATE_HZ: u32 = 1;
+const GPS_UPDATE_RATE_HZ: u32 = 5;
 const CAMERA_CLIP_NEAR_METERS: f64 = 0.1;
 const CAMERA_CLIP_FAR_METERS: f64 = 40.0;
 const SIMULATION_CAMERA_WIDTH: u32 = 640;
