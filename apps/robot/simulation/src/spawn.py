@@ -23,11 +23,9 @@ from robot_boot.urdf import drive_wheel_joint_names, wheel_geometry
 from robot_simulation.gz_bridges import spawn_simulation_bridges
 
 
-def spawn_robot(bl, machine, world, x, y, z, yaw, depth_scan_enabled=False):
-    robot = machine.name
-    urdf_path = bl.find('robot_description', 'robot.sim.urdf', subdir=f'urdf/{robot}')
-    robot_description = read_robot_description(
-        'robot_description/share', 'robot.sim.urdf', subdir=f'urdf/{robot}')
+def spawn_robot(bl, machine, world, pose):
+    urdf_path = bl.find('robot_description', 'robot.sim.urdf', subdir=f'urdf/{machine.name}')
+    robot_description = read_robot_description(None, urdf_path)
     control_parameters_file = bl.find('robot_control', 'control.yaml')
     drivetrain = machine.platform.drivetrain
     drivetrain_parameters_file = write_drivetrain_parameters_file(
@@ -45,8 +43,8 @@ def spawn_robot(bl, machine, world, x, y, z, yaw, depth_scan_enabled=False):
         anonymous=False,
         remaps=TF_REMAPS,
     )
-    spawn_model(robot, f'/{robot}/robot_description', 'topic',
-                spawn_args=get_gazebo_axes_args(x=x, y=y, z=z, yaw=yaw))
+    spawn_model(machine.name, f'/{machine.name}/robot_description', 'topic',
+                spawn_args=get_gazebo_axes_args(**pose))
 
     spawner = None
 
@@ -70,4 +68,4 @@ def spawn_robot(bl, machine, world, x, y, z, yaw, depth_scan_enabled=False):
         env={'ROS_SUPER_CLIENT': 'True'},
         on_exit=shutdown_if_spawner_failed)
 
-    spawn_simulation_bridges(bl, machine, world, robot, depth_scan_enabled)
+    spawn_simulation_bridges(bl, machine, world)

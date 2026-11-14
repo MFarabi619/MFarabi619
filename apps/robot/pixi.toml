@@ -205,7 +205,7 @@ sim = { cmd = """
 python simulation/launch/simulation.launch.py \
     --world {{ world }} \
     --robots {{ robots }} \
-    --depth_scan_enabled {{ depth_scan_enabled }} \
+    --laserscan_enabled {{ laserscan_enabled }} \
     --target {{ target }}\
 """, args = [
     { arg = "world", default = "farm", choices = [
@@ -221,7 +221,7 @@ python simulation/launch/simulation.launch.py \
         "plasticulture",
     ] },
     { arg = "robots", default = "taro,jiro" },
-    { arg = "depth_scan_enabled", default = "false", choices = [
+    { arg = "laserscan_enabled", default = "false", choices = [
         "false",
         "true",
     ] },

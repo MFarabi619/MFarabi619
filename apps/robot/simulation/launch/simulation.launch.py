@@ -24,14 +24,15 @@ from better_launch.gazebo import (
     spawn_topic_bridge,
 )
 from robot_boot.launch_policy import (
+    include,
     RESPAWN,
     TF_REMAPS,
-    include,
     write_parameter_overrides_file,
 )
 from robot_boot.urdf import ground_offset_meters
 from robot_boot.zenoh_router import ensure_zenoh_router
 from robot_machines.machine import load_machine
+from robot_simulation.gz_bridges import spawn_depth_laserscans
 from robot_simulation.spawn import spawn_robot
 from robot_simulation.target import TARGET_AHEAD_METERS, TARGET_SPAWN_POSES
 
@@ -60,18 +61,17 @@ def write_simulation_overrides_file(machine):
     return write_parameter_overrides_file(ros_parameters)
 
 
-def robot_stack(bl, robot, world, pose, depth_scan_enabled, target):
-    machine = load_machine(robot)
+def robot_stack(bl, machine, world, pose, target):
     camera = machine.sensors.camera[0]
     overrides_file = write_simulation_overrides_file(machine)
-    with bl.group(robot):
-        spawn_robot(bl, machine, world, depth_scan_enabled=depth_scan_enabled, **pose)
+    with bl.group(machine.name):
+        spawn_robot(bl, machine, world, pose)
         include('robot_boot', 'twist_mux.launch.py')
         if machine.behaviors.harvest_lane:
             include(
                 'robot_navigation', 'harvest_lane.launch.py',
                 camera_height_meters=float(camera.xyz[2]) - ground_offset_meters(
-                    bl.find('robot_description', 'robot.sim.urdf', subdir=f'urdf/{robot}')),
+                    bl.find('robot_description', 'robot.sim.urdf', subdir=f'urdf/{machine.name}')),
                 camera_lateral_offset_meters=float(camera.xyz[1]),
                 overrides_file=overrides_file,
             )
@@ -95,7 +95,7 @@ def robot_stack(bl, robot, world, pose, depth_scan_enabled, target):
 
 @launch_this(use_sim_time=True)
 def simulation(world: str = 'farm', robots: str = 'taro,jiro', headless: bool = False,
-               depth_scan_enabled: bool = False, target: str = 'person'):
+               laserscan_enabled: bool = False, target: str = 'person'):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
     include('robot_boot', 'foxglove_bridge.launch.py')
@@ -111,15 +111,15 @@ def simulation(world: str = 'farm', robots: str = 'taro,jiro', headless: bool = 
     spacing = base_pose.pop('spacing', ROBOT_SPACING_METERS)
     yaw = base_pose.get('yaw', 0.0)
     named_poses = NAMED_SPAWN_POSES.get(world, {})
-    robot_names = [name.strip() for name in robots.split(',') if name.strip()]
-    for index, robot in enumerate(robot_names):
-        if robot in named_poses:
-            pose = dict(named_poses[robot])
+    machines = [load_machine(name.strip()) for name in robots.split(',') if name.strip()]
+    for index, machine in enumerate(machines):
+        if machine.name in named_poses:
+            pose = dict(named_poses[machine.name])
         else:
             pose = {'z': DEFAULT_SPAWN_HEIGHT_METERS, 'yaw': yaw, **base_pose}
             pose['x'] = base_pose.get('x', 0.0) - index * spacing * math.sin(yaw)
             pose['y'] = base_pose.get('y', 0.0) + index * spacing * math.cos(yaw)
-        robot_stack(bl, robot, world, pose, depth_scan_enabled, target)
+        robot_stack(bl, machine, world, pose, target)
 
     target_pose = TARGET_SPAWN_POSES.get(world, {
         'x': base_pose.get('x', 0.0) + TARGET_AHEAD_METERS * math.cos(yaw),
@@ -129,3 +129,7 @@ def simulation(world: str = 'farm', robots: str = 'taro,jiro', headless: bool = 
         target,
         bl.find('robot_simulation', 'model.sdf', subdir=f'models/{target}'), 'file',
         spawn_args=get_gazebo_axes_args(**target_pose))
+    if laserscan_enabled:
+        for machine in machines:
+            with bl.group(machine.name):
+                spawn_depth_laserscans(machine)
