@@ -16,10 +16,10 @@
 
 from pathlib import Path
 import socket
-from typing import Literal, get_args
+from typing import get_args, Literal
 
 from ament_index_python.packages import get_package_share_directory
-from pydantic import BaseModel, ConfigDict, PrivateAttr, ValidationError, model_validator
+from pydantic import BaseModel, ConfigDict, model_validator, PrivateAttr, ValidationError
 import yaml
 
 CameraModel = Literal[
