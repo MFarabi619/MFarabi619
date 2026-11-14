@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "fileType": "MavlinkActions",
+    "actions": [
+        {
+            "label": "Start Mission",
+            "description": "Drive the uploaded mission from the current item",
+            "mavCmd": 300
+        },
+        {
+            "label": "Return Home",
+            "description": "Drive back to where the robot got its first GPS fix",
+            "mavCmd": 20
+        },
+        {
+            "label": "Stop",
+            "description": "Stop driving the mission or return",
+            "mavCmd": 193,
+            "param1": 0
+        }
+    ]
+}
