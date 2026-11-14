@@ -8,34 +8,22 @@ system:
 platform:
   attachments: []
   drivetrain:
-    model: roboteq
-    serial_port: /dev/robot/roboteq
-    baud_rate: 115200
-    counts_per_revolution: 90
-    control_mode: open_loop
+    model: analog_throttle
     full_scale_linear_velocity_meters_per_second: 2.0
-    roboteq:
+    i2c_bus: 7
+    min_throttle_volts: 1.0
+    max_throttle_volts: 4.0
+    analog_throttle:
       max_linear_acceleration_meters_per_second_squared: 5.0
       max_angular_acceleration_radians_per_second_squared: 7.5
-      flash:
-        # Controller flash asserted by roboteq_motor_driver at connect.
-        # RC receiver: connector pins 15/2 = pulse inputs 7/8.
-        PMOD: {7: 1, 8: 1}        # 1 = capture RC pulse width
-        PINA: {7: 17, 8: 33}      # use + motor: 17 = command motor 1, 33 = command motor 2
-        PPOL: {7: 0, 8: 1}        # input 8 inverted: mirrored right motor, RC path only
-        PMIN: {7: 0, 8: 0}        # microseconds mapped to full reverse
-        PMAX: {7: 3000, 8: 3000}  # with PMIN as a pair, symmetric around 1500; stick spans 1000-2000:
-                                  # PMIN/PMAX 0/3000 = 33%, 500/2500 = 50%, 750/2250 = 57%, 1000/2000 = 100%
-        MDIR: {1: 1, 2: 1}        # 1 = inverted
-        MMOD: {1: 0, 2: 0}        # 0 = open loop
-        ALIM: {1: 450, 2: 450}    # deciamps
-        MAC: {1: 30000, 2: 30000} # 0.1 rpm/s
-        THLD: 3                   # short circuit detection off
-        RWD: 1000                 # serial watchdog ms: RC takes over after 1 s of ROS silence
     left:
       is_reversed: false
+      dac_i2c_address: 0x62
+      dir_pin: 7
     right:
       is_reversed: true
+      dac_i2c_address: 0x63
+      dir_pin: 15
 sensors:
   camera:
     - model: stereolabs_zed

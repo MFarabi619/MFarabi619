@@ -63,6 +63,10 @@ def direction_lines(pins, drivetrain):
     return {'gpio_chip': left_chip, 'left_dir_line': left_line, 'right_dir_line': right_line}
 
 
+def specified_arguments(**arguments):
+    return {name: value for name, value in arguments.items() if value is not None}
+
+
 def flash_declarations(flash):
     declarations = []
     for code, setting in flash.items():
@@ -116,6 +120,30 @@ def launch_motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius
                 full_scale_linear_velocity_meters_per_second / wheel_radius
                 if full_scale_linear_velocity_meters_per_second is not None else 0.0),
             flash=','.join(flash_declarations(drivetrain.roboteq.get('flash', {}))),
+        )
+    elif drivetrain_model == 'analog_throttle':
+        if drivetrain.full_scale_linear_velocity_meters_per_second is None:
+            raise RuntimeError(
+                'analog_throttle needs full_scale_linear_velocity_meters_per_second in robot.yaml')
+        reverse_switch_lines = direction_lines(machine.board_pins, drivetrain)
+        include(
+            'robot_drivers', 'analog_throttle_motor_driver.launch.py',
+            gpio_chip=reverse_switch_lines['gpio_chip'],
+            full_scale_wheel_speed=(
+                drivetrain.full_scale_linear_velocity_meters_per_second / wheel_radius),
+            left_dac_i2c_address=drivetrain.left.dac_i2c_address,
+            left_reverse_switch_line=reverse_switch_lines['left_dir_line'],
+            left_is_reversed=drivetrain.left.is_reversed,
+            right_dac_i2c_address=drivetrain.right.dac_i2c_address,
+            right_reverse_switch_line=reverse_switch_lines['right_dir_line'],
+            right_is_reversed=drivetrain.right.is_reversed,
+            **specified_arguments(
+                i2c_bus=drivetrain.i2c_bus,
+                min_throttle_volts=drivetrain.min_throttle_volts,
+                max_throttle_volts=drivetrain.max_throttle_volts,
+                dac_supply_volts=drivetrain.dac_supply_volts,
+                reverse_dwell_seconds=drivetrain.reverse_dwell_seconds,
+            ),
         )
     elif drivetrain_model == 'mock':
         pass
