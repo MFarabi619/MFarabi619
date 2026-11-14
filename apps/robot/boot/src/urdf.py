@@ -19,7 +19,7 @@ import xml.etree.ElementTree as ElementTree
 
 def ground_offset_meters(urdf_path):
     robot_element = ElementTree.parse(urdf_path).getroot()
-    for joint in robot_element.iter('joint'):
+    for joint in robot_element.findall('joint'):
         child = joint.find('child')
         if child is None or child.get('link') != 'base_footprint':
             continue
@@ -30,10 +30,17 @@ def ground_offset_meters(urdf_path):
     return 0.0
 
 
+def drive_wheel_joint_names(urdf_path):
+    joint_names = [joint.get('name') for joint in
+                   ElementTree.parse(urdf_path).getroot().findall('ros2_control/joint')]
+    return ([name for name in joint_names if '_left_' in name],
+            [name for name in joint_names if '_right_' in name])
+
+
 def wheel_geometry(urdf_path):
     robot_element = ElementTree.parse(urdf_path).getroot()
     joint_by_child = {}
-    for joint in robot_element.iter('joint'):
+    for joint in robot_element.findall('joint'):
         parent = joint.find('parent')
         if parent is None:
             continue
@@ -60,10 +67,11 @@ def wheel_geometry(urdf_path):
         - lateral_offset_meters('rear_right_wheel_link'))
 
     radii_meters = {
-        float(cylinder.get('radius'))
-        for link in robot_element.iter('link')
+        float(shape.get('radius'))
+        for link in robot_element.findall('link')
         if link.get('name').endswith('_wheel_link')
-        for cylinder in link.find('collision').iter('cylinder')
+        for shape in link.find('collision/geometry')
+        if shape.tag in ('cylinder', 'sphere')
     }
     if len(radii_meters) != 1:
         raise RuntimeError(f'expected one wheel collision radius, found {radii_meters}')

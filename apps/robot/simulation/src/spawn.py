@@ -19,7 +19,7 @@ from better_launch.gazebo import get_gazebo_axes_args, spawn_model
 from robot_boot.drivetrain_parameters import (
     CONTROLLER_MANAGER_TIMEOUT_SECONDS, write_drivetrain_parameters_file)
 from robot_boot.launch_policy import TF_REMAPS
-from robot_boot.urdf import wheel_geometry
+from robot_boot.urdf import drive_wheel_joint_names, wheel_geometry
 from robot_simulation.gz_bridges import spawn_simulation_bridges
 
 
@@ -31,7 +31,8 @@ def spawn_robot(bl, machine, world, x, y, z, yaw, depth_scan_enabled=False):
     control_parameters_file = bl.find('robot_control', 'control.yaml')
     drivetrain = machine.platform.drivetrain
     drivetrain_parameters_file = write_drivetrain_parameters_file(
-        *wheel_geometry(urdf_path), drivetrain.motion_limits(drivetrain.model))
+        *wheel_geometry(urdf_path), drivetrain.motion_limits(drivetrain.model),
+        drive_wheel_joint_names(urdf_path))
     robot_description = robot_description.replace(
         'package://robot_control/config/control.yaml', control_parameters_file)
 

@@ -29,11 +29,17 @@ CONTROLLER_PARAMETERS_BY_LIMIT = {
 CONTROLLER_MANAGER_TIMEOUT_SECONDS = '60'
 
 
-def write_drivetrain_parameters_file(wheel_separation, wheel_radius, motion_limits):
+def write_drivetrain_parameters_file(wheel_separation, wheel_radius, motion_limits,
+                                     wheel_names_by_side=None):
     ros_parameters = {
         'wheel_separation': wheel_separation,
         'wheel_radius': wheel_radius,
     }
+    if wheel_names_by_side:
+        left_wheel_names, right_wheel_names = wheel_names_by_side
+        ros_parameters.update({'left_wheel_names': left_wheel_names,
+                               'right_wheel_names': right_wheel_names,
+                               'wheels_per_side': len(left_wheel_names)})
     for limit, controller_parameter in CONTROLLER_PARAMETERS_BY_LIMIT.items():
         if motion_limits.get(limit):
             ros_parameters[controller_parameter] = motion_limits[limit]
