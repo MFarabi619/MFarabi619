@@ -18,4 +18,5 @@ TARGET_AHEAD_METERS = 3.0
 TARGET_SPAWN_POSES = {
     'plasticulture': {'x': -14.5, 'y': -3.0},
     'farm': {'x': 7.29, 'y': 4.06, 'z': 0.05},
+    'area_xo': {'x': 32.969, 'y': 23.22, 'z': -0.314},
 }

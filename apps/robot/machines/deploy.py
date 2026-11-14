@@ -32,7 +32,9 @@ PIXI_PATH = '/home/mfarabi/.pixi/bin/pixi'
 
 ROBOT_LOCAL_ENTRIES = ['.pixi', 'build', 'install', 'log']
 
-DEVELOPMENT_ONLY_ENTRIES = ['__pycache__', 'assets']
+DEVELOPMENT_ONLY_ENTRIES = [
+    '__pycache__', 'assets', '/simulation/downloads',
+    '/simulation/models/area_xo', '/simulation/worlds/area_xo.sdf']
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 ROBOT_ROOT = REPO_ROOT / 'apps/robot'

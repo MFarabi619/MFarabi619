@@ -216,6 +216,7 @@ python simulation/launch/simulation.launch.py \
         "farm",
         "maize",
         "office",
+        "area_xo",
         "orchard",
         "pipeline",
         "warehouse",
@@ -238,6 +239,7 @@ python simulation/launch/simulation.launch.py \
 generate-world = { cmd = "python simulation/{{ world }}_generator.py", args = [
     { arg = "world", choices = [
         "farm",
+        "area_xo",
         "plasticulture",
     ] },
 ] }

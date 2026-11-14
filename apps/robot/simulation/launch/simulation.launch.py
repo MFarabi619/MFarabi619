@@ -37,6 +37,7 @@ from robot_simulation.spawn import spawn_robot
 from robot_simulation.target import TARGET_AHEAD_METERS, TARGET_SPAWN_POSES
 
 WORLD_SPAWN_POSES = {
+    'area_xo': {'x': 35.423, 'y': 24.945, 'z': 0.117, 'yaw': -2.529},
     'maize': {'x': -14.0, 'y': -19.0, 'z': 0.8, 'yaw': 0.0},
     'plasticulture': {'x': -10.8, 'y': -3.0, 'z': 0.25, 'yaw': 0.0},
 }

@@ -6,6 +6,9 @@ perception/models/*
 !perception/models/hand_landmarks.onnx
 
 .pytest_cache/
+simulation/downloads/
+simulation/models/area_xo/
+simulation/worlds/area_xo.sdf
 
 .astro/
 dev-dist/
