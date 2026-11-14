@@ -108,6 +108,11 @@ def row_shuttle():
     return load_module('row_shuttle')
 
 
+@pytest.fixture(scope='module')
+def ground_station_bridge():
+    return load_module('ground_station_bridge')
+
+
 @pytest.fixture
 def lay_down_weeding_elbow_teleop_node():
     node = load_node_class(

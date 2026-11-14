@@ -17,6 +17,7 @@ install(PROGRAMS src/voice_teleop.py DESTINATION lib/${PROJECT_NAME} RENAME voic
 install(PROGRAMS src/lay_down_weeding_elbow_teleop.py DESTINATION lib/${PROJECT_NAME} RENAME lay_down_weeding_elbow_teleop)
 install(PROGRAMS src/enable_behavior.py DESTINATION lib/${PROJECT_NAME} RENAME enable_behavior)
 install(PROGRAMS src/waypoints.py DESTINATION lib/${PROJECT_NAME} RENAME waypoints)
+install(PROGRAMS src/ground_station_bridge.py DESTINATION lib/${PROJECT_NAME} RENAME ground_station_bridge)
 install(DIRECTORY launch config DESTINATION share/${PROJECT_NAME} PATTERN "__pycache__" EXCLUDE)
 
 if(BUILD_TESTING)
