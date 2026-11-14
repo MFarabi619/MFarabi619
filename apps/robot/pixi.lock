@@ -1179,6 +1179,8 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/a7/5f/ed01f9a3cdffbd5a008556fc7b2a08ddb1cc6ace7effa7340604b1d16699/docstring_parser-0.18.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a7/96/6b3818e7f63a30f13bbe97b1ea0a51509a20b5b2d48c95e526c3054343d5/setproctitle-1.3.8-cp314-cp314-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b3/7d/01e62f59e4166af1be6238d9f2b7f3453630c51b8044b412d05b5606532a/absl_py-2.5.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/c0/fb/693b36e8720c94488cf9795ea837a74b940cca535784f14ecc417be3fa0a/fastcrc-0.5.0-cp314-cp314-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/e5/66/74db28c57a88ee809a3f5ba52525b030628dcd78b2a064b73c3ae0b7fc84/pymavlink-2.4.50-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/e8/ec/5ffcf8f5f53757e01afdece10c664e694ac60d2f17c2036811b85b842a5b/mypy_protobuf-5.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f1/cd/b4b4acf8dec04661bd616f430d76a4043734dc6acf1888be354d1ced58d3/sherpa_onnx-2.0.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/f8/dd/4b75dcba025f8647bc9862ac17299e0d7d12d3beadbf026d8c8d74215c12/paho-mqtt-1.6.1.tar.gz
@@ -2325,6 +2327,7 @@ environments:
       - pypi: direct+https://artifactory.kinovaapps.com/artifactory/generic-public/kortex/API/3.4.0/kortex_api-3.4.0.15-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1a/d9/a82e4d42549ddd28a338a012b8001492b44107fbc77839b8b162e7fab641/gpiod-2.6.0-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/28/b8/27e6312e86408a44fe16bd28ee12dd98608b39f7e7e57884a24e8f29b573/pyusb-1.3.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/2d/c2/236d95be3dcbad8fb4bd6645427975d2024edb35cb60a62ce10990830b9a/pymavlink-2.4.50-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/31/7d/164b7ffc8624fe9efb4221bf9af485d5c1e41b9ae118045d2b6dc5457d8b/click-8.5.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/3f/61/4ef7c4492131bcd0cc394cd9b45917b923d0763a2a64406dda412097e367/adafruit_blinka-10.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/42/0d/66a4e0fbd7b35107f7dee04fed890f77b83d1da9dd1f7474af2ed21700ea/adafruit_circuitpython_busdevice-5.2.17-py3-none-any.whl
@@ -2343,6 +2346,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/7f/6b/bd117a81d66e18e319bcc10de2070d3ac42307e62218ad63523b2a3c4c7f/adafruit_pureio-1.1.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/85/63/b92c752d9ec4e3da67d4daa7d4b25dfbca557c0be4d13bf9640424edc7fe/types_protobuf-5.27.0.20240920-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/9f/60/aff6d97d6c2842eab369bf7b2a1eae7baed12d28c91b3c79d8b401b7bb9f/sherpa_onnx-2.0.1-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.whl
+      - pypi: https://files.pythonhosted.org/packages/a2/51/87cffafbee936023c2fe8d4c60c8691e7aa224f71fb179382eeacb12ea5a/fastcrc-0.5.0-cp314-cp314-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/a5/14/5b897516dacacd17455074eef54632c19fce78136b610c83f8f676a74a4c/adafruit_circuitpython_requests-4.1.18-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a7/5f/ed01f9a3cdffbd5a008556fc7b2a08ddb1cc6ace7effa7340604b1d16699/docstring_parser-0.18.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b3/7d/01e62f59e4166af1be6238d9f2b7f3453630c51b8044b412d05b5606532a/absl_py-2.5.1-py3-none-any.whl
@@ -3490,6 +3494,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/07/86/f1f61b7a0701f9d1299e5293d083318019f91021a4d449f94d59dbe024e4/pycollada-0.9.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/07/98/b2b328c2d118b8a6674fd2d9b8b415129c3bd97a80a55ef80c81b42e2c4e/mujoco_core-4.0.0-cp314-cp314-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/0d/be/c2a6880394bef30aafe274d00ca0c7dac34fff1fb867f6c51abf876a640f/setproctitle-1.3.8-cp314-cp314-macosx_11_0_arm64.whl
+      - pypi: https://files.pythonhosted.org/packages/16/b0/2dcadb6033a3193b8ac6654019215e61d010069b9ba2989583505f88d728/pymavlink-2.4.50-cp314-cp314-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/22/a6/858897256d0deac81a172289110f31629fc4cee19b6f01283303e18c8db3/ptyprocess-0.7.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/e8/fbaffc8f1965e68812137c9ddade41ee9951c1547d21b3084b42d46da822/sherpa_onnx-2.0.1-cp314-cp314-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/31/7d/164b7ffc8624fe9efb4221bf9af485d5c1e41b9ae118045d2b6dc5457d8b/click-8.5.1-py3-none-any.whl
@@ -3516,6 +3521,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/bb/1c/91da4a1c541b75e97eb99d09c6a9b0534de55bb4a466669d1170e39b915c/ipython-9.18.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/be/c7/71eb0d51cdcbb63b857c931aa4e9218b078b5d9f8ecd383b234f28fe7b0f/jedi-0.20.1-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bf/ab/143d26486900a1a037b50d2ca70416ecb8e590745b3271d3e6b12ffcc25e/depthai-2.33.0.0-cp314-cp314-macosx_11_0_arm64.whl
+      - pypi: https://files.pythonhosted.org/packages/c9/27/f50d5cba3a8bb1080fb02ba8b19ac00faf687ce91803cb7ddd20d0380eab/fastcrc-0.5.0-cp314-cp314-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/d4/2b/04b8a15f3a1c77bc79ddf5c73875327f34b4fa75982df2b76e45e402d364/asttokens-3.0.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d9/33/1f075bf72b0b747cb3288d011319aaf64083cf2efef8354174e3ed4540e2/ipython_pygments_lexers-1.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/db/ab/db02f5746694da8a667267a926b301a0c0d650cfcbb7f81a89156ea47505/mujoco_studio-4.0.0-cp314-cp314-macosx_11_0_arm64.whl
@@ -67367,6 +67373,13 @@ packages:
   requires_dist:
   - pytest ; extra == 'test'
   requires_python: '>=3.8'
+- pypi: https://files.pythonhosted.org/packages/16/b0/2dcadb6033a3193b8ac6654019215e61d010069b9ba2989583505f88d728/pymavlink-2.4.50-cp314-cp314-macosx_11_0_arm64.whl
+  name: pymavlink
+  version: 2.4.50
+  sha256: f01e352662d634142cf09190de66174515fc1fba9ba459b5e13d7699fe52b719
+  requires_dist:
+  - lxml
+  - fastcrc
 - pypi: https://files.pythonhosted.org/packages/1a/d9/a82e4d42549ddd28a338a012b8001492b44107fbc77839b8b162e7fab641/gpiod-2.6.0-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl
   name: gpiod
   version: 2.6.0
@@ -67388,6 +67401,13 @@ packages:
   requires_dist:
   - sherpa-onnx-core==2.0.1
   requires_python: '>=3.7'
+- pypi: https://files.pythonhosted.org/packages/2d/c2/236d95be3dcbad8fb4bd6645427975d2024edb35cb60a62ce10990830b9a/pymavlink-2.4.50-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl
+  name: pymavlink
+  version: 2.4.50
+  sha256: f67e1b2c11f56f688fb6f26665b4b39243c394972f7e617b69515c6a695c29a3
+  requires_dist:
+  - lxml
+  - fastcrc
 - pypi: https://files.pythonhosted.org/packages/31/7d/164b7ffc8624fe9efb4221bf9af485d5c1e41b9ae118045d2b6dc5457d8b/click-8.5.1-py3-none-any.whl
   name: click
   version: 8.5.1
@@ -67779,6 +67799,11 @@ packages:
   requires_dist:
   - sherpa-onnx-core==2.0.1
   requires_python: '>=3.7'
+- pypi: https://files.pythonhosted.org/packages/a2/51/87cffafbee936023c2fe8d4c60c8691e7aa224f71fb179382eeacb12ea5a/fastcrc-0.5.0-cp314-cp314-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
+  name: fastcrc
+  version: 0.5.0
+  sha256: e03fd0d81ac842bf34023f9e7ba3df0d577919ff6fa7af8dfffe4133d6c0fffd
+  requires_python: '>=3.8'
 - pypi: https://files.pythonhosted.org/packages/a3/5c/ce8750cfe2de42ab2433b2d6445f4a16225a63412d991b2970204b047d73/mediapipe-1.2.2-py3-none-macosx_11_0_arm64.whl
   name: mediapipe
   version: 1.2.2
@@ -67950,6 +67975,16 @@ packages:
   version: 2.33.0.0
   sha256: 914356ee094b429fe14a4c08cf14a6e6765b4962728d18312d666ecc7d7ca126
   requires_python: '>=3.9'
+- pypi: https://files.pythonhosted.org/packages/c0/fb/693b36e8720c94488cf9795ea837a74b940cca535784f14ecc417be3fa0a/fastcrc-0.5.0-cp314-cp314-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+  name: fastcrc
+  version: 0.5.0
+  sha256: 6677c08009629883608a7e462f884663905975614cd500469882970f457e44e7
+  requires_python: '>=3.8'
+- pypi: https://files.pythonhosted.org/packages/c9/27/f50d5cba3a8bb1080fb02ba8b19ac00faf687ce91803cb7ddd20d0380eab/fastcrc-0.5.0-cp314-cp314-macosx_11_0_arm64.whl
+  name: fastcrc
+  version: 0.5.0
+  sha256: cc59d0bdef71b36776182d51cd876ee977e19e7ab6f26f576bc325f8d6e5c000
+  requires_python: '>=3.8'
 - pypi: https://files.pythonhosted.org/packages/d3/1c/26ccaf2d7a3fd3d16504173df591973b9f1de5520b0b4d81af038b9e4ed3/adafruit-extended-bus-1.0.2.tar.gz
   name: adafruit-extended-bus
   version: 1.0.2
@@ -68002,6 +68037,13 @@ packages:
   name: sysv-ipc
   version: 1.2.0
   sha256: 7dcdda15a2ead282545d007bd4fb5bfff844d2ac2b2f4a2b52ddcb2a38953968
+- pypi: https://files.pythonhosted.org/packages/e5/66/74db28c57a88ee809a3f5ba52525b030628dcd78b2a064b73c3ae0b7fc84/pymavlink-2.4.50-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
+  name: pymavlink
+  version: 2.4.50
+  sha256: 2baa96fda98928304c904da65016d96296b4d9e1d63354836d6d7aad68c8f047
+  requires_dist:
+  - lxml
+  - fastcrc
 - pypi: https://files.pythonhosted.org/packages/e8/ec/5ffcf8f5f53757e01afdece10c664e694ac60d2f17c2036811b85b842a5b/mypy_protobuf-5.1.0-py3-none-any.whl
   name: mypy-protobuf
   version: 5.1.0
