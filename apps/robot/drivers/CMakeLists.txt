@@ -16,7 +16,7 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 
 ament_python_install_module(src/adafruit_bno085_i2c.py)
-install(FILES src/pwm_dir_motor_driver.py src/rpicam_mjpeg.py DESTINATION "${PYTHON_INSTALL_DIR}")
+install(FILES src/pwm_dir_motor_driver.py src/rpicam_mjpeg.py src/analog_throttle_wheel.py DESTINATION "${PYTHON_INSTALL_DIR}")
 install(PROGRAMS src/adafruit_bno085.py DESTINATION lib/${PROJECT_NAME} RENAME adafruit_bno085)
 install(PROGRAMS src/ublox_flash.py DESTINATION lib/${PROJECT_NAME} RENAME ublox_flash)
 install(PROGRAMS src/rpicam_mjpeg_client.py DESTINATION lib/${PROJECT_NAME} RENAME rpicam_mjpeg_client)
@@ -27,6 +27,7 @@ install(PROGRAMS src/reverse_beeper.py DESTINATION lib/${PROJECT_NAME} RENAME re
 install(PROGRAMS src/usb_webcam.py DESTINATION lib/${PROJECT_NAME} RENAME usb_webcam)
 install(PROGRAMS src/svd48v_motor_driver.py DESTINATION lib/${PROJECT_NAME} RENAME svd48v_motor_driver)
 install(PROGRAMS src/roboteq_motor_driver.py DESTINATION lib/${PROJECT_NAME} RENAME roboteq_motor_driver)
+install(PROGRAMS src/analog_throttle_motor_driver.py DESTINATION lib/${PROJECT_NAME} RENAME analog_throttle_motor_driver)
 
 find_package(rclcpp REQUIRED)
 find_package(robot_platform_msgs REQUIRED)

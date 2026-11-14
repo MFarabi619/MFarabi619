@@ -175,6 +175,7 @@
           "default": "pwm_dir",
           "enum": [
             "roboteq",
+            "analog_throttle",
             "rc_pulse",
             "pwm_dir",
             "odrive_usb",
@@ -191,7 +192,8 @@
             "dir_pin": null,
             "forward_level": null,
             "is_reversed": false,
-            "serial_number": null
+            "serial_number": null,
+            "dac_i2c_address": null
           }
         },
         "right": {
@@ -201,7 +203,8 @@
             "dir_pin": null,
             "forward_level": null,
             "is_reversed": false,
-            "serial_number": null
+            "serial_number": null,
+            "dac_i2c_address": null
           }
         },
         "serial_port": {
@@ -287,6 +290,66 @@
           ],
           "default": null,
           "title": "Min Duty Fraction"
+        },
+        "i2c_bus": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "I2C Bus"
+        },
+        "min_throttle_volts": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Throttle Volts"
+        },
+        "max_throttle_volts": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Throttle Volts"
+        },
+        "dac_supply_volts": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dac Supply Volts"
+        },
+        "reverse_dwell_seconds": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reverse Dwell Seconds"
         },
         "gear_ratio": {
           "anyOf": [
@@ -402,6 +465,12 @@
           "title": "Roboteq",
           "type": "object"
         },
+        "analog_throttle": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Analog Throttle",
+          "type": "object"
+        },
         "rc_pulse": {
           "additionalProperties": true,
           "default": {},
@@ -491,6 +560,18 @@
           ],
           "default": null,
           "title": "Serial Number"
+        },
+        "dac_i2c_address": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dac I2C Address"
         }
       },
       "title": "DrivetrainSide",
@@ -698,6 +779,7 @@
           "default": {
             "model": "pwm_dir",
             "left": {
+              "dac_i2c_address": null,
               "dir_pin": null,
               "forward_level": null,
               "is_reversed": false,
@@ -705,6 +787,7 @@
               "serial_number": null
             },
             "right": {
+              "dac_i2c_address": null,
               "dir_pin": null,
               "forward_level": null,
               "is_reversed": false,
@@ -718,6 +801,11 @@
             "full_scale_linear_velocity_meters_per_second": null,
             "pwm_frequency_hz": null,
             "min_duty_fraction": null,
+            "i2c_bus": null,
+            "min_throttle_volts": null,
+            "max_throttle_volts": null,
+            "dac_supply_volts": null,
+            "reverse_dwell_seconds": null,
             "gear_ratio": null,
             "acceleration_rpm_per_second": null,
             "speed_smoothing_time": null,
@@ -728,6 +816,7 @@
             "max_angular_acceleration_radians_per_second_squared": null,
             "max_angular_jerk_radians_per_second_cubed": null,
             "roboteq": {},
+            "analog_throttle": {},
             "rc_pulse": {},
             "pwm_dir": {},
             "odrive_usb": {},

@@ -26,7 +26,8 @@ CameraModel = Literal[
     'luxonis_oak_d_sr', 'luxonis_oak_d_pro_w_poe', 'orbbec_gemini_335l', 'stereolabs_zed']
 ImuModel = Literal['adafruit_bno085']
 GpsModel = Literal['ublox_zed_f9p']
-DrivetrainModel = Literal['roboteq', 'rc_pulse', 'pwm_dir', 'odrive_usb', 'svd48v', 'mock']
+DrivetrainModel = Literal[
+    'roboteq', 'analog_throttle', 'rc_pulse', 'pwm_dir', 'odrive_usb', 'svd48v', 'mock']
 ArmModel = Literal['kinova_link6']
 CAMERA_MODELS = get_args(CameraModel)
 IMU_MODELS = get_args(ImuModel)
@@ -90,6 +91,7 @@ class DrivetrainSide(StrictRecord):
     forward_level: bool | None = None
     is_reversed: bool = False
     serial_number: str | None = None
+    dac_i2c_address: int | None = None
 
 
 class Drivetrain(StrictRecord):
@@ -103,6 +105,11 @@ class Drivetrain(StrictRecord):
     full_scale_linear_velocity_meters_per_second: float | None = None
     pwm_frequency_hz: float | None = None
     min_duty_fraction: float | None = None
+    i2c_bus: int | None = None
+    min_throttle_volts: float | None = None
+    max_throttle_volts: float | None = None
+    dac_supply_volts: float | None = None
+    reverse_dwell_seconds: float | None = None
     gear_ratio: float | None = None
     acceleration_rpm_per_second: float | None = None
     speed_smoothing_time: float | None = None
@@ -113,6 +120,7 @@ class Drivetrain(StrictRecord):
     max_angular_acceleration_radians_per_second_squared: float | None = None
     max_angular_jerk_radians_per_second_cubed: float | None = None
     roboteq: dict = {}
+    analog_throttle: dict = {}
     rc_pulse: dict = {}
     pwm_dir: dict = {}
     odrive_usb: dict = {}

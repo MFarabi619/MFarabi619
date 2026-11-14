@@ -47,6 +47,11 @@ def reverse_beeper_module():
     return load_module('reverse_beeper')
 
 
+@pytest.fixture(scope='session')
+def analog_throttle_wheel_module():
+    return load_module('analog_throttle_wheel')
+
+
 @pytest.fixture
 def reverse_beeper_node(reverse_beeper_module):
     node = reverse_beeper_module.ReverseBeeper()
