@@ -235,7 +235,12 @@ python simulation/launch/simulation.launch.py \
     "build",
 ] }
 
-generate-world = "python simulation/plasticulture_generator.py"
+generate-world = { cmd = "python simulation/{{ world }}_generator.py", args = [
+    { arg = "world", choices = [
+        "farm",
+        "plasticulture",
+    ] },
+] }
 
 teleop = { cmd = "python boot/launch/teleop_twist_keyboard.launch.py --robot {{ robot }}", args = [
     { arg = "robot", default = "taro" },
