@@ -72,7 +72,7 @@ def test_every_sensor_model_has_a_driver_launch_file(model):
 def test_sensors_are_named_by_index(tmp_path):
     write_machine(
         tmp_path, 'eyes',
-        'platform: {}\nsensors:\n  camera:\n    - {model: luxonis_oak_d_sr}\n'
+        'sensors:\n  camera:\n    - {model: luxonis_oak_d_sr}\n'
         '    - {model: orbbec_gemini_335l, parameters: {enable_depth: true}}\n')
     cameras = load_machine('eyes', tmp_path).sensors.camera
     assert [camera.name for camera in cameras] == ['camera_0', 'camera_1']

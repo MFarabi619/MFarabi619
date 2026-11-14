@@ -172,7 +172,6 @@
       "additionalProperties": false,
       "properties": {
         "model": {
-          "default": "pwm_dir",
           "enum": [
             "roboteq",
             "analog_throttle",
@@ -496,6 +495,9 @@
           "type": "object"
         }
       },
+      "required": [
+        "model"
+      ],
       "title": "Drivetrain",
       "type": "object"
     },
@@ -775,53 +777,7 @@
       "additionalProperties": false,
       "properties": {
         "drivetrain": {
-          "$ref": "#/$defs/Drivetrain",
-          "default": {
-            "model": "pwm_dir",
-            "left": {
-              "dac_i2c_address": null,
-              "dir_pin": null,
-              "forward_level": null,
-              "is_reversed": false,
-              "pwm_pin": null,
-              "serial_number": null
-            },
-            "right": {
-              "dac_i2c_address": null,
-              "dir_pin": null,
-              "forward_level": null,
-              "is_reversed": false,
-              "pwm_pin": null,
-              "serial_number": null
-            },
-            "serial_port": null,
-            "baud_rate": null,
-            "counts_per_revolution": null,
-            "control_mode": null,
-            "full_scale_linear_velocity_meters_per_second": null,
-            "pwm_frequency_hz": null,
-            "min_duty_fraction": null,
-            "i2c_bus": null,
-            "min_throttle_volts": null,
-            "max_throttle_volts": null,
-            "dac_supply_volts": null,
-            "reverse_dwell_seconds": null,
-            "gear_ratio": null,
-            "acceleration_rpm_per_second": null,
-            "speed_smoothing_time": null,
-            "max_linear_velocity_meters_per_second": null,
-            "max_angular_velocity_radians_per_second": null,
-            "max_linear_acceleration_meters_per_second_squared": null,
-            "max_linear_jerk_meters_per_second_cubed": null,
-            "max_angular_acceleration_radians_per_second_squared": null,
-            "max_angular_jerk_radians_per_second_cubed": null,
-            "roboteq": {},
-            "analog_throttle": {},
-            "rc_pulse": {},
-            "pwm_dir": {},
-            "odrive_usb": {},
-            "svd48v": {}
-          }
+          "$ref": "#/$defs/Drivetrain"
         },
         "rc_receiver": {
           "anyOf": [
@@ -846,6 +802,9 @@
           "type": "boolean"
         }
       },
+      "required": [
+        "drivetrain"
+      ],
       "title": "Platform",
       "type": "object"
     },

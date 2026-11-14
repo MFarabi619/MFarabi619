@@ -95,7 +95,7 @@ class DrivetrainSide(StrictRecord):
 
 
 class Drivetrain(StrictRecord):
-    model: DrivetrainModel = 'pwm_dir'
+    model: DrivetrainModel
     left: DrivetrainSide = DrivetrainSide()
     right: DrivetrainSide = DrivetrainSide()
     serial_port: str | None = None
@@ -144,7 +144,7 @@ class RcReceiver(StrictRecord):
 
 
 class Platform(StrictRecord):
-    drivetrain: Drivetrain = Drivetrain()
+    drivetrain: Drivetrain
     rc_receiver: RcReceiver | None = None
     attachments: list = []
     collision_guarded: bool = False
