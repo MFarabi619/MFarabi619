@@ -18,7 +18,7 @@ import os
 import sys
 
 from better_launch import BetterLaunch, launch_this
-from robot_boot.launch_policy import OFF_ROBOT_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES, RESPAWN, include
+from robot_boot.launch_policy import RESPAWN, include
 from robot_boot.zenoh_router import (
     ZENOH_LOCAL_ROUTER_CLIENT_CONFIG_OVERRIDE, ZENOH_ROUTER_PORT, ensure_zenoh_router,
     wait_for_zenoh_router)
@@ -61,9 +61,7 @@ def boot(gesture_camera: str = 'webcam', robot: str = 'taro'):
             name='usb_webcam',
             **RESPAWN,
         )
-    include(
-        'robot_boot', 'foxglove_bridge.launch.py',
-        send_buffer_limit_bytes=OFF_ROBOT_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES)
+    include('robot_boot', 'foxglove_bridge.launch.py')
     with bl.group(robot):
         include(
             'robot_navigation', 'hand_gesture_teleop.launch.py',

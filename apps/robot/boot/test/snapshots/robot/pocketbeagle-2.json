@@ -215,9 +215,6 @@
       "param_files": [
         "boot/config/foxglove_bridge.yaml"
       ],
-      "params": {
-        "send_buffer_limit": 20000000
-      },
       "respawn_delay": 2.0
     },
     {

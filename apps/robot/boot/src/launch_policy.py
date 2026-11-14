@@ -21,7 +21,6 @@ import yaml
 
 RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 TF_REMAPS = {'/tf': 'tf', '/tf_static': 'tf_static'}
-OFF_ROBOT_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES = 1000000
 DEFAULT_DEPTH_FRAMES_PER_SECOND = 15
 
 

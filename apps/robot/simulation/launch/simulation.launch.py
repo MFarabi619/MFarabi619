@@ -24,7 +24,6 @@ from better_launch.gazebo import (
     spawn_topic_bridge,
 )
 from robot_boot.launch_policy import (
-    OFF_ROBOT_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES,
     RESPAWN,
     TF_REMAPS,
     include,
@@ -99,9 +98,7 @@ def simulation(world: str = 'farm', robots: str = 'taro,jiro', headless: bool = 
                depth_scan_enabled: bool = False, target: str = 'person'):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
-    include(
-        'robot_boot', 'foxglove_bridge.launch.py',
-        send_buffer_limit_bytes=OFF_ROBOT_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES)
+    include('robot_boot', 'foxglove_bridge.launch.py')
     spawn_topic_bridge(GazeboBridge.clock_bridge(), node_name='clock_bridge')
     bl.include('robot_simulation', 'gz_sim.launch.py', world=world, headless=headless)
 
