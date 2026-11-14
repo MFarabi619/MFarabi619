@@ -1,0 +1,1 @@
+SUBSYSTEM=="tty", ENV{ID_VENDOR}=="RoboteQ", ENV{ID_MODEL}=="RoboteQ_SBLMG2360T", SYMLINK+="robot/roboteq"
