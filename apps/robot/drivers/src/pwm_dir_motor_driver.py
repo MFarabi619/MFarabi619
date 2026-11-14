@@ -27,6 +27,7 @@ import time
 import gpiod
 from gpiod.line import Direction, Value
 import rclpy
+from rclpy.duration import Duration
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 
@@ -178,9 +179,7 @@ class PwmDirMotorDriver(Node):
 
     def publish_feedback(self):
         now = self.get_clock().now()
-        elapsed_nanoseconds = (now - self.last_command_time).nanoseconds
-        has_timed_out = (
-            elapsed_nanoseconds > COMMAND_TIMEOUT_SECONDS * NANOSECONDS_PER_SECOND)
+        has_timed_out = now - self.last_command_time > Duration(seconds=COMMAND_TIMEOUT_SECONDS)
         if has_timed_out:
             for wheel in self.wheels:
                 wheel.halt()
