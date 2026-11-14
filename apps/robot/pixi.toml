@@ -113,6 +113,7 @@ ros-lyrical-robot-localization = "*"
 gpiod = "*"
 adafruit-extended-bus = "*"
 adafruit-circuitpython-bno08x = "*"
+adafruit-circuitpython-mcp4725 = "*"
 
 [target.osx-arm64.pypi-dependencies]
 mujoco = "*"
