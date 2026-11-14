@@ -133,10 +133,3 @@ def normalized_canopy_detector_node():
         ])
     yield node
     node.destroy_node()
-
-
-@pytest.fixture
-def point_cloud_optical_adapter_node():
-    node = load_node_class('point_cloud_optical_adapter', 'PointCloudOpticalAdapter')()
-    yield node
-    node.destroy_node()

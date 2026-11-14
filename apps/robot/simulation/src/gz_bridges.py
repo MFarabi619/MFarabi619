@@ -47,14 +47,20 @@ def simulation_sensors(machine):
     return cameras, len(sensors.imu), bool(sensors.gps)
 
 
+def spawn_stream_image_bridge(image_topic, camera_name, stream, transport):
+    spawn_image_bridge(
+        image_topic,
+        node_name=f'{camera_name}_{stream}_bridge',
+        remaps={image_topic: f'sensors/{camera_name}/{stream}/image_raw'},
+        params={f'sensors.{camera_name}.{stream}.image_raw.enable_pub_plugins': [
+            f'image_transport/{transport}']})
+
+
 def spawn_simulation_bridges(bl, machine, world, model_name, depth_scan_enabled=False):
     cameras, imu_count, has_gps = simulation_sensors(machine)
     world = resolve_world_name(bl, world)
 
     bridges = []
-    image_topics = []
-    image_remaps = {}
-    image_plugins = {}
 
     for camera in cameras:
         camera_info_topic = sensor_topic(
@@ -62,26 +68,19 @@ def spawn_simulation_bridges(bl, machine, world, model_name, depth_scan_enabled=
         bridges.append(GazeboBridge(
             camera_info_topic, 'sensor_msgs/msg/CameraInfo', 'gz2ros',
             remaps={camera_info_topic: f'sensors/{camera.name}/color/camera_info'}))
-
-        image_topic = sensor_topic(world, model_name, LUMPED_SENSOR_LINK, camera.name, 'image')
-        image_topics.append(image_topic)
-        image_remaps[image_topic] = f'sensors/{camera.name}/color/image_raw'
-        image_plugins[f'sensors.{camera.name}.color.image_raw.enable_pub_plugins'] = [
-            'image_transport/compressed']
+        spawn_stream_image_bridge(
+            sensor_topic(world, model_name, LUMPED_SENSOR_LINK, camera.name, 'image'),
+            camera.name, 'color', 'compressed')
 
         if camera.has_depth:
-            depth_image_topic = sensor_topic(
-                world, model_name, LUMPED_SENSOR_LINK, camera.name, 'depth_image')
-            image_topics.append(depth_image_topic)
-            image_remaps[depth_image_topic] = f'sensors/{camera.name}/depth/image_raw'
-            image_plugins[f'sensors.{camera.name}.depth.image_raw.enable_pub_plugins'] = [
-                'image_transport/raw']
-
-            points_topic = sensor_topic(
-                world, model_name, LUMPED_SENSOR_LINK, camera.name, 'points')
-            bridges.append(GazeboBridge(
-                points_topic, 'sensor_msgs/msg/PointCloud2', 'gz2ros',
-                remaps={points_topic: f'sensors/{camera.name}/depth/points_body'}))
+            spawn_stream_image_bridge(
+                sensor_topic(world, model_name, LUMPED_SENSOR_LINK, camera.name, 'depth_image'),
+                camera.name, 'depth', 'raw')
+            spawn_topic_bridge(
+                GazeboBridge(
+                    camera_info_topic, 'sensor_msgs/msg/CameraInfo', 'gz2ros',
+                    remaps={camera_info_topic: f'sensors/{camera.name}/depth/camera_info'}),
+                node_name=f'{camera.name}_depth_info_bridge')
 
     for index in range(imu_count):
         imu_topic = sensor_topic(world, model_name, LUMPED_SENSOR_LINK, f'imu_{index}', 'imu')
@@ -97,21 +96,17 @@ def spawn_simulation_bridges(bl, machine, world, model_name, depth_scan_enabled=
 
     if bridges:
         spawn_topic_bridge(*bridges, node_name='gz_bridge')
-    if image_topics:
-        spawn_image_bridge(*image_topics, node_name='image_bridge',
-                           remaps=image_remaps, params=image_plugins)
 
     for camera in cameras:
         if not camera.has_depth:
             continue
         bl.node(
-            package='robot_perception',
-            executable='point_cloud_optical_adapter',
-            name=f'{camera.name}_point_cloud_optical_adapter',
-            params={
-                'body_point_cloud_topic': f'sensors/{camera.name}/depth/points_body',
-                'optical_point_cloud_topic': f'sensors/{camera.name}/depth/points',
-                'optical_frame': f'{camera.name}_color_optical_frame',
+            package='depth_image_proc',
+            executable='point_cloud_xyz_node',
+            name=f'{camera.name}_depth_to_point_cloud',
+            remaps={
+                'image_rect': f'sensors/{camera.name}/depth/image_raw',
+                'points': f'sensors/{camera.name}/depth/points',
             })
         if not depth_scan_enabled:
             continue

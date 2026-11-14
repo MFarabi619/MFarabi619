@@ -25,7 +25,7 @@ def evaluate(cameras, advertised, frame_counts, window_seconds, minimum_rate_hz)
     for camera in cameras:
         compressed = f"/sensors/{camera}{COMPRESSED_SUFFIX}"
         if compressed not in advertised:
-            failures.append(f"{compressed} not advertised (image_bridge down?)")
+            failures.append(f"{compressed} not advertised ({camera}_color_bridge down?)")
         for suffix in FORBIDDEN_SUFFIXES:
             junk = f"/sensors/{camera}{suffix}"
             if junk in advertised:
