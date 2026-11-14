@@ -6,7 +6,6 @@ system:
       ip: 10.0.0.180
       board: jetson_orin_nano
 platform:
-  attachments: []
   drivetrain:
     model: analog_throttle
     full_scale_linear_velocity_meters_per_second: 2.0

@@ -146,7 +146,6 @@ class RcReceiver(StrictRecord):
 class Platform(StrictRecord):
     drivetrain: Drivetrain
     rc_receiver: RcReceiver | None = None
-    attachments: list = []
     collision_guarded: bool = False
 
 

@@ -6,7 +6,6 @@ system:
       ip: 10.81.190.228
       board: rpi_5
 platform:
-  attachments: []
   rc_receiver:
     launch_enabled: false
     channel_1_pin: 29

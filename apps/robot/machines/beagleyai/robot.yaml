@@ -6,7 +6,6 @@ system:
       ip: 10.0.0.222
       board: beagley_ai
 platform:
-  attachments: []
   # HotRC F-06A: receiver row `+` -> pin 2 (5V), row `-` -> pin 6 (GND);
   # each signal through a divider (2.2k series, 3.3k to GND) -- 3.3V-only GPIOs
   rc_receiver:

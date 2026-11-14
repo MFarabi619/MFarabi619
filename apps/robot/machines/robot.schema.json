@@ -826,12 +826,6 @@
           ],
           "default": null
         },
-        "attachments": {
-          "default": [],
-          "items": {},
-          "title": "Attachments",
-          "type": "array"
-        },
         "collision_guarded": {
           "default": false,
           "title": "Collision Guarded",

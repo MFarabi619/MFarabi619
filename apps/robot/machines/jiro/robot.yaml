@@ -6,7 +6,6 @@ system:
       ip: 0.0.0.0
       board: rpi_5
 platform:
-  attachments: []
   collision_guarded: false
   rc_receiver:
     channel_1_pin: 11
