@@ -95,13 +95,13 @@
   <joint name="front_left_caster_joint" type="fixed">
     <parent link="chassis"/>
     <child link="front_left_caster_link"/>
-    <origin xyz="0.4682 0.5508 0.1222" rpy="0.0000 0.0000 0.0000"/>
+    <origin xyz="0.4682 0.5508 0.1661" rpy="0.0000 0.0000 0.0000"/>
   </joint>
 
   <joint name="front_right_caster_joint" type="fixed">
     <parent link="chassis"/>
     <child link="front_right_caster_link"/>
-    <origin xyz="0.4682 -0.5508 0.1222" rpy="0.0000 0.0000 0.0000"/>
+    <origin xyz="0.4682 -0.5508 0.1661" rpy="0.0000 0.0000 0.0000"/>
   </joint>
 
   <joint name="rear_left_motor_joint" type="fixed">
