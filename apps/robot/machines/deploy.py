@@ -139,9 +139,22 @@ def build(mdns_hostname):
     ))
 
 
-def provision(mdns_hostname, machine):
-    ssh(mdns_hostname, 'test -x ~/.pixi/bin/pixi'
+def local_pixi_version():
+    completed = subprocess.run(
+        ['pixi', '--version'], capture_output=True, text=True, check=True)
+    return completed.stdout.split()[-1]
+
+
+def install_pixi(mdns_hostname):
+    version = local_pixi_version()
+    ssh(mdns_hostname, f'test -x {PIXI_PATH}'
         ' || curl -fsSL https://pixi.sh/install.sh | bash')
+    ssh(mdns_hostname, f'test "$({PIXI_PATH} --version | cut -d " " -f 2)" = "{version}"'
+        f' || {PIXI_PATH} self-update --version {version}')
+
+
+def provision(mdns_hostname, machine):
+    install_pixi(mdns_hostname)
     udev_rules_directory = f'{MIRROR_ROBOT_ROOT}/drivers/udev'
     systemd_directory = f'{MIRROR_ROBOT_ROOT}/boot/systemd'
     ssh_with_terminal(mdns_hostname, shell_chain(
