@@ -23,31 +23,29 @@ where
     W: Write,
     F: Fn([u8; 3]) -> Pbr,
 {
-    let positions = mesh.vertices.as_slice();
-    let normals = mesh.normals.as_slice();
     let sorted_groups = group_by_color(mesh);
 
-    let needs_u32_indices = positions.len() > u16::MAX as usize;
+    let needs_u32_indices = mesh.vertices.len() > u16::MAX as usize;
     let mut binary_chunk: Vec<u8> = Vec::new();
     let mut buffer_views: Vec<String> = Vec::new();
     let mut accessors: Vec<String> = Vec::new();
     let mut materials: Vec<String> = Vec::new();
     let mut primitives: Vec<String> = Vec::new();
 
-    let position_bytes = vec3s_to_f32_bytes(positions);
+    let position_bytes = vec3s_to_f32_bytes(&mesh.vertices);
     let position_buffer_view_index = push_buffer_view(
         &mut buffer_views,
         &mut binary_chunk,
         &position_bytes,
         GLTF_TARGET_ARRAY_BUFFER,
     );
-    let (min, max) = vertex_bounds(positions);
+    let (min, max) = vertex_bounds(&mesh.vertices);
     let position_accessor_index = accessors.len();
     accessors.push(format!(
         r#"{{"bufferView":{},"componentType":{},"count":{},"type":"VEC3","min":[{},{},{}],"max":[{},{},{}]}}"#,
         position_buffer_view_index,
         GLTF_COMPONENT_FLOAT,
-        positions.len(),
+        mesh.vertices.len(),
         format_finite_f32(min.x as f32),
         format_finite_f32(min.y as f32),
         format_finite_f32(min.z as f32),
@@ -56,7 +54,7 @@ where
         format_finite_f32(max.z as f32),
     ));
 
-    let normal_bytes = vec3s_to_f32_bytes(normals);
+    let normal_bytes = vec3s_to_f32_bytes(&mesh.normals);
     let normal_buffer_view_index = push_buffer_view(
         &mut buffer_views,
         &mut binary_chunk,
@@ -68,7 +66,7 @@ where
         r#"{{"bufferView":{},"componentType":{},"count":{},"type":"VEC3"}}"#,
         normal_buffer_view_index,
         GLTF_COMPONENT_FLOAT,
-        normals.len(),
+        mesh.normals.len(),
     ));
 
     for (rgb, indices) in &sorted_groups {
