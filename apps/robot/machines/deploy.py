@@ -23,7 +23,7 @@ import subprocess
 import sys
 import time
 
-from robot_machines.machine import DOMAINS, MachineError, load_machine
+from robot_machines.machine import DOMAINS, load_machine, MachineError
 
 MIRROR_ROOT = '/home/mfarabi/MFarabi619'
 SYSTEMD_UNITS = ('robot.service', 'robot-zenoh-router.service', 'robot@.service')
