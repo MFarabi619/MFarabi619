@@ -89,7 +89,7 @@ def mirrored_package_names(mdns_hostname):
     completed = subprocess.run(
         ['ssh', '-q', mdns_hostname, shell_chain(
             ['cd', MIRROR_ROBOT_ROOT],
-            [PIXI_PATH, 'run', 'colcon', 'list', '--names-only'])],
+            [PIXI_PATH, 'run', '--frozen', 'colcon', 'list', '--names-only'])],
         capture_output=True, text=True, check=True)
     return completed.stdout.split()
 
@@ -135,7 +135,7 @@ def build(mdns_hostname):
         ['cd', MIRROR_ROBOT_ROOT],
         ['env', f'MAKEFLAGS=-j{COMPILE_JOBS_PER_WORKER}',
          f'CMAKE_BUILD_PARALLEL_LEVEL={COMPILE_JOBS_PER_WORKER}',
-         PIXI_PATH, 'run', 'build', '--parallel-workers', str(BUILD_WORKERS)],
+         PIXI_PATH, 'run', '--frozen', 'build', '--parallel-workers', str(BUILD_WORKERS)],
     ))
 
 
