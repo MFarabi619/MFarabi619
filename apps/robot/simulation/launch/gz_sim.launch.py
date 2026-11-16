@@ -15,6 +15,8 @@
 
 
 import os
+import re
+import tempfile
 import threading
 
 from ament_index_python.packages import get_package_share_directory
@@ -23,8 +25,21 @@ from better_launch import BetterLaunch, launch_this
 from robot_simulation.view_control import set_view_control_sensitivity
 
 
+def gui_config_file(share_directory, gui_camera_pose):
+    gui_config_path = os.path.join(share_directory, 'gui.config')
+    if not gui_camera_pose:
+        return gui_config_path
+    with open(gui_config_path) as template:
+        gui_config = re.sub(r'<camera_pose>[^<]*</camera_pose>',
+                            f'<camera_pose>{gui_camera_pose}</camera_pose>', template.read())
+    gui_config_tempfile = tempfile.NamedTemporaryFile(mode='w', suffix='.config', delete=False)
+    gui_config_tempfile.write(gui_config)
+    gui_config_tempfile.close()
+    return gui_config_tempfile.name
+
+
 @launch_this
-def gz_sim(world: str = 'maize', headless: bool = False):
+def gz_sim(world: str = 'maize', headless: bool = False, gui_camera_pose: str = ''):
     bl = BetterLaunch()
     share_directory = get_package_share_directory('robot_simulation')
     worlds_directory = os.path.join(share_directory, 'worlds')
@@ -56,6 +71,6 @@ def gz_sim(world: str = 'maize', headless: bool = False):
             env['__EGL_VENDOR_LIBRARY_DIRS'] = egl_vendor_directory
             env['LIBGL_DRIVERS_PATH'] = os.path.join(nixos_driver_root, 'lib/dri')
     else:
-        command += ['--gui-config', os.path.join(share_directory, 'gui.config')]
+        command += ['--gui-config', gui_config_file(share_directory, gui_camera_pose)]
         threading.Thread(target=set_view_control_sensitivity, daemon=True).start()
     bl.process(command, name='gazebo', env=env, on_exit=gazebo_exited)
