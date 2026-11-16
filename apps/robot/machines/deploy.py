@@ -125,7 +125,7 @@ def mirror(mdns_hostname, machine):
 
 def stop_robot_service(mdns_hostname):
     ssh_with_terminal(
-        mdns_hostname, '! systemctl is-active --quiet robot.service'
+        mdns_hostname, '! systemctl cat robot.service >/dev/null 2>&1'
         ' || sudo systemctl stop robot.service')
 
 
