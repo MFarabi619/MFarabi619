@@ -101,9 +101,7 @@ where
 
         let props = material_lookup(*rgb);
         let material_index = materials.len();
-        let base_r = rgb[0] as f32 / 255.0;
-        let base_g = rgb[1] as f32 / 255.0;
-        let base_b = rgb[2] as f32 / 255.0;
+        let [base_r, base_g, base_b] = dequantize(*rgb).to_linear();
         materials.push(format!(
             r#"{{"pbrMetallicRoughness":{{"baseColorFactor":[{},{},{},1],"metallicFactor":{},"roughnessFactor":{}}},"doubleSided":true}}"#,
             format_finite_f32(base_r),
