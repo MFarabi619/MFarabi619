@@ -164,6 +164,13 @@ def verify_robot_is_idle(mdns_hostname):
                  f'{busy_processes}')
 
 
+def install_environment(mdns_hostname):
+    ssh_with_terminal(mdns_hostname, shell_chain(
+        ['cd', MIRROR_ROBOT_ROOT],
+        [PIXI_PATH, 'install', '--frozen'],
+    ))
+
+
 def provision(mdns_hostname, machine):
     install_pixi(mdns_hostname)
     udev_rules_directory = f'{MIRROR_ROBOT_ROOT}/drivers/udev'
@@ -269,6 +276,8 @@ def main():
         provision(mdns_hostname, machine)
         print('checking robot is idle')
         verify_robot_is_idle(mdns_hostname)
+        print('installing environment')
+        install_environment(mdns_hostname)
         print('building')
         build(mdns_hostname)
         print('installing units')
