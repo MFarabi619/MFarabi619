@@ -20,6 +20,7 @@ from better_launch import BetterLaunch
 import yaml
 
 RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
+LIFECYCLE_ACTIVATION = {'lifecycle_waittime': 5.0}
 TF_REMAPS = {'/tf': 'tf', '/tf_static': 'tf_static'}
 DEFAULT_DEPTH_FRAMES_PER_SECOND = 15
 

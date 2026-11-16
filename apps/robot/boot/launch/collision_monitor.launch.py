@@ -15,7 +15,8 @@
 
 
 from better_launch import BetterLaunch, launch_this
-from robot_boot.launch_policy import RESPAWN, TF_REMAPS, write_parameter_overrides_file
+from robot_boot.launch_policy import (
+    LIFECYCLE_ACTIVATION, RESPAWN, TF_REMAPS, write_parameter_overrides_file)
 from robot_boot.zenoh_router import ensure_zenoh_router
 
 
@@ -36,4 +37,5 @@ def collision_monitor(
         ],
         remaps=TF_REMAPS,
         **RESPAWN,
+        **LIFECYCLE_ACTIVATION,
     )

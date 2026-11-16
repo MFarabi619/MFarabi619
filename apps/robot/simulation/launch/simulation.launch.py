@@ -25,6 +25,7 @@ from better_launch.gazebo import (
 )
 from robot_boot.launch_policy import (
     include,
+    LIFECYCLE_ACTIVATION,
     RESPAWN,
     TF_REMAPS,
     write_parameter_overrides_file,
@@ -91,6 +92,7 @@ def robot_stack(bl, machine, world, pose, target):
             param_files=[bl.find('robot_navigation', 'behaviors.yaml')],
             remaps=TF_REMAPS,
             **RESPAWN,
+            **LIFECYCLE_ACTIVATION,
         )
 
 

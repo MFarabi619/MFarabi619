@@ -19,6 +19,7 @@
 import subprocess
 
 from better_launch import BetterLaunch, launch_this
+from robot_boot.launch_policy import LIFECYCLE_ACTIVATION
 
 SMOOTHER_INPUT_TOPIC = 'key_vel'
 TELEOP_OUTPUT_TOPIC = 'joy_teleop/cmd_vel'
@@ -34,6 +35,7 @@ def teleop_xiao(smoothing_enabled: bool = False):
             name='velocity_smoother',
             param_files=bl.find('robot_boot', 'velocity_smoother.yaml'),
             remaps={'cmd_vel': SMOOTHER_INPUT_TOPIC, 'cmd_vel_smoothed': TELEOP_OUTPUT_TOPIC},
+            **LIFECYCLE_ACTIVATION,
         )
     teleop_topic = SMOOTHER_INPUT_TOPIC if smoothing_enabled else TELEOP_OUTPUT_TOPIC
     subprocess.run([

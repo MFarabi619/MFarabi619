@@ -15,7 +15,7 @@
 
 
 from better_launch import BetterLaunch, launch_this
-from robot_boot.launch_policy import RESPAWN, TF_REMAPS
+from robot_boot.launch_policy import LIFECYCLE_ACTIVATION, RESPAWN, TF_REMAPS
 from robot_boot.zenoh_router import ensure_zenoh_router
 
 PERSON_FOLLOW_NAV2_SERVERS = (
@@ -41,6 +41,7 @@ def nav2_person_follow(params_file: str = '', behavior_tree_file: str = ''):
             param_files=[params_file],
             remaps=TF_REMAPS,
             **RESPAWN,
+            **LIFECYCLE_ACTIVATION,
         )
     bl.node(
         package='robot_navigation',
