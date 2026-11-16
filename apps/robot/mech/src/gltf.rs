@@ -210,11 +210,10 @@ fn pack_indices(indices: &[u32], needs_u32_indices: bool) -> Vec<u8> {
 }
 
 fn vertex_bounds(vertices: &[DVec3]) -> [DVec3; 2] {
-    let init = [DVec3::splat(f64::INFINITY), DVec3::splat(f64::NEG_INFINITY)];
-    vertices
-        .iter()
-        .copied()
-        .fold(init, |[mn, mx], point| [mn.min(point), mx.max(point)])
+    let empty_bounds = [DVec3::splat(f64::INFINITY), DVec3::splat(f64::NEG_INFINITY)];
+    vertices.iter().fold(empty_bounds, |[bounds_min, bounds_max], &vertex| {
+        [bounds_min.min(vertex), bounds_max.max(vertex)]
+    })
 }
 
 fn format_finite_f32(x: f32) -> String {

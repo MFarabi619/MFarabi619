@@ -606,12 +606,13 @@ fn gussets(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
 }
 
 fn combined_bounds(solids: &[Solid]) -> [DVec3; 2] {
-    let init = (DVec3::splat(f64::INFINITY), DVec3::splat(f64::NEG_INFINITY));
-    let (min, max) = solids
+    let empty_bounds = [DVec3::splat(f64::INFINITY), DVec3::splat(f64::NEG_INFINITY)];
+    solids
         .iter()
         .flat_map(|solid| solid.bounding_box())
-        .fold(init, |(mn, mx), point| (mn.min(point), mx.max(point)));
-    [min, max]
+        .fold(empty_bounds, |[bounds_min, bounds_max], corner| {
+            [bounds_min.min(corner), bounds_max.max(corner)]
+        })
 }
 
 pub enum ZAnchor {
