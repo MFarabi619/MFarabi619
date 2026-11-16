@@ -1,15 +1,8 @@
-use std::{
-    collections::HashMap,
-    io::{self, Write},
-};
+use std::io::{self, Write};
 
-use cadrum::{Color, DVec3, Mesh};
+use cadrum::{DVec3, Mesh};
 
-use crate::material::{dequantize, quantize, Pbr, DEFAULT_MATERIAL_RGB};
-
-type ColorGroups = Vec<([u8; 3], Vec<u32>)>;
-
-const DEFAULT_COLOR: Color = dequantize(DEFAULT_MATERIAL_RGB);
+use crate::material::{dequantize, group_by_color, Pbr};
 
 const GLTF_MAGIC: u32 = 0x46546C67;
 const GLTF_VERSION: u32 = 2;
@@ -182,20 +175,6 @@ where
     }
 
     Ok(())
-}
-
-pub(crate) fn group_by_color(mesh: &Mesh) -> ColorGroups {
-    let mut indices_by_color: HashMap<[u8; 3], Vec<u32>> = HashMap::new();
-    for (triangle, face_id) in mesh.indices.chunks_exact(3).zip(&mesh.face_ids) {
-        let color = mesh.colormap.get(face_id).copied().unwrap_or(DEFAULT_COLOR);
-        indices_by_color
-            .entry(quantize(color))
-            .or_default()
-            .extend(triangle.iter().map(|&vertex_index| vertex_index as u32));
-    }
-    let mut color_groups: ColorGroups = indices_by_color.into_iter().collect();
-    color_groups.sort_by_key(|(rgb, _)| *rgb);
-    color_groups
 }
 
 fn push_buffer_view(

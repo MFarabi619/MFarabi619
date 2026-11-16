@@ -2,7 +2,7 @@ use std::io::{self, Write};
 
 use cadrum::{DVec3, Mesh};
 
-use crate::{gltf::group_by_color, material::Pbr};
+use crate::material::{group_by_color, Pbr};
 
 pub fn write_collada<W, F>(mesh: &Mesh, material_lookup: F, writer: &mut W) -> io::Result<()>
 where

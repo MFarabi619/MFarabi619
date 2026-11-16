@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use cadrum::{Color, Solid};
+use cadrum::{Color, Mesh, Solid};
 
 const ALUMINUM_DENSITY_KILOGRAMS_PER_CUBIC_METER: f64 = 2700.0;
 const STEEL_DENSITY_KILOGRAMS_PER_CUBIC_METER: f64 = 7850.0;
@@ -24,6 +24,10 @@ pub struct Pbr {
 }
 
 pub const DEFAULT_MATERIAL_RGB: [u8; 3] = [0xdd, 0xdd, 0xdd];
+
+const DEFAULT_COLOR: Color = dequantize(DEFAULT_MATERIAL_RGB);
+
+pub type ColorGroups = Vec<([u8; 3], Vec<u32>)>;
 
 pub const UNKNOWN_MATERIAL_PBR: Pbr = Pbr {
     metallic: 0.3,
@@ -157,6 +161,20 @@ pub fn quantize(color: Color) -> [u8; 3] {
         (color.g.clamp(0.0, 1.0) * 255.0) as u8,
         (color.b.clamp(0.0, 1.0) * 255.0) as u8,
     ]
+}
+
+pub fn group_by_color(mesh: &Mesh) -> ColorGroups {
+    let mut indices_by_color: HashMap<[u8; 3], Vec<u32>> = HashMap::new();
+    for (triangle, face_id) in mesh.indices.chunks_exact(3).zip(&mesh.face_ids) {
+        let color = mesh.colormap.get(face_id).copied().unwrap_or(DEFAULT_COLOR);
+        indices_by_color
+            .entry(quantize(color))
+            .or_default()
+            .extend(triangle.iter().map(|&vertex_index| vertex_index as u32));
+    }
+    let mut color_groups: ColorGroups = indices_by_color.into_iter().collect();
+    color_groups.sort_by_key(|(rgb, _)| *rgb);
+    color_groups
 }
 
 pub fn dominant_rgb(solid: &Solid) -> Option<[u8; 3]> {
