@@ -112,9 +112,9 @@ SPAWN_YAW_RADIANS = -2.529
 SPAWN_CLEARANCE_METERS = 0.4
 
 
-def run(*command, stdin=None):
+def run(*command, input_text=None):
     return subprocess.check_output(
-        command, input=stdin, text=True, env={**os.environ, **GDAL_ENVIRONMENT})
+        command, input=input_text, text=True, env={**os.environ, **GDAL_ENVIRONMENT})
 
 
 def downloaded(file_name, cache_key, download):
@@ -133,7 +133,7 @@ def downloaded(file_name, cache_key, download):
 
 def transformed(source_crs, target_crs, points, *options):
     output = run('gdaltransform', '-s_srs', source_crs, '-t_srs', target_crs, *options,
-                 '-output_xy', stdin=''.join(f'{x} {y}\n' for x, y in points))
+                 '-output_xy', input_text=''.join(f'{x} {y}\n' for x, y in points))
     return [tuple(map(float, line.split())) for line in output.splitlines()]
 
 
