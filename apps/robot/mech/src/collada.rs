@@ -1,8 +1,8 @@
 use std::io::{self, Write};
 
-use cadrum::{DVec3, Mesh};
+use cadrum::{Color, DVec3, Mesh};
 
-use crate::material::{group_by_color, Pbr};
+use crate::material::{dequantize, group_by_color, Pbr};
 
 pub fn write_collada<W, F>(mesh: &Mesh, material_lookup: F, writer: &mut W) -> io::Result<()>
 where
@@ -29,7 +29,7 @@ where
     writeln!(writer, "  <library_effects>")?;
     for (index, (rgb, _)) in color_groups.iter().enumerate() {
         let pbr = material_lookup(*rgb);
-        let [red, green, blue] = rgb.map(|channel| channel as f64 / 255.0);
+        let Color { r: red, g: green, b: blue } = dequantize(*rgb);
         let specular = PHONG_SPECULAR_FLOOR + PHONG_SPECULAR_METALLIC_GAIN * pbr.metallic as f64;
         let shininess =
             PHONG_SHININESS_MIN + PHONG_SHININESS_RANGE * (1.0 - pbr.roughness as f64);
