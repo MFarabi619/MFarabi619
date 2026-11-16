@@ -38,6 +38,11 @@
           "title": "Model",
           "type": "string"
         },
+        "launch_enabled": {
+          "default": true,
+          "title": "Launch Enabled",
+          "type": "boolean"
+        },
         "gripper": {
           "anyOf": [
             {

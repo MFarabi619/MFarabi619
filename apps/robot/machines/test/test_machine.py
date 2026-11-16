@@ -141,6 +141,17 @@ def test_arm_mounted_on_a_chassis_is_not_arm_only(tmp_path):
     assert not machine.manipulators.moveit.enable
 
 
+def test_disabled_arm_is_declared_but_not_launched(tmp_path):
+    write_machine(tmp_path, 'carrier', (
+        'platform: {drivetrain: {model: mock}}\n'
+        'manipulators:\n'
+        '  arms:\n'
+        '    - {model: kinova_link6, launch_enabled: false}\n'))
+    machine = load_machine('carrier', tmp_path)
+    assert machine.has_arm and not machine.enabled_arms
+    assert 'manipulation' not in machine.domains
+
+
 def test_camera_queries_by_model():
     kinova = load_machine('kinova-link-6')
     assert kinova.has_stereolabs_zed

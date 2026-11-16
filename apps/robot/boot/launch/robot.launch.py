@@ -396,7 +396,7 @@ def robot(robot: str = '', drivetrain_model: str = '', domain: str = ''):
                     'robot_boot', 'robot_localization.launch.py',
                     gps_topic_prefix=f'sensors/{machine.sensors.gps[0].name}')
         if launches('manipulation'):
-            for arm in machine.manipulators.arms:
+            for arm in machine.enabled_arms:
                 launch_manipulation(bl, machine, arm)
         if launches('sensors'):
             launch_sensors(bl, machine)

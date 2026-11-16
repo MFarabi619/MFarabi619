@@ -254,6 +254,7 @@ ARM_PACKAGES = {
 
 class Arm(Mount):
     model: ArmModel
+    launch_enabled: bool = True
     gripper: Gripper | None = None
 
     @property
@@ -339,6 +340,10 @@ class Machine(StrictRecord):
         return [camera for camera in self.sensors.camera if camera.launch_enabled]
 
     @property
+    def enabled_arms(self):
+        return [arm for arm in self.manipulators.arms if arm.launch_enabled]
+
+    @property
     def has_stereolabs_zed(self):
         return any(camera.model == STEREOLABS_ZED_MODEL for camera in self.sensors.camera)
 
@@ -362,7 +367,7 @@ class Machine(StrictRecord):
             'sensors': bool(self.enabled_cameras or sensors.imu or sensors.gps),
             'perception': self.depth_camera is not None,
             'navigation': self.behaviors.nav2_person_follow or self.behaviors.gps_navigation,
-            'manipulation': self.has_arm,
+            'manipulation': bool(self.enabled_arms),
         }
         return tuple(domain for domain in DOMAINS if present[domain])
 

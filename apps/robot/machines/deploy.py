@@ -79,7 +79,7 @@ def shell_chain(*commands):
 
 def vendor_trees(machine):
     trees = list(FLEET_VENDOR_TREES)
-    if machine.has_arm:
+    if machine.enabled_arms:
         trees += ARM_VENDOR_TREES
     if machine.has_stereolabs_zed:
         trees += STEREOLABS_ZED_VENDOR_TREES
