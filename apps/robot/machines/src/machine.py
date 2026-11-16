@@ -261,7 +261,12 @@ class Arm(Mount):
         return ARM_PACKAGES[self.model]
 
 
+class MoveIt(StrictRecord):
+    enable: bool = False
+
+
 class Manipulators(StrictRecord):
+    moveit: MoveIt = MoveIt()
     arms: list[Arm] = []
 
 

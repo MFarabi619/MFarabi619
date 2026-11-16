@@ -758,6 +758,12 @@
     "Manipulators": {
       "additionalProperties": false,
       "properties": {
+        "moveit": {
+          "$ref": "#/$defs/MoveIt",
+          "default": {
+            "enable": false
+          }
+        },
         "arms": {
           "default": [],
           "items": {
@@ -819,6 +825,18 @@
         }
       },
       "title": "Mounts",
+      "type": "object"
+    },
+    "MoveIt": {
+      "additionalProperties": false,
+      "properties": {
+        "enable": {
+          "default": false,
+          "title": "Enable",
+          "type": "boolean"
+        }
+      },
+      "title": "MoveIt",
       "type": "object"
     },
     "Ntrip": {
@@ -995,6 +1013,9 @@
     "manipulators": {
       "$ref": "#/$defs/Manipulators",
       "default": {
+        "moveit": {
+          "enable": false
+        },
         "arms": []
       }
     },

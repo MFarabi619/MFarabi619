@@ -5,6 +5,8 @@ system:
   #   ip: 10.0.0.180
   #   board: jetson_orin_nano
 manipulators:
+  moveit:
+    enable: true
   arms:
     - model: kinova_link6
       gripper:

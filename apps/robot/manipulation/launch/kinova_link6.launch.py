@@ -27,6 +27,7 @@ def kinova_link6(
     moveit_robot_name: str = 'link6',
     gripper: str = 'robotiq_2f_85',
     robot_password: str = 'admin',
+    moveit_enabled: bool = True,
     motions_file: str = '',
     rviz_enabled: bool = False,
 ):
@@ -45,9 +46,10 @@ def kinova_link6(
         executable='kinova_link6_bridge_node',
         remaps={'arm_teleop/cmd_vel': 'joy_teleop/cmd_vel'},
     )
-    include(
-        'robot_manipulation', 'kinova_link6_moveit.launch.py',
-        moveit_package=moveit_package,
-        motions_file=motions_file,
-        rviz_enabled=rviz_enabled,
-    )
+    if moveit_enabled:
+        include(
+            'robot_manipulation', 'kinova_link6_moveit.launch.py',
+            moveit_package=moveit_package,
+            motions_file=motions_file,
+            rviz_enabled=rviz_enabled,
+        )

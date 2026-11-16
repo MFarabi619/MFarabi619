@@ -70,6 +70,7 @@
           "bytes": 34,
           "xml_sha256": "19747957f4975393a3d08f70704cb08b8f68ee3f6b33eb5cc183deb901d4a8dc"
         },
+        "moveit_enabled": true,
         "moveit_package": "link6_moveit_config",
         "moveit_robot_name": "link6"
       },
