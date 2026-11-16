@@ -222,13 +222,13 @@ def launch_platform(machine, drivetrain_model, urdf_path, depth_camera):
             point_cloud_topic=f'sensors/{depth_camera.name}/depth/points')
 
 
-def launch_manipulation(bl, machine):
+def launch_manipulation(bl, machine, arm):
     include(
-        'robot_manipulation', f'{machine.arm.model}.launch.py',
-        description_package=machine.arm.packages.description,
-        moveit_package=machine.arm.packages.moveit,
-        moveit_robot_name=machine.arm.packages.moveit_robot_name,
-        gripper=machine.arm.gripper,
+        'robot_manipulation', f'{arm.model}.launch.py',
+        description_package=arm.packages.description,
+        moveit_package=arm.packages.moveit,
+        moveit_robot_name=arm.packages.moveit_robot_name,
+        gripper=arm.gripper.model if arm.gripper else '',
         motions_file=bl.find('robot_machines', 'motions.yaml', subdir=machine.name),
     )
 
@@ -394,8 +394,9 @@ def robot(robot: str = '', drivetrain_model: str = '', domain: str = ''):
                 include(
                     'robot_boot', 'robot_localization.launch.py',
                     gps_topic_prefix=f'sensors/{machine.sensors.gps[0].name}')
-        if launches('manipulation') and machine.arm:
-            launch_manipulation(bl, machine)
+        if launches('manipulation'):
+            for arm in machine.manipulators.arms:
+                launch_manipulation(bl, machine, arm)
         if launches('sensors'):
             launch_sensors(bl, machine)
         if launches('perception'):

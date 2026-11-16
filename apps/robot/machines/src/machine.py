@@ -30,6 +30,7 @@ GpsModel = Literal['ublox_zed_f9p']
 DrivetrainModel = Literal[
     'roboteq', 'analog_throttle', 'rc_pulse', 'pwm_dir', 'odrive_usb', 'svd48v', 'mock']
 ArmModel = Literal['kinova_link6']
+GripperModel = Literal['robotiq_2f_85', 'robotiq_2f_140']
 CAMERA_MODELS = get_args(CameraModel)
 IMU_MODELS = get_args(ImuModel)
 GPS_MODELS = get_args(GpsModel)
@@ -228,6 +229,10 @@ class Mounts(StrictRecord):
     camera_mount: list[Mount] = []
 
 
+class Gripper(StrictRecord):
+    model: GripperModel
+
+
 class ArmPackages(StrictRecord):
     bringup: str
     description: str
@@ -247,13 +252,17 @@ ARM_PACKAGES = {
 }
 
 
-class Arm(StrictRecord):
+class Arm(Mount):
     model: ArmModel
-    gripper: str
+    gripper: Gripper | None = None
 
     @property
     def packages(self):
         return ARM_PACKAGES[self.model]
+
+
+class Manipulators(StrictRecord):
+    arms: list[Arm] = []
 
 
 class Home(StrictRecord):
@@ -284,7 +293,7 @@ class Machine(StrictRecord):
     name: str
     system: System = System()
     platform: Platform | None = None
-    arm: Arm | None = None
+    manipulators: Manipulators = Manipulators()
     sensors: Sensors = Sensors()
     mounts: Mounts = Mounts()
     behaviors: Behaviors = Behaviors()
@@ -314,7 +323,7 @@ class Machine(StrictRecord):
 
     @property
     def has_arm(self):
-        return self.arm is not None
+        return bool(self.manipulators.arms)
 
     @property
     def is_arm_only(self):

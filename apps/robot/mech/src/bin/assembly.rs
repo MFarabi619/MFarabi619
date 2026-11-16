@@ -52,7 +52,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let machine_yaml: serde_yaml::Value = serde_yaml::from_reader(
             std::fs::File::open(robot_root.join(format!("machines/{robot_name}/robot.yaml")))?,
         )?;
-        if machine_yaml.get("arm").is_some() {
+        if machine_yaml.get("platform").is_none() {
             continue;
         }
         let vendor_urdf = package_directory

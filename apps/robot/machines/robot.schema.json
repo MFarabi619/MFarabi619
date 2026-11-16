@@ -4,19 +4,54 @@
     "Arm": {
       "additionalProperties": false,
       "properties": {
+        "parent": {
+          "default": "base_link",
+          "title": "Parent",
+          "type": "string"
+        },
+        "xyz": {
+          "default": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "items": {
+            "type": "number"
+          },
+          "title": "Xyz",
+          "type": "array"
+        },
+        "rpy": {
+          "default": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "items": {
+            "type": "number"
+          },
+          "title": "Rpy",
+          "type": "array"
+        },
         "model": {
           "const": "kinova_link6",
           "title": "Model",
           "type": "string"
         },
         "gripper": {
-          "title": "Gripper",
-          "type": "string"
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Gripper"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
-        "model",
-        "gripper"
+        "model"
       ],
       "title": "Arm",
       "type": "object"
@@ -609,6 +644,24 @@
       "title": "Gps",
       "type": "object"
     },
+    "Gripper": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "enum": [
+            "robotiq_2f_85",
+            "robotiq_2f_140"
+          ],
+          "title": "Model",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model"
+      ],
+      "title": "Gripper",
+      "type": "object"
+    },
     "Home": {
       "additionalProperties": false,
       "properties": {
@@ -700,6 +753,21 @@
         "model"
       ],
       "title": "Imu",
+      "type": "object"
+    },
+    "Manipulators": {
+      "additionalProperties": false,
+      "properties": {
+        "arms": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Arm"
+          },
+          "title": "Arms",
+          "type": "array"
+        }
+      },
+      "title": "Manipulators",
       "type": "object"
     },
     "Mount": {
@@ -924,16 +992,11 @@
       ],
       "default": null
     },
-    "arm": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/Arm"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null
+    "manipulators": {
+      "$ref": "#/$defs/Manipulators",
+      "default": {
+        "arms": []
+      }
     },
     "sensors": {
       "$ref": "#/$defs/Sensors",

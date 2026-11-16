@@ -126,6 +126,20 @@ def test_arm_only_machine_has_no_platform():
     assert not load_machine('taro').has_arm
 
 
+def test_arm_mounted_on_a_chassis_is_not_arm_only(tmp_path):
+    write_machine(tmp_path, 'carrier', (
+        'platform: {drivetrain: {model: mock}}\n'
+        'manipulators:\n'
+        '  arms:\n'
+        '    - {model: kinova_link6, parent: chassis, xyz: [0.35, 0.0, 0.114],'
+        ' gripper: {model: robotiq_2f_85}}\n'))
+    machine = load_machine('carrier', tmp_path)
+    arm = machine.manipulators.arms[0]
+    assert machine.has_arm and not machine.is_arm_only
+    assert (arm.parent, arm.xyz) == ('chassis', [0.35, 0.0, 0.114])
+    assert arm.packages.description == 'link6_description'
+
+
 def test_camera_queries_by_model():
     kinova = load_machine('kinova-link-6')
     assert kinova.has_stereolabs_zed

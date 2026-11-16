@@ -27,7 +27,7 @@ PLACEMENT_TOLERANCE_METERS = 10.0 ** -URDF_DECIMALS
 
 
 def generated_machine_names():
-    return [name for name in machine_names() if not load_machine(name).has_arm]
+    return [name for name in machine_names() if not load_machine(name).is_arm_only]
 
 
 def configured_cameras(machine_name):

@@ -4,9 +4,11 @@ system:
   # - hostname: jetson-orin-nano
   #   ip: 10.0.0.180
   #   board: jetson_orin_nano
-arm:
-  model: kinova_link6
-  gripper: robotiq_2f_85
+manipulators:
+  arms:
+    - model: kinova_link6
+      gripper:
+        model: robotiq_2f_85
 manipulation:
   demonstration_joint_positions_radians: [0.5, -0.4, 0.6, 0.0, 0.5, 0.0]
 sensors:
