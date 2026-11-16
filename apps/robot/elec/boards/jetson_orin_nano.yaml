@@ -1,3 +1,4 @@
 pins:
   7: {gpio_chip: 0, line: 144, line_name: PAC.06}
   15: {gpio_chip: 0, line: 85, line_name: PN.01}
+  33: {gpio_chip: 0, line: 43, line_name: PH.00}
