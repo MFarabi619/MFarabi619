@@ -143,12 +143,8 @@ where
     let json_str = format!("{{{}}}", members.join(","));
 
     let mut json_bytes = json_str.into_bytes();
-    while !json_bytes.len().is_multiple_of(4) {
-        json_bytes.push(b' ');
-    }
-    while !binary_chunk.len().is_multiple_of(4) {
-        binary_chunk.push(0);
-    }
+    json_bytes.resize(json_bytes.len().next_multiple_of(4), b' ');
+    binary_chunk.resize(binary_chunk.len().next_multiple_of(4), 0);
 
     let has_binary_chunk = !binary_chunk.is_empty();
     let total_length = GLTF_HEADER_BYTES
@@ -183,9 +179,7 @@ fn push_buffer_view(
     data: &[u8],
     target: u32,
 ) -> usize {
-    while !binary_chunk.len().is_multiple_of(4) {
-        binary_chunk.push(0);
-    }
+    binary_chunk.resize(binary_chunk.len().next_multiple_of(4), 0);
     let byte_offset = binary_chunk.len();
     binary_chunk.extend_from_slice(data);
     let assigned_index = buffer_views.len();
@@ -199,28 +193,21 @@ fn push_buffer_view(
 }
 
 fn vec3s_to_f32_bytes(vectors: &[DVec3]) -> Vec<u8> {
-    let mut bytes = Vec::with_capacity(vectors.len() * 12);
-    for v in vectors {
-        bytes.extend_from_slice(&(v.x as f32).to_le_bytes());
-        bytes.extend_from_slice(&(v.y as f32).to_le_bytes());
-        bytes.extend_from_slice(&(v.z as f32).to_le_bytes());
-    }
-    bytes
+    vectors
+        .iter()
+        .flat_map(|vector| vector.as_vec3().to_array())
+        .flat_map(f32::to_le_bytes)
+        .collect()
 }
 
 fn pack_indices(indices: &[u32], needs_u32_indices: bool) -> Vec<u8> {
     if needs_u32_indices {
-        let mut bytes = Vec::with_capacity(indices.len() * 4);
-        for &i in indices {
-            bytes.extend_from_slice(&i.to_le_bytes());
-        }
-        bytes
+        indices.iter().flat_map(|index| index.to_le_bytes()).collect()
     } else {
-        let mut bytes = Vec::with_capacity(indices.len() * 2);
-        for &i in indices {
-            bytes.extend_from_slice(&(i as u16).to_le_bytes());
-        }
-        bytes
+        indices
+            .iter()
+            .flat_map(|&index| (index as u16).to_le_bytes())
+            .collect()
     }
 }
 

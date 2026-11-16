@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use cadrum::{Color, Mesh, Solid};
 
@@ -156,15 +156,11 @@ pub const fn dequantize(rgb: [u8; 3]) -> Color {
 }
 
 pub fn quantize(color: Color) -> [u8; 3] {
-    [
-        (color.r.clamp(0.0, 1.0) * 255.0) as u8,
-        (color.g.clamp(0.0, 1.0) * 255.0) as u8,
-        (color.b.clamp(0.0, 1.0) * 255.0) as u8,
-    ]
+    [color.r, color.g, color.b].map(|channel| (channel * 255.0) as u8)
 }
 
 pub fn group_by_color(mesh: &Mesh) -> ColorGroups {
-    let mut indices_by_color: HashMap<[u8; 3], Vec<u32>> = HashMap::new();
+    let mut indices_by_color: BTreeMap<[u8; 3], Vec<u32>> = BTreeMap::new();
     for (triangle, face_id) in mesh.indices.chunks_exact(3).zip(&mesh.face_ids) {
         let color = mesh.colormap.get(face_id).copied().unwrap_or(DEFAULT_COLOR);
         indices_by_color
@@ -172,9 +168,7 @@ pub fn group_by_color(mesh: &Mesh) -> ColorGroups {
             .or_default()
             .extend(triangle.iter().map(|&vertex_index| vertex_index as u32));
     }
-    let mut color_groups: ColorGroups = indices_by_color.into_iter().collect();
-    color_groups.sort_by_key(|(rgb, _)| *rgb);
-    color_groups
+    indices_by_color.into_iter().collect()
 }
 
 pub fn dominant_rgb(solid: &Solid) -> Option<[u8; 3]> {
