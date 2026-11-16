@@ -42,6 +42,7 @@ WORLD_SPAWN_POSES = {
     'maize': {'x': -14.0, 'y': -19.0, 'z': 0.8, 'yaw': 0.0},
     'plasticulture': {'x': -10.8, 'y': -3.0, 'z': 0.25, 'yaw': 0.0},
 }
+WORLD_GUI_CAMERA_POSES = {'area_xo': '25 122 122 0 0.9 -1.571'}
 NAMED_SPAWN_POSES = {
     'farm': {
         'taro': {'x': 11.2, 'y': -0.6, 'z': 0.4, 'yaw': 0.0},
@@ -126,7 +127,8 @@ def simulation(world: str = 'farm', robots: str = 'taro,jiro', headless: bool = 
     ensure_zenoh_router(bl)
     include('robot_boot', 'foxglove_bridge.launch.py')
     spawn_topic_bridge(GazeboBridge.clock_bridge(), node_name='clock_bridge')
-    bl.include('robot_simulation', 'gz_sim.launch.py', world=world, headless=headless)
+    bl.include('robot_simulation', 'gz_sim.launch.py', world=world, headless=headless,
+               gui_camera_pose=WORLD_GUI_CAMERA_POSES.get(world, ''))
 
     if world not in KNOWN_WORLDS:
         raise SystemExit(
