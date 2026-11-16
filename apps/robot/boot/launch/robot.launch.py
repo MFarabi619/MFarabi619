@@ -225,9 +225,9 @@ def launch_platform(machine, drivetrain_model, urdf_path, depth_camera):
 def launch_manipulation(bl, machine):
     include(
         'robot_manipulation', f'{machine.arm.model}.launch.py',
-        description_package=machine.arm.description_package,
-        moveit_package=machine.arm.moveit_package,
-        moveit_robot_name=machine.arm.moveit_robot_name,
+        description_package=machine.arm.packages.description,
+        moveit_package=machine.arm.packages.moveit,
+        moveit_robot_name=machine.arm.packages.moveit_robot_name,
         gripper=machine.arm.gripper,
         motions_file=bl.find('robot_machines', 'motions.yaml', subdir=machine.name),
     )

@@ -12,36 +12,11 @@
         "gripper": {
           "title": "Gripper",
           "type": "string"
-        },
-        "bringup_package": {
-          "title": "Bringup Package",
-          "type": "string"
-        },
-        "description_package": {
-          "title": "Description Package",
-          "type": "string"
-        },
-        "control_package": {
-          "title": "Control Package",
-          "type": "string"
-        },
-        "moveit_package": {
-          "title": "Moveit Package",
-          "type": "string"
-        },
-        "moveit_robot_name": {
-          "title": "Moveit Robot Name",
-          "type": "string"
         }
       },
       "required": [
         "model",
-        "gripper",
-        "bringup_package",
-        "description_package",
-        "control_package",
-        "moveit_package",
-        "moveit_robot_name"
+        "gripper"
       ],
       "title": "Arm",
       "type": "object"

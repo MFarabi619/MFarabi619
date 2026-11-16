@@ -228,14 +228,32 @@ class Mounts(StrictRecord):
     camera_mount: list[Mount] = []
 
 
+class ArmPackages(StrictRecord):
+    bringup: str
+    description: str
+    control: str
+    moveit: str
+    moveit_robot_name: str
+
+
+ARM_PACKAGES = {
+    'kinova_link6': ArmPackages(
+        bringup='link6_bringup',
+        description='link6_description',
+        control='link6_control',
+        moveit='link6_moveit_config',
+        moveit_robot_name='link6',
+    ),
+}
+
+
 class Arm(StrictRecord):
     model: ArmModel
     gripper: str
-    bringup_package: str
-    description_package: str
-    control_package: str
-    moveit_package: str
-    moveit_robot_name: str
+
+    @property
+    def packages(self):
+        return ARM_PACKAGES[self.model]
 
 
 class Home(StrictRecord):

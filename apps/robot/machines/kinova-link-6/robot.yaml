@@ -7,11 +7,6 @@ system:
 arm:
   model: kinova_link6
   gripper: robotiq_2f_85
-  bringup_package: link6_bringup
-  description_package: link6_description
-  control_package: link6_control
-  moveit_package: link6_moveit_config
-  moveit_robot_name: link6
 manipulation:
   demonstration_joint_positions_radians: [0.5, -0.4, 0.6, 0.0, 0.5, 0.0]
 sensors:
