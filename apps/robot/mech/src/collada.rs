@@ -28,11 +28,11 @@ where
 
     writeln!(writer, "  <library_effects>")?;
     for (index, (rgb, _)) in color_groups.iter().enumerate() {
-        let props = material_lookup(*rgb);
+        let pbr = material_lookup(*rgb);
         let [red, green, blue] = rgb.map(|channel| channel as f64 / 255.0);
-        let specular = PHONG_SPECULAR_FLOOR + PHONG_SPECULAR_METALLIC_GAIN * props.metallic as f64;
+        let specular = PHONG_SPECULAR_FLOOR + PHONG_SPECULAR_METALLIC_GAIN * pbr.metallic as f64;
         let shininess =
-            PHONG_SHININESS_MIN + PHONG_SHININESS_RANGE * (1.0 - props.roughness as f64);
+            PHONG_SHININESS_MIN + PHONG_SHININESS_RANGE * (1.0 - pbr.roughness as f64);
         writeln!(
             writer,
             r##"    <effect id="effect{index}"><profile_COMMON><technique sid="common"><phong>"##

@@ -23,7 +23,7 @@ where
     W: Write,
     F: Fn([u8; 3]) -> Pbr,
 {
-    let sorted_groups = group_by_color(mesh);
+    let color_groups = group_by_color(mesh);
 
     let needs_u32_indices = mesh.vertices.len() > u16::MAX as usize;
     let mut binary_chunk: Vec<u8> = Vec::new();
@@ -69,7 +69,7 @@ where
         mesh.normals.len(),
     ));
 
-    for (rgb, indices) in &sorted_groups {
+    for (rgb, indices) in &color_groups {
         let index_bytes = pack_indices(indices, needs_u32_indices);
         let index_buffer_view_index = push_buffer_view(
             &mut buffer_views,
@@ -90,7 +90,7 @@ where
             indices.len(),
         ));
 
-        let props = material_lookup(*rgb);
+        let pbr = material_lookup(*rgb);
         let material_index = materials.len();
         let [base_r, base_g, base_b] = dequantize(*rgb).to_linear();
         materials.push(format!(
@@ -98,8 +98,8 @@ where
             format_finite_f32(base_r),
             format_finite_f32(base_g),
             format_finite_f32(base_b),
-            format_finite_f32(props.metallic),
-            format_finite_f32(props.roughness),
+            format_finite_f32(pbr.metallic),
+            format_finite_f32(pbr.roughness),
         ));
 
         primitives.push(format!(
