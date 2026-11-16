@@ -171,6 +171,14 @@ def install_environment(mdns_hostname):
     ))
 
 
+def report_failure(error):
+    command = error.cmd if isinstance(error.cmd, str) else shlex.join(error.cmd)
+    print(f'failed (exit {error.returncode}): {command}', file=sys.stderr)
+    for output in (error.stdout, error.stderr):
+        if output:
+            print(output.rstrip(), file=sys.stderr)
+
+
 def provision(mdns_hostname, machine):
     install_pixi(mdns_hostname)
     udev_rules_directory = f'{MIRROR_ROBOT_ROOT}/drivers/udev'
@@ -286,6 +294,7 @@ def main():
         verify_health(robot)
         print('deployed healthy')
     except subprocess.CalledProcessError as error:
+        report_failure(error)
         sys.exit(error.returncode)
 
 
