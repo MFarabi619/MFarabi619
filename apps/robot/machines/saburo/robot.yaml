@@ -22,7 +22,7 @@ platform:
     right:
       is_reversed: true
       dac_i2c_address: 0x63
-      dir_pin: 15
+      dir_pin: 33
 sensors:
   camera:
     - model: stereolabs_zed
