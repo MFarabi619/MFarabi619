@@ -276,6 +276,21 @@
     </joint>
   </ros2_control>
 
+  <gazebo>
+    <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>package://robot_control/config/control.yaml</parameters>
+      <ros>
+        <namespace>saburo</namespace>
+        <remapping>~/cmd_vel:=platform/cmd_vel</remapping>
+        <remapping>~/reference:=platform/cmd_vel</remapping>
+        <remapping>~/odom:=odom</remapping>
+        <remapping>~/odometry:=odom</remapping>
+        <remapping>joint_states:=joint_states</remapping>
+        <remapping>robot_description:=/saburo/robot_description</remapping>
+      </ros>
+    </plugin>
+  </gazebo>
+
   <gazebo reference="front_left_wheel_link">
     <mu1>0.5</mu1>
     <mu2>0.5</mu2>
