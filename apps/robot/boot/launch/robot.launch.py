@@ -31,6 +31,7 @@ from robot_machines.machine import (
 ZENOH_ROUTER_SERVICE_MAX_ATTEMPTS = 600
 ZENOH_ROUTER_SERVICE_RETRY_DELAY_SECONDS = 1.0
 STEREOLABS_ZED_DEFAULT_POINT_CLOUD_RATE_HZ = 10.0
+GROUND_STATION_LISTEN_URL = 'udpin:0.0.0.0:14550'
 FOLLOWED_SURFACES = ('sidewalk', 'park_path', 'path')
 LUXONIS_OAK_LASERSCAN_ARGUMENTS = {
     'max_height': 0.6, 'range_min': 0.2, 'range_max': 3.0, 'scan_time': 0.05}
@@ -340,6 +341,12 @@ def launch_navigation(machine, depth_camera, overrides_file):
     if machine.behaviors.nav2_person_follow:
         include('robot_boot', 'nav2_person_follow.launch.py')
     if machine.behaviors.gps_navigation and machine.sensors.gps and depth_camera:
+        include(
+            'robot_navigation', 'ground_station_bridge.launch.py',
+            ground_station_url=GROUND_STATION_LISTEN_URL,
+            system_id=machine.system.mavlink_system_id,
+            gps_topic=f'sensors/{machine.sensors.gps[0].name}/fix',
+        )
         include(
             'robot_boot', 'gps_navigation.launch.py',
             scan_topic=f'sensors/{depth_camera.name}/scan',
