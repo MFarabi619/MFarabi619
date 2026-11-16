@@ -79,6 +79,7 @@ ros-lyrical-moveit-task-constructor-capabilities = "*"
 
 ros-lyrical-nmea-msgs = "*"
 ros-lyrical-foxglove-msgs = "*"
+ros-lyrical-zed-description = "*"
 ros-lyrical-gz-ros2-control = "*"
 ros-lyrical-foxglove-bridge = "*"
 ros-lyrical-geographic-msgs = "*"
@@ -107,7 +108,6 @@ libgl-devel = "*"
 [target.linux-aarch64.dependencies]
 nlohmann_json = "*"
 sysroot_linux-aarch64 = ">=2.28"
-ros-lyrical-zed-description = "*"
 ros-lyrical-depth-image-proc = "*"
 ros-lyrical-robot-localization = "*"
 
