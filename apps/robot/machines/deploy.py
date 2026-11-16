@@ -43,6 +43,7 @@ UDEV_RULES_DIRECTORY = ROBOT_ROOT / 'drivers' / 'udev'
 
 RSYNC_FLAGS = ['-rlptgoD', '-P']
 
+BUSY_PROCESS_PATTERN = 'pixi (install|run)|[c]olcon build'
 BUILD_WORKERS = 2
 COMPILE_JOBS_PER_WORKER = 3
 
@@ -153,6 +154,16 @@ def install_pixi(mdns_hostname):
         f' || {PIXI_PATH} self-update --version {version}')
 
 
+def verify_robot_is_idle(mdns_hostname):
+    completed = subprocess.run(
+        ['ssh', '-q', mdns_hostname, f'pgrep -a -u "$USER" -f "{BUSY_PROCESS_PATTERN}"'],
+        capture_output=True, text=True)
+    busy_processes = completed.stdout.strip()
+    if busy_processes:
+        sys.exit(f'{mdns_hostname} is busy with pixi/colcon; wait for it or stop it:\n'
+                 f'{busy_processes}')
+
+
 def provision(mdns_hostname, machine):
     install_pixi(mdns_hostname)
     udev_rules_directory = f'{MIRROR_ROBOT_ROOT}/drivers/udev'
@@ -256,6 +267,8 @@ def main():
         mirror(mdns_hostname, machine)
         print('provisioning')
         provision(mdns_hostname, machine)
+        print('checking robot is idle')
+        verify_robot_is_idle(mdns_hostname)
         print('building')
         build(mdns_hostname)
         print('installing units')
