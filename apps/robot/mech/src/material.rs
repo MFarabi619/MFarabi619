@@ -139,12 +139,15 @@ pub trait WithMaterial {
 
 impl WithMaterial for Solid {
     fn with_material(self, material: Material) -> Self {
-        let [r, g, b] = material.rgb();
-        self.color(Color {
-            r: r as f32 / 255.0,
-            g: g as f32 / 255.0,
-            b: b as f32 / 255.0,
-        })
+        self.color(dequantize(material.rgb()))
+    }
+}
+
+pub const fn dequantize(rgb: [u8; 3]) -> Color {
+    Color {
+        r: rgb[0] as f32 / 255.0,
+        g: rgb[1] as f32 / 255.0,
+        b: rgb[2] as f32 / 255.0,
     }
 }
 

@@ -5,15 +5,11 @@ use std::{
 
 use cadrum::{Color, DVec3, Mesh};
 
-use crate::material::{Pbr, DEFAULT_MATERIAL_RGB};
+use crate::material::{dequantize, quantize, Pbr, DEFAULT_MATERIAL_RGB};
 
 type ColorGroups = Vec<([u8; 3], Vec<u32>)>;
 
-const DEFAULT_COLOR: Color = Color {
-    r: DEFAULT_MATERIAL_RGB[0] as f32 / 255.0,
-    g: DEFAULT_MATERIAL_RGB[1] as f32 / 255.0,
-    b: DEFAULT_MATERIAL_RGB[2] as f32 / 255.0,
-};
+const DEFAULT_COLOR: Color = dequantize(DEFAULT_MATERIAL_RGB);
 
 const GLTF_MAGIC: u32 = 0x46546C67;
 const GLTF_VERSION: u32 = 2;
@@ -34,7 +30,9 @@ where
     W: Write,
     F: Fn([u8; 3]) -> Pbr,
 {
-    let (positions, normals, sorted_groups) = smooth_and_group(mesh);
+    let positions = mesh.vertices.as_slice();
+    let normals = mesh.normals.as_slice();
+    let sorted_groups = group_by_color(mesh);
 
     let needs_u32_indices = positions.len() > u16::MAX as usize;
     let mut binary_chunk: Vec<u8> = Vec::new();
@@ -43,14 +41,14 @@ where
     let mut materials: Vec<String> = Vec::new();
     let mut primitives: Vec<String> = Vec::new();
 
-    let position_bytes = vec3s_to_f32_bytes(&positions);
+    let position_bytes = vec3s_to_f32_bytes(positions);
     let position_buffer_view_index = push_buffer_view(
         &mut buffer_views,
         &mut binary_chunk,
         &position_bytes,
         GLTF_TARGET_ARRAY_BUFFER,
     );
-    let (min, max) = vertex_bounds(&positions);
+    let (min, max) = vertex_bounds(positions);
     let position_accessor_index = accessors.len();
     accessors.push(format!(
         r#"{{"bufferView":{},"componentType":{},"count":{},"type":"VEC3","min":[{},{},{}],"max":[{},{},{}]}}"#,
@@ -65,7 +63,7 @@ where
         format_finite_f32(max.z as f32),
     ));
 
-    let normal_bytes = vec3s_to_f32_bytes(&normals);
+    let normal_bytes = vec3s_to_f32_bytes(normals);
     let normal_buffer_view_index = push_buffer_view(
         &mut buffer_views,
         &mut binary_chunk,
@@ -188,62 +186,18 @@ where
     Ok(())
 }
 
-pub(crate) fn smooth_and_group(mesh: &Mesh) -> (Vec<DVec3>, Vec<DVec3>, ColorGroups) {
-    let triangle_count = mesh.indices.len() / 3;
-    let mut positions: Vec<DVec3> = Vec::new();
-    let mut normal_accum: Vec<DVec3> = Vec::new();
-    let mut vertex_map: HashMap<(usize, u64), u32> = HashMap::new();
+pub(crate) fn group_by_color(mesh: &Mesh) -> ColorGroups {
     let mut indices_by_color: HashMap<[u8; 3], Vec<u32>> = HashMap::new();
-
-    for triangle_index in 0..triangle_count {
-        let face_id = mesh.face_ids[triangle_index];
-        let source_vertex_indices = [
-            mesh.indices[triangle_index * 3],
-            mesh.indices[triangle_index * 3 + 1],
-            mesh.indices[triangle_index * 3 + 2],
-        ];
-        let triangle_vertices = [
-            mesh.vertices[source_vertex_indices[0]],
-            mesh.vertices[source_vertex_indices[1]],
-            mesh.vertices[source_vertex_indices[2]],
-        ];
-        let area_weighted_normal = (triangle_vertices[1] - triangle_vertices[0])
-            .cross(triangle_vertices[2] - triangle_vertices[0]);
-
-        let mut new_indices = [0u32; 3];
-        for corner_index in 0..3 {
-            let new_vertex_index = *vertex_map
-                .entry((source_vertex_indices[corner_index], face_id))
-                .or_insert_with(|| {
-                    let assigned = positions.len() as u32;
-                    positions.push(triangle_vertices[corner_index]);
-                    normal_accum.push(DVec3::ZERO);
-                    assigned
-                });
-            normal_accum[new_vertex_index as usize] += area_weighted_normal;
-            new_indices[corner_index] = new_vertex_index;
-        }
-
-        let color = mesh
-            .colormap
-            .get(&face_id)
-            .copied()
-            .unwrap_or(DEFAULT_COLOR);
-        let rgb = [
-            (color.r.clamp(0.0, 1.0) * 255.0) as u8,
-            (color.g.clamp(0.0, 1.0) * 255.0) as u8,
-            (color.b.clamp(0.0, 1.0) * 255.0) as u8,
-        ];
-        let color_indices = indices_by_color.entry(rgb).or_default();
-        color_indices.push(new_indices[0]);
-        color_indices.push(new_indices[1]);
-        color_indices.push(new_indices[2]);
+    for (triangle, face_id) in mesh.indices.chunks_exact(3).zip(&mesh.face_ids) {
+        let color = mesh.colormap.get(face_id).copied().unwrap_or(DEFAULT_COLOR);
+        indices_by_color
+            .entry(quantize(color))
+            .or_default()
+            .extend(triangle.iter().map(|&vertex_index| vertex_index as u32));
     }
-
-    let normals: Vec<DVec3> = normal_accum.iter().map(|n| n.normalize_or_zero()).collect();
-    let mut color_groups: Vec<([u8; 3], Vec<u32>)> = indices_by_color.into_iter().collect();
+    let mut color_groups: ColorGroups = indices_by_color.into_iter().collect();
     color_groups.sort_by_key(|(rgb, _)| *rgb);
-    (positions, normals, color_groups)
+    color_groups
 }
 
 fn push_buffer_view(

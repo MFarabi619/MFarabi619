@@ -2,7 +2,7 @@ use std::io::{self, Write};
 
 use cadrum::{DVec3, Mesh};
 
-use crate::{gltf::smooth_and_group, material::Pbr};
+use crate::{gltf::group_by_color, material::Pbr};
 
 pub fn write_collada<W, F>(mesh: &Mesh, material_lookup: F, writer: &mut W) -> io::Result<()>
 where
@@ -14,7 +14,7 @@ where
     const PHONG_SHININESS_MIN: f64 = 1.0;
     const PHONG_SHININESS_RANGE: f64 = 127.0;
 
-    let (positions, normals, color_groups) = smooth_and_group(mesh);
+    let color_groups = group_by_color(mesh);
 
     writeln!(writer, r##"<?xml version="1.0" encoding="utf-8"?>"##)?;
     writeln!(
@@ -64,8 +64,8 @@ where
 
     writeln!(writer, "  <library_geometries>")?;
     writeln!(writer, r##"    <geometry id="geometry"><mesh>"##)?;
-    write_source(writer, "positions", &positions)?;
-    write_source(writer, "normals", &normals)?;
+    write_source(writer, "positions", &mesh.vertices)?;
+    write_source(writer, "normals", &mesh.normals)?;
     writeln!(
         writer,
         r##"      <vertices id="vertices"><input semantic="POSITION" source="#positions"/></vertices>"##
