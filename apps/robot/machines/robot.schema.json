@@ -927,6 +927,13 @@
           "default": "",
           "title": "Namespace",
           "type": "string"
+        },
+        "mavlink_system_id": {
+          "default": 1,
+          "maximum": 255,
+          "minimum": 1,
+          "title": "Mavlink System Id",
+          "type": "integer"
         }
       },
       "title": "System",
@@ -939,7 +946,8 @@
       "$ref": "#/$defs/System",
       "default": {
         "hosts": [],
-        "namespace": ""
+        "namespace": "",
+        "mavlink_system_id": 1
       }
     },
     "platform": {

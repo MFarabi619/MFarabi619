@@ -19,7 +19,8 @@ import socket
 from typing import get_args, Literal
 
 from ament_index_python.packages import get_package_share_directory
-from pydantic import BaseModel, ConfigDict, model_validator, PrivateAttr, ValidationError
+from pydantic import (
+    BaseModel, ConfigDict, Field, model_validator, PrivateAttr, ValidationError)
 import yaml
 
 CameraModel = Literal[
@@ -40,6 +41,8 @@ DEPTH_CAMERA_PRECEDENCE = (
     LUXONIS_OAK_MODELS, (ORBBEC_GEMINI_335L_MODEL,), (STEREOLABS_ZED_MODEL,))
 DRIVETRAIN_MODELS = get_args(DrivetrainModel)
 DOMAINS = ('platform', 'sensors', 'perception', 'navigation', 'manipulation')
+MIN_MAVLINK_SYSTEM_ID = 1
+MAX_MAVLINK_SYSTEM_ID = 255
 MOTION_LIMIT_KEYS = (
     'max_linear_velocity_meters_per_second',
     'max_angular_velocity_radians_per_second',
@@ -83,6 +86,7 @@ class Host(StrictRecord):
 class System(StrictRecord):
     hosts: list[Host] = []
     namespace: str = ''
+    mavlink_system_id: int = Field(1, ge=MIN_MAVLINK_SYSTEM_ID, le=MAX_MAVLINK_SYSTEM_ID)
 
 
 class DrivetrainSide(StrictRecord):
