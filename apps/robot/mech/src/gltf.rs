@@ -39,7 +39,7 @@ where
         &position_bytes,
         GLTF_TARGET_ARRAY_BUFFER,
     );
-    let (min, max) = vertex_bounds(&mesh.vertices);
+    let [min, max] = vertex_bounds(&mesh.vertices);
     let position_accessor_index = accessors.len();
     accessors.push(format!(
         r#"{{"bufferView":{},"componentType":{},"count":{},"type":"VEC3","min":[{},{},{}],"max":[{},{},{}]}}"#,
@@ -209,12 +209,12 @@ fn pack_indices(indices: &[u32], needs_u32_indices: bool) -> Vec<u8> {
     }
 }
 
-fn vertex_bounds(vertices: &[DVec3]) -> (DVec3, DVec3) {
-    let init = (DVec3::splat(f64::INFINITY), DVec3::splat(f64::NEG_INFINITY));
+fn vertex_bounds(vertices: &[DVec3]) -> [DVec3; 2] {
+    let init = [DVec3::splat(f64::INFINITY), DVec3::splat(f64::NEG_INFINITY)];
     vertices
         .iter()
         .copied()
-        .fold(init, |(mn, mx), point| (mn.min(point), mx.max(point)))
+        .fold(init, |[mn, mx], point| [mn.min(point), mx.max(point)])
 }
 
 fn format_finite_f32(x: f32) -> String {
