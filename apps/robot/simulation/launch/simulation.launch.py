@@ -51,7 +51,10 @@ NAMED_SPAWN_POSES = {
 KNOWN_WORLDS = frozenset(WORLD_SPAWN_POSES) | frozenset(NAMED_SPAWN_POSES)
 DEFAULT_SPAWN_HEIGHT_METERS = 0.4
 ROBOT_SPACING_METERS = 2.0
-SIMULATION_ROS_PARAMETERS = {'person_follow': {'max_missing_frames': 8}}
+SIMULATION_ROS_PARAMETERS = {
+    'person_follow': {'max_missing_frames': 8},
+    'controller_server': {'FollowPath': {'desired_linear_vel': 2.0}},
+}
 DETECTOR_BY_TARGET = {'person': 'person_detector', 'cone': 'color_blob_detector'}
 AUTOSTARTED_TARGETS = ('cone',)
 
