@@ -20,7 +20,7 @@ platform:
       dac_i2c_address: 0x62
       dir_pin: 7
     right:
-      is_reversed: true
+      is_reversed: false
       dac_i2c_address: 0x63
       dir_pin: 33
 sensors:
