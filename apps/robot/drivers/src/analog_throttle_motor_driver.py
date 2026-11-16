@@ -27,7 +27,6 @@ from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from robot_platform_msgs.msg import Drive, Feedback
 
-NANOSECONDS_PER_SECOND = 1_000_000_000
 FEEDBACK_RATE_HZ = 50.0
 COMMAND_TIMEOUT_SECONDS = 0.5
 SIDES = ('left', 'right')
@@ -58,7 +57,6 @@ class AnalogThrottleMotorDriver(Node):
         self.declare_parameter('min_throttle_volts', 0.0)
         self.declare_parameter('max_throttle_volts', 5.0)
         self.declare_parameter('dac_supply_volts', 5.0)
-        self.declare_parameter('reverse_dwell_seconds', 0.5)
         for side, dac_i2c_address, reverse_switch_line in zip(
                 SIDES, DEFAULT_DAC_I2C_ADDRESSES, DEFAULT_REVERSE_SWITCH_LINES):
             self.declare_parameter(f'{side}_dac_i2c_address', dac_i2c_address)
@@ -88,7 +86,6 @@ class AnalogThrottleMotorDriver(Node):
                         i2c, address=self.get_parameter(f'{side}_dac_i2c_address').value),
                     self.reverse_switch_request, reverse_switch_line),
                 throttle_band,
-                self.get_parameter('reverse_dwell_seconds').value,
                 is_reversed=self.get_parameter(f'{side}_is_reversed').value)
             for side, reverse_switch_line in zip(SIDES, reverse_switch_lines)
         ]
@@ -101,9 +98,6 @@ class AnalogThrottleMotorDriver(Node):
             Feedback, 'platform/motors/feedback', qos_profile_sensor_data)
         self.feedback_timer = self.create_timer(1.0 / FEEDBACK_RATE_HZ, self.publish_feedback)
 
-    def now_seconds(self):
-        return self.get_clock().now().nanoseconds / NANOSECONDS_PER_SECOND
-
     def on_drive(self, message):
         self.last_command_time = self.get_clock().now()
         self.commanded_mode = message.mode
@@ -115,11 +109,11 @@ class AnalogThrottleMotorDriver(Node):
             self.release_throttles()
             return
         for wheel, wheel_speed in zip(self.wheels, wheel_speeds):
-            wheel.drive(float(wheel_speed), self.full_scale_wheel_speed, self.now_seconds())
+            wheel.drive(float(wheel_speed), self.full_scale_wheel_speed)
 
     def release_throttles(self):
         for wheel in self.wheels:
-            wheel.release_throttle(self.now_seconds())
+            wheel.release_throttle()
 
     def publish_feedback(self):
         now = self.get_clock().now()

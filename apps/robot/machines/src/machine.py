@@ -113,7 +113,6 @@ class Drivetrain(StrictRecord):
     min_throttle_volts: float | None = None
     max_throttle_volts: float | None = None
     dac_supply_volts: float | None = None
-    reverse_dwell_seconds: float | None = None
     gear_ratio: float | None = None
     acceleration_rpm_per_second: float | None = None
     speed_smoothing_time: float | None = None

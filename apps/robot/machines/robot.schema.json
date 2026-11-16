@@ -338,18 +338,6 @@
           "default": null,
           "title": "Dac Supply Volts"
         },
-        "reverse_dwell_seconds": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Reverse Dwell Seconds"
-        },
         "gear_ratio": {
           "anyOf": [
             {

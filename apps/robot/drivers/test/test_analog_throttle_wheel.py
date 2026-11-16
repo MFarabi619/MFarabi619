@@ -18,7 +18,6 @@ import pytest
 
 FULL_SCALE_WHEEL_SPEED = 10.0
 HALF_WHEEL_SPEED = FULL_SCALE_WHEEL_SPEED / 2
-REVERSE_DWELL_SECONDS = 0.5
 KELLY_MIN_THROTTLE_VOLTS = 1.0
 KELLY_MAX_THROTTLE_VOLTS = 4.0
 DAC_SUPPLY_VOLTS = 5.0
@@ -55,7 +54,7 @@ def controller():
 @pytest.fixture
 def wheel(analog_throttle_wheel_module, controller, kelly_band):
     return analog_throttle_wheel_module.AnalogThrottleWheel(
-        controller, kelly_band, REVERSE_DWELL_SECONDS, is_reversed=False)
+        controller, kelly_band, is_reversed=False)
 
 
 @pytest.fixture
@@ -89,48 +88,36 @@ def test_speed_maps_onto_the_throttle_band(
 
 def test_forward_drive_never_touches_the_reverse_switch(
         wheel, controller, volts_from_throttle_code):
-    wheel.drive(HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED, 0.0)
+    wheel.drive(HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED)
     assert controller.reverse_switch_states == []
     assert volts_from_throttle_code(controller.throttle_codes[-1]) == pytest.approx(
         MID_BAND_VOLTS, abs=VOLTS_TOLERANCE)
 
 
 def test_stop_releases_the_throttle(analog_throttle_wheel_module, wheel, controller):
-    wheel.drive(HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED, 0.0)
-    wheel.drive(0.0, FULL_SCALE_WHEEL_SPEED, 0.1)
+    wheel.drive(HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED)
+    wheel.drive(0.0, FULL_SCALE_WHEEL_SPEED)
     assert controller.throttle_codes[-1] == analog_throttle_wheel_module.RELEASED_THROTTLE_CODE
 
 
-def test_reversing_waits_with_the_throttle_released(
-        analog_throttle_wheel_module, wheel, controller, volts_from_throttle_code):
-    wheel.drive(HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED, 0.0)
-    wheel.drive(-HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED, 0.1)
-    wheel.drive(-HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED, 0.1 + REVERSE_DWELL_SECONDS / 2)
-    assert controller.reverse_switch_states == []
-    assert controller.throttle_codes[-1] == analog_throttle_wheel_module.RELEASED_THROTTLE_CODE
-    wheel.drive(-HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED, 0.1 + REVERSE_DWELL_SECONDS)
-    assert controller.events[-2:] == [
-        ('reverse_switch', True), ('throttle', controller.throttle_codes[-1])]
+def test_reversing_switches_direction_immediately(
+        wheel, controller, volts_from_throttle_code):
+    wheel.drive(HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED)
+    wheel.drive(-HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED)
+    assert controller.reverse_switch_states == [True]
     assert volts_from_throttle_code(controller.throttle_codes[-1]) == pytest.approx(
         MID_BAND_VOLTS, abs=VOLTS_TOLERANCE)
-
-
-def test_reverse_from_rest_starts_without_waiting(
-        analog_throttle_wheel_module, wheel, controller):
-    wheel.drive(-HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED, 0.0)
-    assert controller.reverse_switch_states == [True]
-    assert controller.throttle_codes[-1] > analog_throttle_wheel_module.RELEASED_THROTTLE_CODE
 
 
 def test_reversed_wheel_turns_the_reverse_switch_on_for_forward_travel(
         analog_throttle_wheel_module, controller, kelly_band):
     reversed_wheel = analog_throttle_wheel_module.AnalogThrottleWheel(
-        controller, kelly_band, REVERSE_DWELL_SECONDS, is_reversed=True)
-    reversed_wheel.drive(HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED, 0.0)
+        controller, kelly_band, is_reversed=True)
+    reversed_wheel.drive(HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED)
     assert controller.reverse_switch_states == [True]
 
 
 def test_unchanged_throttle_is_not_rewritten(wheel, controller):
-    wheel.drive(HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED, 0.0)
-    wheel.drive(HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED, 0.02)
+    wheel.drive(HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED)
+    wheel.drive(HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED)
     assert len(controller.throttle_codes) == 2

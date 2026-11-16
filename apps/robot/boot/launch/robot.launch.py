@@ -143,7 +143,6 @@ def launch_motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius
                 min_throttle_volts=drivetrain.min_throttle_volts,
                 max_throttle_volts=drivetrain.max_throttle_volts,
                 dac_supply_volts=drivetrain.dac_supply_volts,
-                reverse_dwell_seconds=drivetrain.reverse_dwell_seconds,
             ),
         )
     elif drivetrain_model == 'mock':
