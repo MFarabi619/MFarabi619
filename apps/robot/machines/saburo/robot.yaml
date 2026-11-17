@@ -39,7 +39,7 @@ sensors:
           camera_model: zed2i
           grab_resolution: HD720
           grab_frame_rate: 30
-          pub_frame_rate: 15.0
+          pub_frame_rate: 30.0
         depth:
           depth_mode: NEURAL_PLUS
           depth_stabilization: 0
@@ -72,6 +72,8 @@ sensors:
 behaviors:
   gps_navigation: true
 ros_parameters:
+  person_detector:
+    max_detections_per_second: 20.0
   person_follow:
     max_forward_speed_meters_per_second: 1.0
     max_backward_speed_meters_per_second: 1.0

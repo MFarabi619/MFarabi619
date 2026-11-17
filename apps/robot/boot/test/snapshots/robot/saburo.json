@@ -389,7 +389,7 @@
                   "camera_model": "zed2i",
                   "grab_frame_rate": 30,
                   "grab_resolution": "HD720",
-                  "pub_frame_rate": 15.0
+                  "pub_frame_rate": 30.0
                 },
                 "object_detection": {
                   "od_enabled": false
@@ -526,7 +526,7 @@
           "max_system_clock_step_ms": 4.0,
           "optional_opencv_calibration_file": "",
           "pub_downscale_factor": 2.0,
-          "pub_frame_rate": 15.0,
+          "pub_frame_rate": 30.0,
           "pub_resolution": "NATIVE",
           "publish_status": true,
           "sdk_timestamp_clock": "SYSTEM_CLOCK",
@@ -813,6 +813,11 @@
         "image_topic": "",
         "overrides_file": {
           "tempfile": {
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 20.0
+              }
+            },
             "/**/person_follow": {
               "ros__parameters": {
                 "max_angular_speed_radians_per_second": 1.9,
@@ -840,6 +845,11 @@
         "navigation/config/follow.yaml",
         {
           "tempfile": {
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 20.0
+              }
+            },
             "/**/person_follow": {
               "ros__parameters": {
                 "max_angular_speed_radians_per_second": 1.9,
@@ -870,6 +880,11 @@
         "navigation/config/follow.yaml",
         {
           "tempfile": {
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 20.0
+              }
+            },
             "/**/person_follow": {
               "ros__parameters": {
                 "max_angular_speed_radians_per_second": 1.9,
@@ -928,6 +943,11 @@
       "arguments": {
         "overrides_file": {
           "tempfile": {
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 20.0
+              }
+            },
             "/**/person_follow": {
               "ros__parameters": {
                 "max_angular_speed_radians_per_second": 1.9,
@@ -985,6 +1005,11 @@
         },
         {
           "tempfile": {
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 20.0
+              }
+            },
             "/**/person_follow": {
               "ros__parameters": {
                 "max_angular_speed_radians_per_second": 1.9,
@@ -1036,6 +1061,11 @@
         },
         {
           "tempfile": {
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 20.0
+              }
+            },
             "/**/person_follow": {
               "ros__parameters": {
                 "max_angular_speed_radians_per_second": 1.9,
@@ -1087,6 +1117,11 @@
         },
         {
           "tempfile": {
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 20.0
+              }
+            },
             "/**/person_follow": {
               "ros__parameters": {
                 "max_angular_speed_radians_per_second": 1.9,
@@ -1140,6 +1175,11 @@
         },
         {
           "tempfile": {
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 20.0
+              }
+            },
             "/**/person_follow": {
               "ros__parameters": {
                 "max_angular_speed_radians_per_second": 1.9,
