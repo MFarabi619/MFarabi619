@@ -143,6 +143,7 @@ if(joystick_path)
   if(joystick_led_strip)
     target_sources(app PRIVATE programs/joystick_led.c)
   endif()
+  target_sources_ifdef(CONFIG_ZENOH_PICO_PUBLICATION app PRIVATE programs/joystick_zenoh.c)
 endif()
 
 dt_comp_path(hd44780_path COMPATIBLE "hit,hd44780")

@@ -304,6 +304,14 @@ endchoice
 
 endif # SOC_SERIES_ESP32S3
 
+config ROBOT_NAMESPACE
+	string "ROS namespace of the robot this board talks to"
+	depends on ZENOH_PICO
+	default ""
+	help
+	  Namespace prefixed to the board's ROS topics on zenoh, for example "saburo".
+	  Set per board in the board .conf.
+
 config ZENOH_LOCATOR_DEFAULT
 	string "Default zenoh locator this board connects to at boot"
 	depends on ZENOH_PICO
