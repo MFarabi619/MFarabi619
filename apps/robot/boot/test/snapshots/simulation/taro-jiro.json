@@ -55,6 +55,7 @@
     },
     {
       "arguments": {
+        "gui_camera_pose": "",
         "headless": true,
         "world": "farm"
       },
@@ -291,7 +292,7 @@
             "/**/controller_server": {
               "ros__parameters": {
                 "FollowPath": {
-                  "desired_linear_vel": 0.7
+                  "desired_linear_vel": 2.0
                 }
               }
             },
@@ -359,7 +360,7 @@
             "/**/controller_server": {
               "ros__parameters": {
                 "FollowPath": {
-                  "desired_linear_vel": 0.7
+                  "desired_linear_vel": 2.0
                 }
               }
             },
@@ -428,7 +429,7 @@
             "/**/controller_server": {
               "ros__parameters": {
                 "FollowPath": {
-                  "desired_linear_vel": 0.7
+                  "desired_linear_vel": 2.0
                 }
               }
             },
@@ -497,7 +498,7 @@
             "/**/controller_server": {
               "ros__parameters": {
                 "FollowPath": {
-                  "desired_linear_vel": 0.7
+                  "desired_linear_vel": 2.0
                 }
               }
             },
@@ -568,7 +569,7 @@
             "/**/controller_server": {
               "ros__parameters": {
                 "FollowPath": {
-                  "desired_linear_vel": 0.7
+                  "desired_linear_vel": 2.0
                 }
               }
             },
@@ -640,7 +641,7 @@
             "/**/controller_server": {
               "ros__parameters": {
                 "FollowPath": {
-                  "desired_linear_vel": 0.7
+                  "desired_linear_vel": 2.0
                 }
               }
             },
@@ -691,6 +692,7 @@
     {
       "executable": "behavior_server",
       "kind": "node",
+      "lifecycle_waittime": 5.0,
       "max_respawns": -1,
       "name": "behavior_server",
       "namespace": "/taro",
@@ -852,6 +854,13 @@
         "image_topic": "sensors/camera_0/color/image_raw/compressed",
         "overrides_file": {
           "tempfile": {
+            "/**/controller_server": {
+              "ros__parameters": {
+                "FollowPath": {
+                  "desired_linear_vel": 2.0
+                }
+              }
+            },
             "/**/line_follow": {
               "ros__parameters": {
                 "image_width_pixels": 640
@@ -924,6 +933,13 @@
         "navigation/config/follow.yaml",
         {
           "tempfile": {
+            "/**/controller_server": {
+              "ros__parameters": {
+                "FollowPath": {
+                  "desired_linear_vel": 2.0
+                }
+              }
+            },
             "/**/line_follow": {
               "ros__parameters": {
                 "image_width_pixels": 640
@@ -997,6 +1013,13 @@
         "navigation/config/follow.yaml",
         {
           "tempfile": {
+            "/**/controller_server": {
+              "ros__parameters": {
+                "FollowPath": {
+                  "desired_linear_vel": 2.0
+                }
+              }
+            },
             "/**/line_follow": {
               "ros__parameters": {
                 "image_width_pixels": 640
@@ -1058,6 +1081,7 @@
     {
       "executable": "behavior_server",
       "kind": "node",
+      "lifecycle_waittime": 5.0,
       "max_respawns": -1,
       "name": "behavior_server",
       "namespace": "/jiro",
@@ -1085,6 +1109,560 @@
         "y": 4.06,
         "z": 0.05
       }
+    },
+    {
+      "group": "taro",
+      "kind": "group",
+      "namespace": "/taro",
+      "use_sim_time": null
+    },
+    {
+      "arguments": {
+        "camera": "camera_0",
+        "scan_time": 0.06666666666666667
+      },
+      "kind": "include",
+      "launchfile": "point_cloud_to_laserscan.launch.py",
+      "namespace": "/taro",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
+      "executable": "pointcloud_to_laserscan_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "camera_0_point_cloud_to_laserscan",
+      "namespace": "/taro",
+      "package": "pointcloud_to_laserscan",
+      "params": {
+        "max_height": 0.5,
+        "min_height": 0.1,
+        "range_max": 8.0,
+        "range_min": 0.25,
+        "scan_time": 0.06666666666666667,
+        "target_frame": "base_link"
+      },
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static",
+        "cloud_in": "sensors/camera_0/depth/points",
+        "scan": "sensors/camera_0/scan"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "gps_topic_prefix": "sensors/gps_0"
+      },
+      "kind": "include",
+      "launchfile": "robot_localization.launch.py",
+      "namespace": "/taro",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
+      "executable": "ekf_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "ekf_global",
+      "namespace": "/taro",
+      "package": "robot_localization",
+      "param_files": [
+        "control/config/robot_localization.yaml"
+      ],
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "navsat_transform_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "navsat_transform",
+      "namespace": "/taro",
+      "package": "robot_localization",
+      "param_files": [
+        "control/config/robot_localization.yaml"
+      ],
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static",
+        "gps/filtered": "sensors/gps_0/filtered",
+        "gps/fix": "sensors/gps_0/fix"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "gps_topic": "sensors/gps_0/fix",
+        "system_id": 1
+      },
+      "kind": "include",
+      "launchfile": "ground_station_bridge.launch.py",
+      "namespace": "/taro",
+      "package": "robot_navigation",
+      "subdir": null
+    },
+    {
+      "executable": "ground_station_bridge",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "ground_station_bridge",
+      "namespace": "/taro",
+      "package": "robot_navigation",
+      "params": {
+        "gps_topic": "sensors/gps_0/fix",
+        "ground_station_url": "udpout:127.0.0.1:14550",
+        "odometry_topic": "odometry/filtered",
+        "system_id": 1
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "overrides_file": {
+          "tempfile": {
+            "/**/canopy_detector": {
+              "ros__parameters": {
+                "normalize_exposure": true,
+                "normalized_excess_green_min": 0.06
+              }
+            },
+            "/**/controller_server": {
+              "ros__parameters": {
+                "FollowPath": {
+                  "desired_linear_vel": 2.0
+                }
+              }
+            },
+            "/**/harvest_lane_navigator": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.3,
+                "max_angular_speed_radians_per_second": 0.55,
+                "max_forward_speed_meters_per_second": 0.5,
+                "row_pitch_meters": 1.17
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 10.0
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "command_smoothing_seconds": 0.3,
+                "distance_damping": 0.4,
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 0.9,
+                "max_angular_speed_radians_per_second": 0.7,
+                "max_backward_speed_meters_per_second": 0.7,
+                "max_forward_speed_meters_per_second": 0.7,
+                "max_missing_frames": 8,
+                "standoff_distance_meters": 1.5,
+                "steer_damping": 0.7,
+                "steer_deadband_meters": 0.15,
+                "steer_gain": 0.5
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.4,
+                "max_angular_speed_radians_per_second": 0.8,
+                "steer_gain": 1.2
+              }
+            }
+          }
+        },
+        "scan_topic": "sensors/camera_0/scan"
+      },
+      "kind": "include",
+      "launchfile": "gps_navigation.launch.py",
+      "namespace": "/taro",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
+      "kind": "wait_for_service",
+      "namespace": "/taro",
+      "service": "/taro/fromLL",
+      "timeout": 120.0
+    },
+    {
+      "executable": "controller_server",
+      "kind": "node",
+      "lifecycle_waittime": 5.0,
+      "max_respawns": -1,
+      "name": "controller_server",
+      "namespace": "/taro",
+      "package": "nav2_controller",
+      "param_files": [
+        "navigation/config/gps_navigation.yaml",
+        {
+          "tempfile": {
+            "/**/global_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/taro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            },
+            "/**/local_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/taro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "tempfile": {
+            "/**/canopy_detector": {
+              "ros__parameters": {
+                "normalize_exposure": true,
+                "normalized_excess_green_min": 0.06
+              }
+            },
+            "/**/controller_server": {
+              "ros__parameters": {
+                "FollowPath": {
+                  "desired_linear_vel": 2.0
+                }
+              }
+            },
+            "/**/harvest_lane_navigator": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.3,
+                "max_angular_speed_radians_per_second": 0.55,
+                "max_forward_speed_meters_per_second": 0.5,
+                "row_pitch_meters": 1.17
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 10.0
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "command_smoothing_seconds": 0.3,
+                "distance_damping": 0.4,
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 0.9,
+                "max_angular_speed_radians_per_second": 0.7,
+                "max_backward_speed_meters_per_second": 0.7,
+                "max_forward_speed_meters_per_second": 0.7,
+                "max_missing_frames": 8,
+                "standoff_distance_meters": 1.5,
+                "steer_damping": 0.7,
+                "steer_deadband_meters": 0.15,
+                "steer_gain": 0.5
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.4,
+                "max_angular_speed_radians_per_second": 0.8,
+                "steer_gain": 1.2
+              }
+            }
+          }
+        }
+      ],
+      "params": {},
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "planner_server",
+      "kind": "node",
+      "lifecycle_waittime": 5.0,
+      "max_respawns": -1,
+      "name": "planner_server",
+      "namespace": "/taro",
+      "package": "nav2_planner",
+      "param_files": [
+        "navigation/config/gps_navigation.yaml",
+        {
+          "tempfile": {
+            "/**/global_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/taro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            },
+            "/**/local_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/taro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "tempfile": {
+            "/**/canopy_detector": {
+              "ros__parameters": {
+                "normalize_exposure": true,
+                "normalized_excess_green_min": 0.06
+              }
+            },
+            "/**/controller_server": {
+              "ros__parameters": {
+                "FollowPath": {
+                  "desired_linear_vel": 2.0
+                }
+              }
+            },
+            "/**/harvest_lane_navigator": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.3,
+                "max_angular_speed_radians_per_second": 0.55,
+                "max_forward_speed_meters_per_second": 0.5,
+                "row_pitch_meters": 1.17
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 10.0
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "command_smoothing_seconds": 0.3,
+                "distance_damping": 0.4,
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 0.9,
+                "max_angular_speed_radians_per_second": 0.7,
+                "max_backward_speed_meters_per_second": 0.7,
+                "max_forward_speed_meters_per_second": 0.7,
+                "max_missing_frames": 8,
+                "standoff_distance_meters": 1.5,
+                "steer_damping": 0.7,
+                "steer_deadband_meters": 0.15,
+                "steer_gain": 0.5
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.4,
+                "max_angular_speed_radians_per_second": 0.8,
+                "steer_gain": 1.2
+              }
+            }
+          }
+        }
+      ],
+      "params": {},
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "bt_navigator",
+      "kind": "node",
+      "lifecycle_waittime": 5.0,
+      "max_respawns": -1,
+      "name": "bt_navigator",
+      "namespace": "/taro",
+      "package": "nav2_bt_navigator",
+      "param_files": [
+        "navigation/config/gps_navigation.yaml",
+        {
+          "tempfile": {
+            "/**/global_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/taro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            },
+            "/**/local_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/taro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "tempfile": {
+            "/**/canopy_detector": {
+              "ros__parameters": {
+                "normalize_exposure": true,
+                "normalized_excess_green_min": 0.06
+              }
+            },
+            "/**/controller_server": {
+              "ros__parameters": {
+                "FollowPath": {
+                  "desired_linear_vel": 2.0
+                }
+              }
+            },
+            "/**/harvest_lane_navigator": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.3,
+                "max_angular_speed_radians_per_second": 0.55,
+                "max_forward_speed_meters_per_second": 0.5,
+                "row_pitch_meters": 1.17
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 10.0
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "command_smoothing_seconds": 0.3,
+                "distance_damping": 0.4,
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 0.9,
+                "max_angular_speed_radians_per_second": 0.7,
+                "max_backward_speed_meters_per_second": 0.7,
+                "max_forward_speed_meters_per_second": 0.7,
+                "max_missing_frames": 8,
+                "standoff_distance_meters": 1.5,
+                "steer_damping": 0.7,
+                "steer_deadband_meters": 0.15,
+                "steer_gain": 0.5
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.4,
+                "max_angular_speed_radians_per_second": 0.8,
+                "steer_gain": 1.2
+              }
+            }
+          }
+        }
+      ],
+      "params": {
+        "default_nav_to_pose_bt_xml": "navigation/config/navigate_to_pose.xml"
+      },
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "waypoint_follower",
+      "kind": "node",
+      "lifecycle_waittime": 5.0,
+      "max_respawns": -1,
+      "name": "waypoint_follower",
+      "namespace": "/taro",
+      "package": "nav2_waypoint_follower",
+      "param_files": [
+        "navigation/config/gps_navigation.yaml",
+        {
+          "tempfile": {
+            "/**/global_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/taro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            },
+            "/**/local_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/taro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "tempfile": {
+            "/**/canopy_detector": {
+              "ros__parameters": {
+                "normalize_exposure": true,
+                "normalized_excess_green_min": 0.06
+              }
+            },
+            "/**/controller_server": {
+              "ros__parameters": {
+                "FollowPath": {
+                  "desired_linear_vel": 2.0
+                }
+              }
+            },
+            "/**/harvest_lane_navigator": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.3,
+                "max_angular_speed_radians_per_second": 0.55,
+                "max_forward_speed_meters_per_second": 0.5,
+                "row_pitch_meters": 1.17
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 10.0
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "command_smoothing_seconds": 0.3,
+                "distance_damping": 0.4,
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 0.9,
+                "max_angular_speed_radians_per_second": 0.7,
+                "max_backward_speed_meters_per_second": 0.7,
+                "max_forward_speed_meters_per_second": 0.7,
+                "max_missing_frames": 8,
+                "standoff_distance_meters": 1.5,
+                "steer_damping": 0.7,
+                "steer_deadband_meters": 0.15,
+                "steer_gain": 0.5
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.4,
+                "max_angular_speed_radians_per_second": 0.8,
+                "steer_gain": 1.2
+              }
+            }
+          }
+        }
+      ],
+      "params": {},
+      "remaps": {
+        "/fromLL": "fromLL",
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
     }
   ],
   "launch": {

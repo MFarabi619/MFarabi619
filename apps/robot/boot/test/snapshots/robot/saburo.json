@@ -55,8 +55,8 @@
         "max_throttle_volts": 4.0,
         "min_throttle_volts": 1.0,
         "right_dac_i2c_address": 98,
-        "right_is_reversed": true,
-        "right_reverse_switch_line": 85
+        "right_is_reversed": false,
+        "right_reverse_switch_line": 43
       },
       "kind": "include",
       "launchfile": "analog_throttle_motor_driver.launch.py",
@@ -81,10 +81,9 @@
         "left_reverse_switch_line": 144,
         "max_throttle_volts": 4.0,
         "min_throttle_volts": 1.0,
-        "reverse_dwell_seconds": 0.5,
         "right_dac_i2c_address": 98,
-        "right_is_reversed": true,
-        "right_reverse_switch_line": 85
+        "right_is_reversed": false,
+        "right_reverse_switch_line": 43
       },
       "respawn_delay": 2.0
     },

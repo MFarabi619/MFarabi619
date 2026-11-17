@@ -864,6 +864,33 @@
     },
     {
       "arguments": {
+        "gps_topic": "sensors/gps_0/fix",
+        "ground_station_url": "udpin:0.0.0.0:14550",
+        "system_id": 1
+      },
+      "kind": "include",
+      "launchfile": "ground_station_bridge.launch.py",
+      "namespace": "/taro",
+      "package": "robot_navigation",
+      "subdir": null
+    },
+    {
+      "executable": "ground_station_bridge",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "ground_station_bridge",
+      "namespace": "/taro",
+      "package": "robot_navigation",
+      "params": {
+        "gps_topic": "sensors/gps_0/fix",
+        "ground_station_url": "udpin:0.0.0.0:14550",
+        "odometry_topic": "odometry/filtered",
+        "system_id": 1
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
         "overrides_file": {
           "tempfile": {
             "/**/canopy_detector": {
@@ -934,6 +961,7 @@
     {
       "executable": "controller_server",
       "kind": "node",
+      "lifecycle_waittime": 5.0,
       "max_respawns": -1,
       "name": "controller_server",
       "namespace": "/taro",
@@ -1026,6 +1054,7 @@
     {
       "executable": "planner_server",
       "kind": "node",
+      "lifecycle_waittime": 5.0,
       "max_respawns": -1,
       "name": "planner_server",
       "namespace": "/taro",
@@ -1118,6 +1147,7 @@
     {
       "executable": "bt_navigator",
       "kind": "node",
+      "lifecycle_waittime": 5.0,
       "max_respawns": -1,
       "name": "bt_navigator",
       "namespace": "/taro",
@@ -1212,6 +1242,7 @@
     {
       "executable": "waypoint_follower",
       "kind": "node",
+      "lifecycle_waittime": 5.0,
       "max_respawns": -1,
       "name": "waypoint_follower",
       "namespace": "/taro",
