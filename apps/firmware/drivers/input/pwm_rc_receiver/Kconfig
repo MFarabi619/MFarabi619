@@ -17,4 +17,11 @@ config INPUT_PWM_RC_RECEIVER_THREAD_PRIORITY
 	int "Priority for the PWM RC receiver thread"
 	default 0
 
+config INPUT_PWM_RC_RECEIVER_REPORT_FILTER
+	int "Minimal pulse width change in microseconds to report"
+	default 2
+	help
+	  Capture jitter moves pulse widths by a microsecond or two; changes smaller
+	  than this are not reported.
+
 endif # INPUT_PWM_RC_RECEIVER

@@ -5,7 +5,8 @@ compatible: "pwm-rc-receiver"
 description: |
   RC receiver with one PWM output per channel, read with PWM capture.
 
-  Each channel reports its pulse width in microseconds, followed by a sync event.
+  Each channel reports its pulse width in microseconds when it changes, and a sync event
+  follows every poll period.
   Reporting stops when the receiver loses signal.
 
 properties:

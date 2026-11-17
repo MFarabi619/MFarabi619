@@ -1,5 +1,7 @@
 #define DT_DRV_COMPAT pwm_rc_receiver
 
+#include <stdlib.h>
+
 #include <zephyr/device.h>
 #include <zephyr/drivers/pwm.h>
 #include <zephyr/input/input.h>
@@ -10,6 +12,7 @@ LOG_MODULE_REGISTER(pwm_rc_receiver, CONFIG_INPUT_LOG_LEVEL);
 
 #define PULSE_MIN_VALID_MICROSECONDS 800
 #define PULSE_MAX_VALID_MICROSECONDS 2200
+#define REPORT_FILTER_MICROSECONDS   CONFIG_INPUT_PWM_RC_RECEIVER_REPORT_FILTER
 
 struct pwm_rc_receiver_channel_config {
 	struct pwm_dt_spec capture;
@@ -20,6 +23,7 @@ struct pwm_rc_receiver_channel_config {
 struct pwm_rc_receiver_channel_data {
 	atomic_t pulse_width_microseconds;
 	atomic_t last_pulse_milliseconds;
+	int32_t last_reported_microseconds;
 };
 
 struct pwm_rc_receiver_config {
@@ -70,17 +74,24 @@ static bool pwm_rc_receiver_has_signal(const struct device *dev)
 	return true;
 }
 
-static void pwm_rc_receiver_report_channels(const struct device *dev)
+static void pwm_rc_receiver_report_changed_channels(const struct device *dev)
 {
 	const struct pwm_rc_receiver_config *config = dev->config;
 
 	for (uint8_t i = 0; i < config->num_channels; i++) {
 		const struct pwm_rc_receiver_channel_config *channel_config =
 			&config->channel_config[i];
+		struct pwm_rc_receiver_channel_data *channel_data = &config->channel_data[i];
+		int32_t pulse_width_microseconds =
+			atomic_get(&channel_data->pulse_width_microseconds);
 
+		if (abs(pulse_width_microseconds - channel_data->last_reported_microseconds) <
+		    REPORT_FILTER_MICROSECONDS) {
+			continue;
+		}
 		input_report(dev, channel_config->type, channel_config->zephyr_code,
-			     atomic_get(&config->channel_data[i].pulse_width_microseconds),
-			     false, K_FOREVER);
+			     pulse_width_microseconds, false, K_FOREVER);
+		channel_data->last_reported_microseconds = pulse_width_microseconds;
 	}
 }
 
@@ -91,7 +102,7 @@ static void pwm_rc_receiver_thread(void *device, void *unused2, void *unused3)
 
 	while (true) {
 		if (pwm_rc_receiver_has_signal(dev)) {
-			pwm_rc_receiver_report_channels(dev);
+			pwm_rc_receiver_report_changed_channels(dev);
 			input_report(dev, 0, 0, 0, true, K_FOREVER);
 		}
 		k_sleep(K_MSEC(config->poll_period_ms));
