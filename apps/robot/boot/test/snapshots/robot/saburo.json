@@ -386,6 +386,7 @@
                   "publish_depth_image": true
                 },
                 "general": {
+                  "camera_model": "zed2i",
                   "grab_frame_rate": 30,
                   "grab_resolution": "HD720",
                   "pub_frame_rate": 15.0
@@ -514,7 +515,7 @@
           "buffer_backend": "cuda",
           "camera_flip": false,
           "camera_max_reconnect": 5,
-          "camera_model": "zed2",
+          "camera_model": "zed2i",
           "camera_name": "camera_0",
           "camera_timeout_sec": 5,
           "enable_image_validity_check": 1,
@@ -708,7 +709,7 @@
       },
       "xacro_args": [
         "camera_name:=camera_0",
-        "camera_model:=zed2"
+        "camera_model:=zed2i"
       ]
     },
     {

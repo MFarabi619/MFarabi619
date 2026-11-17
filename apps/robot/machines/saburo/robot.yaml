@@ -36,6 +36,7 @@ sensors:
       rpy: [0.0, 0.0, 0.0]
       parameters:
         general:
+          camera_model: zed2i
           grab_resolution: HD720
           grab_frame_rate: 30
           pub_frame_rate: 15.0
