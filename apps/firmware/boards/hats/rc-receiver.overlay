@@ -7,6 +7,8 @@
  /*  GND     --> - */
  /*  GPIO9   --> CH1 */
  /*  GPIO8   --> CH2 */
+ /*  GPIO10  --> CH3 */
+ /*  GPIO13  --> CH6 */
 
 &pinctrl {
 	mcpwm1_rc_receiver: mcpwm1_rc_receiver {
@@ -15,6 +17,18 @@
 			bias-pull-down;
 		};
 	};
+	mcpwm0_rc_receiver: mcpwm0_rc_receiver {
+		group1 {
+			pinmux = <MCPWM0_CAP0_GPIO10>, <MCPWM0_CAP1_GPIO13>;
+			bias-pull-down;
+		};
+	};
+};
+&mcpwm0 {
+	pinctrl-0 = <&mcpwm0_rc_receiver>;
+	pinctrl-names = "default";
+	prescale = <1>;
+	status = "okay";
 };
 &mcpwm1 {
 	pinctrl-0 = <&mcpwm1_rc_receiver>;
@@ -42,6 +56,18 @@
 			pwms = <&mcpwm1 7 0 PWM_POLARITY_NORMAL>;
 			type = <INPUT_EV_ABS>;
 			zephyr,code = <INPUT_ABS_Y>;
+		};
+
+		channel-3 {
+			pwms = <&mcpwm0 6 0 PWM_POLARITY_NORMAL>;
+			type = <INPUT_EV_ABS>;
+			zephyr,code = <INPUT_ABS_Z>;
+		};
+
+		channel-6 {
+			pwms = <&mcpwm0 7 0 PWM_POLARITY_NORMAL>;
+			type = <INPUT_EV_ABS>;
+			zephyr,code = <INPUT_ABS_RZ>;
 		};
 	};
 
