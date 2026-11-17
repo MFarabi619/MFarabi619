@@ -405,10 +405,10 @@
         "parent_frame": "base_link",
         "pitch": 0.0,
         "roll": 0.0,
-        "x": 0.4,
+        "x": 0.53,
         "y": 0.0,
         "yaw": 0.0,
-        "z": 0.4
+        "z": 0.114
       },
       "kind": "include",
       "launchfile": "stereolabs_zed.launch.py",
@@ -711,11 +711,11 @@
     {
       "cmd_args": [
         "--x",
-        "0.4",
+        "0.53",
         "--y",
         "0.0",
         "--z",
-        "0.4",
+        "0.114",
         "--roll",
         "0.0",
         "--pitch",
