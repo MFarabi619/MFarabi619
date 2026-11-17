@@ -17,11 +17,11 @@ platform:
       max_angular_acceleration_radians_per_second_squared: 7.5
     left:
       is_reversed: false
-      dac_i2c_address: 0x62
+      dac_i2c_address: 0x63
       dir_pin: 7
     right:
       is_reversed: false
-      dac_i2c_address: 0x63
+      dac_i2c_address: 0x62
       dir_pin: 33
 sensors:
   camera:
