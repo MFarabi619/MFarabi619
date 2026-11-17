@@ -65,3 +65,8 @@ sensors:
       ntrip:
         mountpoint: OsgoodeFarms
         username: farabi@tandemrobotics.ca
+ros_parameters:
+  person_follow:
+    max_forward_speed_meters_per_second: 1.0
+    max_backward_speed_meters_per_second: 1.0
+    max_angular_speed_radians_per_second: 1.9
