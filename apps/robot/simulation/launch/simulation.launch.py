@@ -32,7 +32,7 @@ from robot_boot.launch_policy import (
 )
 from robot_boot.urdf import ground_offset_meters
 from robot_boot.zenoh_router import ensure_zenoh_router
-from robot_machines.machine import load_machine
+from robot_machines.machine import load_machine, USB_JOYSTICK_INTERFACE
 from robot_simulation.gz_bridges import spawn_depth_laserscans
 from robot_simulation.spawn import spawn_robot
 from robot_simulation.target import TARGET_AHEAD_METERS, TARGET_SPAWN_POSES
@@ -73,6 +73,11 @@ def robot_stack(bl, machine, world, pose, target):
     with bl.group(machine.name):
         spawn_robot(bl, machine, world, pose)
         include('robot_boot', 'twist_mux.launch.py')
+        rc_receiver = machine.platform.rc_receiver
+        if (rc_receiver and rc_receiver.launch_enabled
+                and rc_receiver.interface == USB_JOYSTICK_INTERFACE):
+            include(
+                'robot_drivers', 'rc_receiver_usb_joystick.launch.py', joy_node_enabled=False)
         if machine.behaviors.harvest_lane:
             include(
                 'robot_navigation', 'harvest_lane.launch.py',

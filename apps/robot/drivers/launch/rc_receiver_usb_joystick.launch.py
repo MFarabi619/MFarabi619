@@ -23,19 +23,21 @@ from robot_boot.zenoh_router import ensure_zenoh_router
 def rc_receiver_usb_joystick(
     device_name: str = 'RC Receiver Joystick',
     params_file: str = '',
+    joy_node_enabled: bool = True,
 ):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
     params_file = params_file or bl.find('robot_boot', 'rc_receiver_usb_joystick_teleop.yaml')
-    bl.node(
-        package='joy',
-        executable='joy_node',
-        name='rc_receiver_usb_joystick',
-        params={'device_name': device_name},
-        param_files=[params_file],
-        remaps={'joy': 'joy_teleop/joy'},
-        **RESPAWN,
-    )
+    if joy_node_enabled:
+        bl.node(
+            package='joy',
+            executable='joy_node',
+            name='rc_receiver_usb_joystick',
+            params={'device_name': device_name},
+            param_files=[params_file],
+            remaps={'joy': 'joy_teleop/joy'},
+            **RESPAWN,
+        )
     bl.node(
         package='teleop_twist_joy',
         executable='teleop_node',
