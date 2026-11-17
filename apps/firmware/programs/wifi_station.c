@@ -6,17 +6,20 @@
 
 #include "wifi_station.h"
 
+#define ADDRESS_RECHECK_PERIOD_SECONDS 1
+
+/* Bounded waits with a recheck: a DHCP bind between the check and the wait would
+ * otherwise go unnoticed until the next rebind. */
 void wifi_station_wait_for_ipv4_address(void) {
   struct net_if *station = net_if_get_wifi_sta();
   if (station == NULL) {
     return;
   }
-  if (net_if_ipv4_get_global_addr(station, NET_ADDR_PREFERRED) != NULL) {
-    return;
+  while (net_if_ipv4_get_global_addr(station, NET_ADDR_PREFERRED) == NULL) {
+    uint64_t raised_event;
+    net_mgmt_event_wait_on_iface(station, NET_EVENT_IPV4_DHCP_BOUND, &raised_event,
+                                 NULL, NULL, K_SECONDS(ADDRESS_RECHECK_PERIOD_SECONDS));
   }
-  uint64_t raised_event;
-  net_mgmt_event_wait_on_iface(station, NET_EVENT_IPV4_DHCP_BOUND, &raised_event,
-                               NULL, NULL, K_FOREVER);
 }
 
 /* Modem-sleep batches packets at DTIM intervals; the resulting latency spikes
