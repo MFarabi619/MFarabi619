@@ -46,5 +46,6 @@
 	};
 };
 
-#include "hats/pwm-motors.overlay"
+// #include "hats/pwm-motors.overlay"
+#include "hats/rc-receiver.overlay"
 // #include "lcd1602.overlay"
