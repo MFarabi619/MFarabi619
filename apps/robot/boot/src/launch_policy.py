@@ -30,6 +30,12 @@ def include(package, launchfile, **arguments):
         package, launchfile, pass_launch_func_args=False, **arguments)
 
 
+def write_tempfile(text, suffix):
+    with tempfile.NamedTemporaryFile('w', suffix=suffix, delete=False) as text_tempfile:
+        text_tempfile.write(text)
+    return text_tempfile.name
+
+
 def write_parameter_overrides_file(overrides_by_node):
     overrides_by_node = {node: values for node, values in overrides_by_node.items() if values}
     if not overrides_by_node:

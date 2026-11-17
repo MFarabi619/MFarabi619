@@ -17,7 +17,6 @@
 import os
 import re
 import subprocess
-import tempfile
 import threading
 import time
 
@@ -25,7 +24,7 @@ from ament_index_python.packages import get_package_share_directory
 from ament_index_python.search_paths import get_search_paths
 from better_launch import BetterLaunch, launch_this
 from better_launch.gazebo import get_gazebo_axes_args, spawn_model
-from robot_boot.launch_policy import include
+from robot_boot.launch_policy import include, write_tempfile
 from robot_boot.zenoh_router import ensure_zenoh_router
 from robot_machines.machine import load_machine
 from robot_simulation.target import TARGET_AHEAD_METERS, TARGET_SPAWN_POSES
@@ -57,10 +56,7 @@ def write_gui_config_file(bl, gui_camera_pose):
             r'<camera_pose>[^<]*</camera_pose>',
             '<camera_pose>{} {} {} {} {} {}</camera_pose>'.format(*gui_camera_pose),
             template.read())
-    gui_config_tempfile = tempfile.NamedTemporaryFile(mode='w', suffix='.config', delete=False)
-    gui_config_tempfile.write(gui_config)
-    gui_config_tempfile.close()
-    return gui_config_tempfile.name
+    return write_tempfile(gui_config, '.config')
 
 
 @launch_this(use_sim_time=True)

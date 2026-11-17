@@ -16,12 +16,12 @@
 
 import os
 import re
-import tempfile
 import threading
 
 from ament_index_python.packages import get_package_share_directory
 from ament_index_python.search_paths import get_search_paths
 from better_launch import BetterLaunch, launch_this
+from robot_boot.launch_policy import write_tempfile
 from robot_simulation.view_control import set_view_control_sensitivity
 
 
@@ -32,10 +32,7 @@ def gui_config_file(share_directory, gui_camera_pose):
     with open(gui_config_path) as template:
         gui_config = re.sub(r'<camera_pose>[^<]*</camera_pose>',
                             f'<camera_pose>{gui_camera_pose}</camera_pose>', template.read())
-    gui_config_tempfile = tempfile.NamedTemporaryFile(mode='w', suffix='.config', delete=False)
-    gui_config_tempfile.write(gui_config)
-    gui_config_tempfile.close()
-    return gui_config_tempfile.name
+    return write_tempfile(gui_config, '.config')
 
 
 @launch_this

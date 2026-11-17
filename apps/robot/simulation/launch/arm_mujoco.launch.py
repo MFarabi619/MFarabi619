@@ -15,7 +15,6 @@
 
 
 import os
-import tempfile
 
 from better_launch import BetterLaunch, launch_this
 from better_launch.convenience import (
@@ -23,7 +22,7 @@ from better_launch.convenience import (
     robot_state_publisher,
     spawn_controller,
 )
-from robot_boot.launch_policy import include
+from robot_boot.launch_policy import include, write_tempfile
 from robot_boot.zenoh_router import ensure_zenoh_router
 from robot_machines.machine import load_machine
 
@@ -33,10 +32,7 @@ def write_rendered_scene_file(bl):
         bl.find('robot_simulation', 'textured.obj', subdir='models/ycb/013_apple/google_16k'))
     with open(bl.find('robot_manipulation', 'mujoco_scene.xml')) as template:
         scene = template.read().replace('${APPLE_ASSETS}', apple_assets_directory)
-    scene_tempfile = tempfile.NamedTemporaryFile(mode='w', suffix='.xml', delete=False)
-    scene_tempfile.write(scene)
-    scene_tempfile.close()
-    return scene_tempfile.name
+    return write_tempfile(scene, '.xml')
 
 
 @launch_this(use_sim_time=True)
