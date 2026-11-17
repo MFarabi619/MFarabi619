@@ -351,6 +351,12 @@ class Machine(StrictRecord):
         return self.has_arm and self.platform is None
 
     @property
+    def has_usb_joystick_rc_receiver(self):
+        rc_receiver = self.platform and self.platform.rc_receiver
+        return bool(rc_receiver and rc_receiver.launch_enabled
+                    and rc_receiver.interface == USB_JOYSTICK_INTERFACE)
+
+    @property
     def enabled_cameras(self):
         return [camera for camera in self.sensors.camera if camera.launch_enabled]
 
