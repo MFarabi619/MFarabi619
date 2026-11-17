@@ -1,0 +1,85 @@
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
+#include <zephyr/dt-bindings/pwm/pwm.h>
+
+ /* DevKitC-1    HotRC F-06A */
+ /*  5V      --> + */
+ /*  GND     --> - */
+ /*  GPIO9   --> CH1 */
+ /*  GPIO8   --> CH2 */
+
+&pinctrl {
+	mcpwm1_rc_receiver: mcpwm1_rc_receiver {
+		group1 {
+			pinmux = <MCPWM1_CAP0_GPIO9>, <MCPWM1_CAP1_GPIO8>;
+			bias-pull-down;
+		};
+	};
+};
+&mcpwm1 {
+	pinctrl-0 = <&mcpwm1_rc_receiver>;
+	pinctrl-names = "default";
+	prescale = <1>;
+	status = "okay";
+};
+
+/ {
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+	};
+
+	rc_receiver: rc-receiver {
+		compatible = "pwm-rc-receiver";
+
+		channel-1 {
+			pwms = <&mcpwm1 6 0 PWM_POLARITY_NORMAL>;
+			type = <INPUT_EV_ABS>;
+			zephyr,code = <INPUT_ABS_X>;
+		};
+
+		channel-2 {
+			pwms = <&mcpwm1 7 0 PWM_POLARITY_NORMAL>;
+			type = <INPUT_EV_ABS>;
+			zephyr,code = <INPUT_ABS_Y>;
+		};
+	};
+
+	joystick_hid: joystick-hid {
+		compatible = "zephyr,hid-device";
+		label = "joystick";
+		in-report-size = <5>;
+		in-polling-period-us = <10000>;
+	};
+
+	joystick {
+		compatible = "joystick";
+		input = <&rc_receiver>;
+		hid-device = <&joystick_hid>;
+		differential-drive;
+
+		right-side {
+			zephyr,code = <INPUT_ABS_Y>;
+			in-min = <1000>;
+			in-max = <2000>;
+		};
+
+		left-side {
+			zephyr,code = <INPUT_ABS_X>;
+			in-min = <1000>;
+			in-max = <2000>;
+		};
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&usb_serial {
+	status = "disabled";
+};
+
+&usb_otg {
+	status = "okay";
+};
