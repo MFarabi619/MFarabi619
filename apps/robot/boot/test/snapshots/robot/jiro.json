@@ -523,7 +523,7 @@
         "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
         "depth_topic": "sensors/camera_0/depth/image_raw",
         "image_topic": "sensors/camera_0/color/image_raw/compressed",
-        "start_enabled": false
+        "start_enabled": true
       },
       "respawn_delay": 2.0
     },

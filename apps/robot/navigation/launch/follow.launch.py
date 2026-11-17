@@ -44,7 +44,7 @@ def follow(
                 'depth_topic': f'sensors/{camera}/depth/image_raw',
                 'depth_camera_info_topic': f'sensors/{camera}/depth/camera_info',
                 'class_label': target,
-                'start_enabled': start_enabled,
+                'start_enabled': True,
             },
             param_files=param_files,
             **RESPAWN,
