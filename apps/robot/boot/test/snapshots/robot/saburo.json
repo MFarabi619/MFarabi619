@@ -160,6 +160,48 @@
       "package": "controller_manager"
     },
     {
+      "arguments": {},
+      "kind": "include",
+      "launchfile": "rc_receiver_usb_joystick.launch.py",
+      "namespace": "/saburo",
+      "package": "robot_drivers",
+      "subdir": null
+    },
+    {
+      "executable": "joy_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "rc_receiver_usb_joystick",
+      "namespace": "/saburo",
+      "package": "joy",
+      "param_files": [
+        "boot/config/rc_receiver_usb_joystick_teleop.yaml"
+      ],
+      "params": {
+        "device_name": "RC Receiver Joystick"
+      },
+      "remaps": {
+        "joy": "joy_teleop/joy"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "teleop_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "rc_receiver_teleop",
+      "namespace": "/saburo",
+      "package": "teleop_twist_joy",
+      "param_files": [
+        "boot/config/rc_receiver_usb_joystick_teleop.yaml"
+      ],
+      "remaps": {
+        "cmd_vel": "joy_teleop/cmd_vel",
+        "joy": "joy_teleop/joy"
+      },
+      "respawn_delay": 2.0
+    },
+    {
       "arguments": {
         "cmd_vel_out": "platform/cmd_vel"
       },
