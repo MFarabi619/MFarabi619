@@ -18,7 +18,7 @@
 
 from adafruit_extended_bus import ExtendedI2C
 import adafruit_mcp4725
-from analog_throttle_wheel import AnalogThrottleWheel, ThrottleBand
+from analog_throttle_wheel import AnalogThrottleWheel, cap_arc_wheel_speeds, ThrottleBand
 import gpiod
 from gpiod.line import Direction, Value
 import rclpy
@@ -108,7 +108,7 @@ class AnalogThrottleMotorDriver(Node):
         else:
             self.release_throttles()
             return
-        for wheel, wheel_speed in zip(self.wheels, wheel_speeds):
+        for wheel, wheel_speed in zip(self.wheels, cap_arc_wheel_speeds(*wheel_speeds)):
             wheel.drive(float(wheel_speed), self.full_scale_wheel_speed)
 
     def release_throttles(self):

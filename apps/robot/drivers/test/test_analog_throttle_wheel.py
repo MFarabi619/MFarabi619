@@ -121,3 +121,22 @@ def test_unchanged_throttle_is_not_rewritten(wheel, controller):
     wheel.drive(HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED)
     wheel.drive(HALF_WHEEL_SPEED, FULL_SCALE_WHEEL_SPEED)
     assert len(controller.throttle_codes) == 2
+
+
+@pytest.mark.parametrize('left_wheel_speed, right_wheel_speed', [
+    (1.0, 1.0), (-1.0, -1.0), (-0.6, 0.6), (0.6, -0.6), (0.0, 0.0)])
+def test_straight_and_pivot_wheel_speeds_pass_through(
+        analog_throttle_wheel_module, left_wheel_speed, right_wheel_speed):
+    assert analog_throttle_wheel_module.cap_arc_wheel_speeds(
+        left_wheel_speed, right_wheel_speed) == (left_wheel_speed, right_wheel_speed)
+
+
+@pytest.mark.parametrize('left_wheel_speed, right_wheel_speed, capped_wheel_speeds', [
+    (0.4, 1.6, (0.25, 1.0)),
+    (1.6, 0.4, (1.0, 0.25)),
+    (-0.4, -1.6, (-0.25, -1.0)),
+    (0.0, 1.0, (0.0, 0.5))])
+def test_arc_outer_wheel_is_capped_at_the_forward_speed(
+        analog_throttle_wheel_module, left_wheel_speed, right_wheel_speed, capped_wheel_speeds):
+    assert analog_throttle_wheel_module.cap_arc_wheel_speeds(
+        left_wheel_speed, right_wheel_speed) == pytest.approx(capped_wheel_speeds)

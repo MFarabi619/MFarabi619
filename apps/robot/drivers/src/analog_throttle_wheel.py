@@ -31,6 +31,15 @@ def throttle_code_from_speed_fraction(speed_fraction, throttle_band):
     return round(min(volts / throttle_band.dac_supply_volts, 1.0) * DAC_FULL_SCALE_CODE)
 
 
+def cap_arc_wheel_speeds(left_wheel_speed, right_wheel_speed):
+    outer_wheel_speed = max(abs(left_wheel_speed), abs(right_wheel_speed))
+    if left_wheel_speed * right_wheel_speed < 0.0 or outer_wheel_speed == 0.0:
+        return left_wheel_speed, right_wheel_speed
+    forward_wheel_speed = abs(left_wheel_speed + right_wheel_speed) / 2
+    wheel_speed_scale = forward_wheel_speed / outer_wheel_speed
+    return left_wheel_speed * wheel_speed_scale, right_wheel_speed * wheel_speed_scale
+
+
 class AnalogThrottleWheel:
     def __init__(self, controller, throttle_band, *, is_reversed):
         self.controller = controller
