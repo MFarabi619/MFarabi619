@@ -171,6 +171,21 @@ def launch_motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius
         )
 
 
+def launch_rc_receiver(machine, rc_receiver):
+    pins = machine.board_pins
+    channel_1_chip, channel_1_line = resolve_line(pins, rc_receiver.channel_1_pin)
+    channel_2_chip, channel_2_line = resolve_line(pins, rc_receiver.channel_2_pin)
+    if channel_1_chip != channel_2_chip:
+        raise RuntimeError('rc channel pins must share one gpio chip')
+    include(
+        'robot_drivers', 'rc_receiver_joy.launch.py',
+        gpio_chip=channel_1_chip,
+        channel_1_line=channel_1_line,
+        channel_2_line=channel_2_line,
+        differential_drive=rc_receiver.differential_drive,
+    )
+
+
 def launch_platform(machine, drivetrain_model, urdf_path, depth_camera):
     drivetrain = machine.platform.drivetrain
     drivetrain_model = drivetrain_model or drivetrain.model
@@ -199,18 +214,7 @@ def launch_platform(machine, drivetrain_model, urdf_path, depth_camera):
 
     rc_receiver = machine.platform.rc_receiver
     if rc_receiver and rc_receiver.launch_enabled:
-        pins = machine.board_pins
-        channel_1_chip, channel_1_line = resolve_line(pins, rc_receiver.channel_1_pin)
-        channel_2_chip, channel_2_line = resolve_line(pins, rc_receiver.channel_2_pin)
-        if channel_1_chip != channel_2_chip:
-            raise RuntimeError('rc channel pins must share one gpio chip')
-        include(
-            'robot_drivers', 'rc_receiver_joy.launch.py',
-            gpio_chip=channel_1_chip,
-            channel_1_line=channel_1_line,
-            channel_2_line=channel_2_line,
-            differential_drive=rc_receiver.differential_drive,
-        )
+        launch_rc_receiver(machine, rc_receiver)
 
     include(
         'robot_boot', 'twist_mux.launch.py',
