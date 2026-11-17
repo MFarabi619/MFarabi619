@@ -1,6 +1,7 @@
 # yaml-language-server: $schema=../robot.schema.json
 system:
   namespace: jiro
+  mavlink_system_id: 2
   hosts:
     - hostname: rpi5-16
       ip: 0.0.0.0
@@ -44,7 +45,23 @@ sensors:
     #   parent: base_link
     #   xyz: [0.575, 0.5, 0.31]
     #   rpy: [0.0, 0.0, 0.0]
+  gps:
+    - model: ublox_zed_f9p
+      parent: base_link
+      xyz: [0.0, 0.0, 0.30]
+      flash:
+        # Receiver flash asserted by ublox_flash at launch.
+        CFG_RATE_MEAS: 200  # milliseconds between measurements = 5 Hz
+        CFG_RATE_NAV: 1  # navigation solutions per measurement
+      parameters:
+        port: /dev/robot/gnss
+        baud_rate: 115200
+        frame_id: gps_link
+      ntrip:
+        mountpoint: OsgoodeFarms
+        username: farabi@tandemrobotics.ca
 behaviors:
+  gps_navigation: true
   line_follow: true
   sidewalk_follow: true
   park_path_follow: true

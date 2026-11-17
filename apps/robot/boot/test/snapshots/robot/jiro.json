@@ -286,6 +286,108 @@
     },
     {
       "arguments": {
+        "gps_topic_prefix": "sensors/gps_0"
+      },
+      "kind": "include",
+      "launchfile": "robot_localization.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
+      "executable": "ekf_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "ekf_global",
+      "namespace": "/jiro",
+      "package": "robot_localization",
+      "param_files": [
+        "control/config/robot_localization.yaml"
+      ],
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "navsat_transform_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "navsat_transform",
+      "namespace": "/jiro",
+      "package": "robot_localization",
+      "param_files": [
+        "control/config/robot_localization.yaml"
+      ],
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static",
+        "gps/filtered": "sensors/gps_0/filtered",
+        "gps/fix": "sensors/gps_0/fix"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "baud_rate": 115200,
+        "flash": "CFG_RATE_MEAS=200,CFG_RATE_NAV=1",
+        "frame_id": "gps_link",
+        "gps": "gps_0",
+        "ntrip_mountpoint": "OsgoodeFarms",
+        "ntrip_username": "farabi@tandemrobotics.ca",
+        "port": "/dev/robot/gnss"
+      },
+      "kind": "include",
+      "launchfile": "ublox_zed_f9p.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_drivers",
+      "subdir": null
+    },
+    {
+      "argv": [
+        {
+          "bytes": 32,
+          "xml_sha256": "cf4e21ba8d1f57657303fcbe05dd7a0e6b3c9d6dbe061f5ccd9850e7cb339c53"
+        },
+        "--port",
+        "/dev/robot/gnss",
+        "CFG_RATE_MEAS=200",
+        "CFG_RATE_NAV=1"
+      ],
+      "kind": "subprocess",
+      "namespace": "/jiro"
+    },
+    {
+      "group": "sensors/gps_0",
+      "kind": "group",
+      "namespace": "/jiro/sensors/gps_0",
+      "use_sim_time": null
+    },
+    {
+      "executable": "nmea_serial_driver",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "nmea_navsat_driver",
+      "namespace": "/jiro/sensors/gps_0",
+      "package": "nmea_navsat_driver",
+      "params": {
+        "baud": 115200,
+        "frame_id": "gps_link",
+        "port": "/dev/robot/gnss"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "cmd": "gnssntripclient --server rtk2go.com --ntripversion 1.0 --mountpoint OsgoodeFarms --ntripuser farabi@tandemrobotics.ca --ntrippassword none --clioutput 2 --output /dev/robot/gnss@115200",
+      "kind": "process",
+      "max_respawns": -1,
+      "name": "ntrip_client",
+      "namespace": "/jiro/sensors/gps_0",
+      "respawn_delay": 10.0
+    },
+    {
+      "arguments": {
         "camera": "camera_0",
         "color_frames_per_second": 60.0,
         "color_resolution_divisor": 2,
@@ -1419,6 +1521,477 @@
         "camera_info_topic": "sensors/camera_0/color/camera_info",
         "detections_topic": "perception/path/detections",
         "start_enabled": false
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "gps_topic": "sensors/gps_0/fix",
+        "ground_station_url": "udpin:0.0.0.0:14550",
+        "system_id": 2
+      },
+      "kind": "include",
+      "launchfile": "ground_station_bridge.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_navigation",
+      "subdir": null
+    },
+    {
+      "executable": "ground_station_bridge",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "ground_station_bridge",
+      "namespace": "/jiro",
+      "package": "robot_navigation",
+      "params": {
+        "gps_topic": "sensors/gps_0/fix",
+        "ground_station_url": "udpin:0.0.0.0:14550",
+        "odometry_topic": "odometry/filtered",
+        "system_id": 2
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "overrides_file": {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_column_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        },
+        "scan_topic": "sensors/camera_0/scan"
+      },
+      "kind": "include",
+      "launchfile": "gps_navigation.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
+      "kind": "wait_for_service",
+      "namespace": "/jiro",
+      "service": "/jiro/fromLL",
+      "timeout": 120.0
+    },
+    {
+      "executable": "controller_server",
+      "kind": "node",
+      "lifecycle_waittime": 5.0,
+      "max_respawns": -1,
+      "name": "controller_server",
+      "namespace": "/jiro",
+      "package": "nav2_controller",
+      "param_files": [
+        "navigation/config/gps_navigation.yaml",
+        {
+          "tempfile": {
+            "/**/global_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/jiro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            },
+            "/**/local_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/jiro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_column_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
+      ],
+      "params": {},
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "planner_server",
+      "kind": "node",
+      "lifecycle_waittime": 5.0,
+      "max_respawns": -1,
+      "name": "planner_server",
+      "namespace": "/jiro",
+      "package": "nav2_planner",
+      "param_files": [
+        "navigation/config/gps_navigation.yaml",
+        {
+          "tempfile": {
+            "/**/global_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/jiro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            },
+            "/**/local_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/jiro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_column_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
+      ],
+      "params": {},
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "bt_navigator",
+      "kind": "node",
+      "lifecycle_waittime": 5.0,
+      "max_respawns": -1,
+      "name": "bt_navigator",
+      "namespace": "/jiro",
+      "package": "nav2_bt_navigator",
+      "param_files": [
+        "navigation/config/gps_navigation.yaml",
+        {
+          "tempfile": {
+            "/**/global_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/jiro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            },
+            "/**/local_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/jiro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_column_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
+      ],
+      "params": {
+        "default_nav_to_pose_bt_xml": "navigation/config/navigate_to_pose.xml"
+      },
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "waypoint_follower",
+      "kind": "node",
+      "lifecycle_waittime": 5.0,
+      "max_respawns": -1,
+      "name": "waypoint_follower",
+      "namespace": "/jiro",
+      "package": "nav2_waypoint_follower",
+      "param_files": [
+        "navigation/config/gps_navigation.yaml",
+        {
+          "tempfile": {
+            "/**/global_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/jiro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            },
+            "/**/local_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/jiro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_column_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
+      ],
+      "params": {},
+      "remaps": {
+        "/fromLL": "fromLL",
+        "/tf": "tf",
+        "/tf_static": "tf_static"
       },
       "respawn_delay": 2.0
     }

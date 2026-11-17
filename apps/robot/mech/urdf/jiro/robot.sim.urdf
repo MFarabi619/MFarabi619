@@ -144,6 +144,13 @@
     <origin xyz="0.0000 0.0000 0.0000" rpy="-1.5708 0.0000 -1.5708"/>
   </joint>
 
+  <link name="gps_link"/>
+  <joint name="gps_link_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="gps_link"/>
+    <origin xyz="0.0000 0.0000 0.3000" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
   <link name="front_left_wheel_link">
     <inertial><mass value="1"/><inertia ixx="0.012240" ixy="0" ixz="0" iyy="0.012240" iyz="0" izz="0.012240"/></inertial>
     <collision><geometry><sphere radius="0.1749"/></geometry></collision>
@@ -192,6 +199,14 @@
           </intrinsics>
         </lens>
       </camera>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="gps_link">
+    <sensor name="gps" type="navsat">
+      <always_on>true</always_on>
+      <update_rate>5</update_rate>
+      <frame_id>gps_link</frame_id>
     </sensor>
   </gazebo>
 
