@@ -31,8 +31,8 @@ struct pwm_rc_receiver_config {
 };
 
 struct pwm_rc_receiver_data {
-	const struct device *dev;
-	struct k_work_delayable report_work;
+	struct k_thread thread;
+	K_KERNEL_STACK_MEMBER(thread_stack, CONFIG_INPUT_PWM_RC_RECEIVER_THREAD_STACK_SIZE);
 };
 
 static void pwm_rc_receiver_capture_callback(const struct device *pwm_dev, uint32_t pwm_channel,
@@ -70,26 +70,32 @@ static bool pwm_rc_receiver_has_signal(const struct device *dev)
 	return true;
 }
 
-static void pwm_rc_receiver_report(struct k_work *work)
+static void pwm_rc_receiver_report_channels(const struct device *dev)
 {
-	struct k_work_delayable *report_work = k_work_delayable_from_work(work);
-	struct pwm_rc_receiver_data *data =
-		CONTAINER_OF(report_work, struct pwm_rc_receiver_data, report_work);
-	const struct device *dev = data->dev;
 	const struct pwm_rc_receiver_config *config = dev->config;
 
-	if (pwm_rc_receiver_has_signal(dev)) {
-		for (uint8_t i = 0; i < config->num_channels; i++) {
-			const struct pwm_rc_receiver_channel_config *channel_config =
-				&config->channel_config[i];
+	for (uint8_t i = 0; i < config->num_channels; i++) {
+		const struct pwm_rc_receiver_channel_config *channel_config =
+			&config->channel_config[i];
 
-			input_report(dev, channel_config->type, channel_config->zephyr_code,
-				     atomic_get(&config->channel_data[i].pulse_width_microseconds),
-				     false, K_FOREVER);
-		}
-		input_report(dev, 0, 0, 0, true, K_FOREVER);
+		input_report(dev, channel_config->type, channel_config->zephyr_code,
+			     atomic_get(&config->channel_data[i].pulse_width_microseconds),
+			     false, K_FOREVER);
 	}
-	k_work_schedule(report_work, K_MSEC(config->poll_period_ms));
+}
+
+static void pwm_rc_receiver_thread(void *device, void *unused2, void *unused3)
+{
+	const struct device *dev = device;
+	const struct pwm_rc_receiver_config *config = dev->config;
+
+	while (true) {
+		if (pwm_rc_receiver_has_signal(dev)) {
+			pwm_rc_receiver_report_channels(dev);
+			input_report(dev, 0, 0, 0, true, K_FOREVER);
+		}
+		k_sleep(K_MSEC(config->poll_period_ms));
+	}
 }
 
 static int pwm_rc_receiver_init(const struct device *dev)
@@ -130,9 +136,11 @@ static int pwm_rc_receiver_init(const struct device *dev)
 		}
 	}
 
-	data->dev = dev;
-	k_work_init_delayable(&data->report_work, pwm_rc_receiver_report);
-	k_work_schedule(&data->report_work, K_MSEC(config->poll_period_ms));
+	k_thread_create(&data->thread, data->thread_stack,
+			K_KERNEL_STACK_SIZEOF(data->thread_stack), pwm_rc_receiver_thread,
+			(void *)dev, NULL, NULL, CONFIG_INPUT_PWM_RC_RECEIVER_THREAD_PRIORITY, 0,
+			K_NO_WAIT);
+	k_thread_name_set(&data->thread, dev->name);
 
 	return 0;
 }

@@ -6,3 +6,15 @@ config INPUT_PWM_RC_RECEIVER
 	select PWM_CAPTURE
 	help
 	  RC receiver with one PWM output per channel, read with PWM capture.
+
+if INPUT_PWM_RC_RECEIVER
+
+config INPUT_PWM_RC_RECEIVER_THREAD_STACK_SIZE
+	int "Stack size for the PWM RC receiver thread"
+	default 1024
+
+config INPUT_PWM_RC_RECEIVER_THREAD_PRIORITY
+	int "Priority for the PWM RC receiver thread"
+	default 0
+
+endif # INPUT_PWM_RC_RECEIVER
