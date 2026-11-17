@@ -120,6 +120,7 @@ target_sources_ifdef(CONFIG_EPWM_ACCESS_PROBE app PRIVATE programs/epwm_access_p
 
 if(CONFIG_ZENOH_PICO)
   target_sources(app PRIVATE programs/zenoh_locator.c)
+  target_sources(app PRIVATE programs/wifi_station.c)
   dt_comp_path(pwm_motors_path COMPATIBLE "pwm-motors")
   if(pwm_motors_path)
     target_sources(app PRIVATE programs/cmd_vel.c programs/pwm_motors.c)
