@@ -169,7 +169,7 @@ static bool is_off_center(struct joystick_stick stick)
 static void on_input_event(struct input_event *event, void *user_data)
 {
 	for (size_t index = 0; index < JOYSTICK_AXIS_COUNT; index++) {
-		if (event->code == axis_configs[index].zephyr_code) {
+		if (event->type == INPUT_EV_ABS && event->code == axis_configs[index].zephyr_code) {
 			atomic_set(&axis_inputs[index], event->value);
 		}
 	}
