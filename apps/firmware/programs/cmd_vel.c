@@ -143,11 +143,7 @@ static void cmd_vel_thread(void) {
              octets[2], octets[3], zenoh_locator_get());
     }
 
-    z_owned_config_t config;
-    z_config_default(&config);
-    zp_config_insert(z_loan_mut(config), Z_CONFIG_MODE_KEY, "client");
-    zp_config_insert(z_loan_mut(config), Z_CONFIG_CONNECT_KEY, zenoh_locator_get());
-    int open_result = z_open(&session, z_move(config), NULL);
+    int open_result = zenoh_locator_open_session(&session);
     if (open_result == 0) {
       break;
     }

@@ -11,6 +11,14 @@ static char locator[LOCATOR_MAX_LEN] = CONFIG_ZENOH_LOCATOR_DEFAULT;
 
 const char *zenoh_locator_get(void) { return locator; }
 
+int zenoh_locator_open_session(z_owned_session_t *session) {
+  z_owned_config_t config;
+  z_config_default(&config);
+  zp_config_insert(z_loan_mut(config), Z_CONFIG_MODE_KEY, Z_CONFIG_MODE_CLIENT);
+  zp_config_insert(z_loan_mut(config), Z_CONFIG_CONNECT_KEY, locator);
+  return z_open(session, z_move(config), NULL);
+}
+
 #ifdef CONFIG_SETTINGS
 
 #include <zephyr/settings/settings.h>
