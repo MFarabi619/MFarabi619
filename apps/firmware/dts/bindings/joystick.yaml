@@ -1,0 +1,64 @@
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+  USB HID joystick fed by two axes of an input device.
+
+  Button 0, the commanding button, is on while the stick has been off center within
+  center-timeout-ms and the input device sends sync events. A stick at center counts as no
+  command, since some receivers hold their outputs at center after losing the transmitter.
+
+compatible: "joystick"
+
+include: base.yaml
+
+properties:
+  input:
+    type: phandle
+    required: true
+    description: Input device to read the axes from.
+
+  hid-device:
+    type: phandle
+    required: true
+    description: zephyr,hid-device node the joystick reports through.
+
+  signal-timeout-ms:
+    type: int
+    default: 100
+    description: Time without a sync event before signal counts as lost and the commanding button turns off.
+
+  center-deadzone:
+    type: int
+    default: 1638
+    description: Stick deflection, out of 32767, at or below which the stick counts as at center.
+
+  center-timeout-ms:
+    type: int
+    default: 1000
+    description: Time the stick may stay at center before the commanding button turns off.
+
+  differential-drive:
+    type: boolean
+    description: The axes are the right and left wheel speeds of a differential drive, in that order.
+
+child-binding:
+  description: Joystick axis.
+  properties:
+    zephyr,code:
+      type: int
+      required: true
+      description: Input event code carrying this axis.
+
+    in-min:
+      type: int
+      required: true
+      description: Input value at one end of the axis.
+
+    in-max:
+      type: int
+      required: true
+      description: Input value at the other end of the axis.
+
+    invert-input:
+      type: boolean
+      description: Invert the input before scaling.

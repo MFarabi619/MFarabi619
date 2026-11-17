@@ -24,8 +24,11 @@ configdefault ESPTOOLPY_FLASH_MODE_AUTO_DETECT
 configdefault DEBUG_THREAD_INFO
 	default y
 
+configdefault USB_DEVICE_STACK_NEXT
+	default y if $(dt_compat_enabled,joystick)
+
 configdefault INPUT
-	default y if $(dt_compat_enabled,pwm-rc-receiver)
+	default y if $(dt_compat_enabled,joystick) || $(dt_compat_enabled,pwm-rc-receiver)
 
 choice COMPILER_OPTIMIZATIONS
 	default DEBUG_OPTIMIZATIONS

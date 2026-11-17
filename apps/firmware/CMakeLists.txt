@@ -136,6 +136,11 @@ endif()
 
 target_sources_ifdef(CONFIG_BNO08X app PRIVATE programs/bno08x.c)
 
+dt_comp_path(joystick_path COMPATIBLE "joystick")
+if(joystick_path)
+  target_sources(app PRIVATE programs/joystick.c)
+endif()
+
 dt_comp_path(hd44780_path COMPATIBLE "hit,hd44780")
 if(hd44780_path)
   target_sources(app PRIVATE programs/lcd.c)
