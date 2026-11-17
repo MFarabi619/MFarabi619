@@ -11,6 +11,8 @@ platform:
   drivetrain:
     model: analog_throttle
     full_scale_linear_velocity_meters_per_second: 2.0
+    # Skid-steer wheels scrub sideways when spinning, so turns need more than the true track.
+    wheel_separation_multiplier: 1.5
     i2c_bus: 7
     min_throttle_volts: 1.0
     max_throttle_volts: 4.0
