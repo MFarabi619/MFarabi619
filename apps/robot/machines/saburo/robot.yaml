@@ -54,6 +54,7 @@ sensors:
   gps:
     - model: ublox_zed_f9p
       parent: base_link
+      xyz: [0.0, 0.0, 0.114]
       flash:
         # Receiver flash asserted by ublox_flash at launch.
         CFG_RATE_MEAS: 200  # milliseconds between measurements = 5 Hz
