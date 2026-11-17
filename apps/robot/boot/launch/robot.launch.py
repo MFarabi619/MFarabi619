@@ -26,7 +26,7 @@ from robot_boot.zenoh_router import (
     ZENOH_ROUTER_CONFIG_OVERRIDE)
 from robot_machines.machine import (
     DOMAINS, load_machine, load_machine_for_this_host, LUXONIS_OAK_D_PRO_W_POE_MODEL,
-    LUXONIS_OAK_MODELS, STEREOLABS_ZED_MODEL)
+    LUXONIS_OAK_MODELS, STEREOLABS_ZED_MODEL, USB_JOYSTICK_INTERFACE)
 
 ZENOH_ROUTER_SERVICE_MAX_ATTEMPTS = 600
 ZENOH_ROUTER_SERVICE_RETRY_DELAY_SECONDS = 1.0
@@ -172,6 +172,9 @@ def launch_motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius
 
 
 def launch_rc_receiver(machine, rc_receiver):
+    if rc_receiver.interface == USB_JOYSTICK_INTERFACE:
+        include('robot_drivers', 'rc_receiver_usb_joystick.launch.py')
+        return
     pins = machine.board_pins
     channel_1_chip, channel_1_line = resolve_line(pins, rc_receiver.channel_1_pin)
     channel_2_chip, channel_2_line = resolve_line(pins, rc_receiver.channel_2_pin)

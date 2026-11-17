@@ -30,6 +30,7 @@ GpsModel = Literal['ublox_zed_f9p']
 DrivetrainModel = Literal[
     'roboteq', 'analog_throttle', 'rc_pulse', 'pwm_dir', 'odrive_usb', 'svd48v', 'mock']
 ArmModel = Literal['kinova_link6']
+RcReceiverInterface = Literal['gpio', 'usb_joystick']
 GripperModel = Literal['robotiq_2f_85', 'robotiq_2f_140']
 CAMERA_MODELS = get_args(CameraModel)
 IMU_MODELS = get_args(ImuModel)
@@ -38,6 +39,8 @@ STEREOLABS_ZED_MODEL = 'stereolabs_zed'
 ORBBEC_GEMINI_335L_MODEL = 'orbbec_gemini_335l'
 LUXONIS_OAK_D_PRO_W_POE_MODEL = 'luxonis_oak_d_pro_w_poe'
 LUXONIS_OAK_MODELS = ('luxonis_oak_d_sr', LUXONIS_OAK_D_PRO_W_POE_MODEL)
+GPIO_INTERFACE = 'gpio'
+USB_JOYSTICK_INTERFACE = 'usb_joystick'
 DEPTH_CAMERA_PRECEDENCE = (
     LUXONIS_OAK_MODELS, (ORBBEC_GEMINI_335L_MODEL,), (STEREOLABS_ZED_MODEL,))
 DRIVETRAIN_MODELS = get_args(DrivetrainModel)
@@ -141,10 +144,18 @@ class Drivetrain(StrictRecord):
 
 
 class RcReceiver(StrictRecord):
-    channel_1_pin: str | int
-    channel_2_pin: str | int
+    interface: RcReceiverInterface = GPIO_INTERFACE
+    channel_1_pin: str | int | None = None
+    channel_2_pin: str | int | None = None
     differential_drive: bool = False
     launch_enabled: bool = True
+
+    @model_validator(mode='after')
+    def require_pins_for_gpio(self):
+        has_pins = self.channel_1_pin is not None and self.channel_2_pin is not None
+        if self.interface == GPIO_INTERFACE and not has_pins:
+            raise ValueError('a gpio rc_receiver needs channel_1_pin and channel_2_pin')
+        return self
 
 
 class Platform(StrictRecord):

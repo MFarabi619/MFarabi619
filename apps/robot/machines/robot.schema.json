@@ -895,6 +895,15 @@
     "RcReceiver": {
       "additionalProperties": false,
       "properties": {
+        "interface": {
+          "default": "gpio",
+          "enum": [
+            "gpio",
+            "usb_joystick"
+          ],
+          "title": "Interface",
+          "type": "string"
+        },
         "channel_1_pin": {
           "anyOf": [
             {
@@ -902,8 +911,12 @@
             },
             {
               "type": "integer"
+            },
+            {
+              "type": "null"
             }
           ],
+          "default": null,
           "title": "Channel 1 Pin"
         },
         "channel_2_pin": {
@@ -913,8 +926,12 @@
             },
             {
               "type": "integer"
+            },
+            {
+              "type": "null"
             }
           ],
+          "default": null,
           "title": "Channel 2 Pin"
         },
         "differential_drive": {
@@ -928,10 +945,6 @@
           "type": "boolean"
         }
       },
-      "required": [
-        "channel_1_pin",
-        "channel_2_pin"
-      ],
       "title": "RcReceiver",
       "type": "object"
     },
