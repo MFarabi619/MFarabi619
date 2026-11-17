@@ -19,6 +19,7 @@ import re
 
 from better_launch.gazebo import GazeboBridge, spawn_image_bridge, spawn_topic_bridge
 from robot_boot.launch_policy import DEFAULT_DEPTH_FRAMES_PER_SECOND, include
+from robot_machines.machine import STEREOLABS_ZED_MODEL
 
 LUMPED_SENSOR_LINK = 'base_link'
 GAZEBO_GPS_SENSOR = 'gps'
@@ -38,7 +39,8 @@ def resolve_world_name(bl, world):
 class SimulationCamera:
     def __init__(self, camera):
         self.name = camera.name
-        self.has_depth = camera.parameters.get('enable_depth', False)
+        self.is_stereolabs_zed = camera.model == STEREOLABS_ZED_MODEL
+        self.has_depth = self.is_stereolabs_zed or camera.parameters.get('enable_depth', False)
         self.depth_frames_per_second = camera.parameters.get(
             'depth_frames_per_second', DEFAULT_DEPTH_FRAMES_PER_SECOND)
 
