@@ -24,7 +24,7 @@ def rc_receiver_joy(
     gpio_chip: int = 0,
     channel_1_line: int = 0,
     channel_2_line: int = 1,
-    tank_mixed: bool = False,
+    differential_drive: bool = False,
     params_file: str = '',
 ):
     bl = BetterLaunch()
@@ -38,7 +38,7 @@ def rc_receiver_joy(
             'gpio_chip': gpio_chip,
             'channel_1_line': channel_1_line,
             'channel_2_line': channel_2_line,
-            'tank_mixed': tank_mixed,
+            'differential_drive': differential_drive,
         },
         remaps={'joy': 'joy_teleop/joy'},
         **RESPAWN,

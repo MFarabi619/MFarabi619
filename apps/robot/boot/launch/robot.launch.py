@@ -209,7 +209,7 @@ def launch_platform(machine, drivetrain_model, urdf_path, depth_camera):
             gpio_chip=channel_1_chip,
             channel_1_line=channel_1_line,
             channel_2_line=channel_2_line,
-            tank_mixed=rc_receiver.tank_mixed,
+            differential_drive=rc_receiver.differential_drive,
         )
 
     include(

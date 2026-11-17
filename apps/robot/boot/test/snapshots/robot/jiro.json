@@ -176,8 +176,8 @@
       "arguments": {
         "channel_1_line": 17,
         "channel_2_line": 27,
-        "gpio_chip": 0,
-        "tank_mixed": false
+        "differential_drive": false,
+        "gpio_chip": 0
       },
       "kind": "include",
       "launchfile": "rc_receiver_joy.launch.py",
@@ -195,8 +195,8 @@
       "params": {
         "channel_1_line": 17,
         "channel_2_line": 27,
-        "gpio_chip": 0,
-        "tank_mixed": false
+        "differential_drive": false,
+        "gpio_chip": 0
       },
       "remaps": {
         "joy": "joy_teleop/joy"

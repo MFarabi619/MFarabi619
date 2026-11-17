@@ -10,7 +10,7 @@ platform:
   # each signal through a divider (2.2k series, 3.3k to GND) -- 3.3V-only GPIOs
   rc_receiver:
     launch_enabled: false
-    tank_mixed: true
+    differential_drive: true
     channel_1_pin: 16
     channel_2_pin: 18
   drivetrain:

@@ -917,9 +917,9 @@
           ],
           "title": "Channel 2 Pin"
         },
-        "tank_mixed": {
+        "differential_drive": {
           "default": false,
-          "title": "Tank Mixed",
+          "title": "Differential Drive",
           "type": "boolean"
         },
         "launch_enabled": {

@@ -143,7 +143,7 @@ class Drivetrain(StrictRecord):
 class RcReceiver(StrictRecord):
     channel_1_pin: str | int
     channel_2_pin: str | int
-    tank_mixed: bool = False
+    differential_drive: bool = False
     launch_enabled: bool = True
 
 

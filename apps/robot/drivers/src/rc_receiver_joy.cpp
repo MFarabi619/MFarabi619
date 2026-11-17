@@ -67,10 +67,10 @@ public:
     declare_parameter("channel_1_line", 0);
     declare_parameter("channel_2_line", 0);
     declare_parameter("deadzone_fraction", 0.05);
-    declare_parameter("tank_mixed", false);
+    declare_parameter("differential_drive", false);
 
     deadzone_fraction = get_parameter("deadzone_fraction").as_double();
-    is_tank_mixed = get_parameter("tank_mixed").as_bool();
+    is_differential_drive = get_parameter("differential_drive").as_bool();
     channels[CHANNEL_1].line =
       static_cast<unsigned int>(get_parameter("channel_1_line").as_int());
     channels[CHANNEL_2].line =
@@ -192,7 +192,7 @@ private:
     const double channel_2 = channels[CHANNEL_2].position_fraction.load();
     double steering = channel_1;
     double throttle = channel_2;
-    if (is_tank_mixed) {
+    if (is_differential_drive) {
       steering = std::clamp(channel_2 - channel_1, -1.0, 1.0);
       throttle = std::clamp(channel_1 + channel_2, -1.0, 1.0);
     }
@@ -205,7 +205,7 @@ private:
   }
 
   double deadzone_fraction;
-  bool is_tank_mixed;
+  bool is_differential_drive;
   std::array<RcChannel, 2> channels;
   gpiod_chip *chip = nullptr;
   gpiod_line_request *request = nullptr;
