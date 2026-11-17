@@ -108,6 +108,15 @@ def spawn_simulation_bridges(bl, machine, world):
                     'image_rect': f'sensors/{camera.name}/depth/image_raw',
                     'points': f'sensors/{camera.name}/depth/points',
                 })
+        if camera.is_stereolabs_zed:
+            bl.node(
+                package='robot_simulation',
+                executable='depth_view',
+                name=f'{camera.name}_depth_view',
+                remaps={
+                    'depth/image_raw': f'sensors/{camera.name}/depth/image_raw',
+                    'depth/image_view': f'sensors/{camera.name}/depth/image_view',
+                })
 
 
 def spawn_depth_laserscans(machine):

@@ -12,6 +12,7 @@ ament_get_python_install_dir(PYTHON_INSTALL_DIR)
 install(
   DIRECTORY src/ DESTINATION ${PYTHON_INSTALL_DIR}/${PROJECT_NAME}
   FILES_MATCHING PATTERN "*.py")
+install(PROGRAMS src/depth_view.py DESTINATION lib/${PROJECT_NAME} RENAME depth_view)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
