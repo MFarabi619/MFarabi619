@@ -30,6 +30,12 @@ configdefault USB_DEVICE_STACK_NEXT
 configdefault INPUT
 	default y if $(dt_compat_enabled,joystick) || $(dt_compat_enabled,pwm-rc-receiver)
 
+# Xtensa keeps the FPU enabled but only saves its registers across thread switches with sharing
+configdefault FPU
+	default y if $(dt_compat_enabled,joystick)
+configdefault FPU_SHARING
+	default y if $(dt_compat_enabled,joystick)
+
 choice COMPILER_OPTIMIZATIONS
 	default DEBUG_OPTIMIZATIONS
 endchoice

@@ -22,6 +22,10 @@ properties:
     required: true
     description: zephyr,hid-device node the joystick reports through.
 
+  led-strip:
+    type: phandle
+    description: LED showing the stick on an HSV color wheel while the commanding button is on.
+
   signal-timeout-ms:
     type: int
     default: 100
