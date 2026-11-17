@@ -65,6 +65,8 @@ sensors:
       ntrip:
         mountpoint: OsgoodeFarms
         username: farabi@tandemrobotics.ca
+behaviors:
+  gps_navigation: true
 ros_parameters:
   person_follow:
     max_forward_speed_meters_per_second: 1.0
