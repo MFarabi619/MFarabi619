@@ -5,6 +5,11 @@
     stamped: true
     frame_id: base_link
 
+/saburo/teleop_twist_keyboard:
+  ros__parameters:
+    speed: 1.15
+    turn: 1.50
+
 /taro/teleop_twist_keyboard:
   ros__parameters:
     speed: 0.5
