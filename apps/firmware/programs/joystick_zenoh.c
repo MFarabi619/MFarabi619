@@ -58,7 +58,7 @@ static int64_t sequence_number;
 /* Zero header stamp: the board has no synced clock, and teleop_twist_joy stamps
  * the twist itself rather than using the Joy stamp.
  */
-static struct joy_message joy_message_from_stick(struct joystick_stick stick)
+static struct joy_message joy_message_from_stick(struct joystick_stick stick, uint8_t buttons)
 {
 	struct joy_message message = {
 		.encapsulation = {0, CDR_LITTLE_ENDIAN, 0, 0},
@@ -70,6 +70,10 @@ static struct joy_message joy_message_from_stick(struct joystick_stick stick)
 		.button_count = sys_cpu_to_le32(JOYSTICK_BUTTON_COUNT),
 		.buttons = {sys_cpu_to_le32(stick.is_commanding)},
 	};
+
+	for (size_t index = 1; index < JOYSTICK_BUTTON_COUNT; index++) {
+		message.buttons[index] = sys_cpu_to_le32((buttons >> index) & 1);
+	}
 
 	return message;
 }
@@ -87,7 +91,8 @@ static struct rmw_zenoh_attachment build_attachment(void)
 
 static int publish_joy(const z_loaned_publisher_t *publisher)
 {
-	struct joy_message message = joy_message_from_stick(joystick_read_stick());
+	struct joy_message message =
+		joy_message_from_stick(joystick_read_stick(), joystick_read_buttons());
 	struct rmw_zenoh_attachment attachment = build_attachment();
 	z_owned_bytes_t message_bytes;
 	z_owned_bytes_t attachment_bytes;
