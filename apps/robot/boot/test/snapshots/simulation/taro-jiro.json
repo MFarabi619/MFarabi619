@@ -490,6 +490,7 @@
     {
       "arguments": {
         "detector": "person_detector",
+        "follow_button_enabled": false,
         "image_topic": "sensors/camera_0/color/image_raw/compressed",
         "overrides_file": {
           "tempfile": {
@@ -868,6 +869,7 @@
     {
       "arguments": {
         "detector": "person_detector",
+        "follow_button_enabled": false,
         "image_topic": "sensors/camera_0/color/image_raw/compressed",
         "overrides_file": {
           "tempfile": {

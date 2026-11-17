@@ -804,6 +804,7 @@
     {
       "arguments": {
         "camera": "camera_0",
+        "follow_button_enabled": true,
         "has_on_camera_detector": false,
         "image_topic": "",
         "overrides_file": {
@@ -877,6 +878,18 @@
       ],
       "params": {
         "start_enabled": false
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "follow_button",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "person_follow_button",
+      "namespace": "/saburo",
+      "package": "robot_navigation",
+      "params": {
+        "follow_node": "person_follow"
       },
       "respawn_delay": 2.0
     },

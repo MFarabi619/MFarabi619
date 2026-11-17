@@ -27,6 +27,7 @@ def follow(
     target: str = 'person',
     has_on_camera_detector: bool = False,
     start_enabled: bool = False,
+    follow_button_enabled: bool = False,
     params_file: str = '',
     overrides_file: str = '',
 ):
@@ -57,3 +58,11 @@ def follow(
         param_files=param_files,
         **RESPAWN,
     )
+    if follow_button_enabled:
+        bl.node(
+            package='robot_navigation',
+            executable='follow_button',
+            name=f'{target}_follow_button',
+            params={'follow_node': f'{target}_follow'},
+            **RESPAWN,
+        )

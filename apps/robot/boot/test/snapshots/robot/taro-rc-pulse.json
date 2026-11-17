@@ -453,6 +453,7 @@
     {
       "arguments": {
         "camera": "camera_0",
+        "follow_button_enabled": false,
         "has_on_camera_detector": false,
         "image_topic": "",
         "overrides_file": {

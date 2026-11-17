@@ -4,6 +4,7 @@ project(robot_navigation NONE)
 find_package(ament_cmake REQUIRED)
 
 install(PROGRAMS src/follow.py DESTINATION lib/${PROJECT_NAME} RENAME follow)
+install(PROGRAMS src/follow_button.py DESTINATION lib/${PROJECT_NAME} RENAME follow_button)
 install(PROGRAMS src/tracked_approach.py DESTINATION lib/${PROJECT_NAME} RENAME tracked_approach)
 install(PROGRAMS src/line_follow.py DESTINATION lib/${PROJECT_NAME} RENAME line_follow)
 install(PROGRAMS src/surface_follow.py DESTINATION lib/${PROJECT_NAME} RENAME surface_follow)

@@ -317,6 +317,7 @@ def launch_perception(machine, depth_camera, camera_height_meters, overrides_fil
             f'sensors/{depth_camera.name}/color/image_raw/compressed'
             if depth_camera.publishes_compressed_color else ''),
         has_on_camera_detector=depth_camera.has_on_camera_detector,
+        follow_button_enabled=machine.has_usb_joystick_rc_receiver,
         overrides_file=overrides_file,
     )
     if behaviors.line_follow:

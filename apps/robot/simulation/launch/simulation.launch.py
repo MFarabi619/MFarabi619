@@ -90,6 +90,7 @@ def robot_stack(bl, machine, world, pose, target):
             detector=DETECTOR_BY_TARGET[target],
             target=target,
             start_enabled=target in AUTOSTARTED_TARGETS,
+            follow_button_enabled=machine.has_usb_joystick_rc_receiver,
             overrides_file=overrides_file,
         )
         bl.node(

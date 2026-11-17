@@ -60,6 +60,13 @@ def follow_node():
 
 
 @pytest.fixture
+def follow_button_node():
+    node = load_node_class('follow_button', 'FollowButton')()
+    yield node
+    node.destroy_node()
+
+
+@pytest.fixture
 def tracked_approach_node():
     node = load_node_class('tracked_approach', 'TrackedApproach')()
     yield node
