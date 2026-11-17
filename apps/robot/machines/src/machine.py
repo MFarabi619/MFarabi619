@@ -272,6 +272,10 @@ class Arm(Mount):
     def packages(self):
         return ARM_PACKAGES[self.model]
 
+    @property
+    def gripper_model(self):
+        return self.gripper.model if self.gripper else ''
+
 
 class MoveIt(StrictRecord):
     enable: bool = False

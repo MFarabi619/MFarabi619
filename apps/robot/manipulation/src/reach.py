@@ -33,7 +33,7 @@ END_EFFECTOR_LINK = 'end_effector_link'
 
 def arm_configuration(arm):
     configuration = (
-        MoveItConfigsBuilder(arm.moveit_robot_name, package_name=arm.moveit_package)
+        MoveItConfigsBuilder(arm.packages.moveit_robot_name, package_name=arm.packages.moveit)
         .planning_pipelines(pipelines=['ompl'])
         .moveit_cpp(os.path.join(
             get_package_share_directory('robot_manipulation'), 'config', 'moveit_py.yaml'))
@@ -74,7 +74,8 @@ def main():
     connect_to_zenoh_router(arguments.robot)
     ensure_trajectory_mode()
     rclpy.init()
-    moveit = MoveItPy(node_name='reach', config_dict=arm_configuration(machine.arm))
+    moveit = MoveItPy(
+        node_name='reach', config_dict=arm_configuration(machine.manipulators.arms[0]))
     planning_component = moveit.get_planning_component('arm')
     planning_component.set_start_state_to_current_state()
     if arguments.target:

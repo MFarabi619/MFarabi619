@@ -24,9 +24,10 @@ from robot_machines.machine import load_machine
 
 @launch_this(use_sim_time=True)
 def kinova_link6_pick(robot: str = 'kinova-link-6', target_object: str = 'apple'):
-    arm = load_machine(robot).arm
+    configured_arm = load_machine(robot).manipulators.arms[0]
     moveit_configuration = (
-        MoveItConfigsBuilder(arm.moveit_robot_name, package_name=arm.moveit_package)
+        MoveItConfigsBuilder(configured_arm.packages.moveit_robot_name,
+                             package_name=configured_arm.packages.moveit)
         .planning_pipelines(pipelines=['ompl', 'pilz_industrial_motion_planner'])
         .to_moveit_configs().to_dict())
 

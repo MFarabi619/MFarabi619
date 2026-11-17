@@ -235,7 +235,7 @@ def launch_manipulation(bl, machine, arm):
         description_package=arm.packages.description,
         moveit_package=arm.packages.moveit,
         moveit_robot_name=arm.packages.moveit_robot_name,
-        gripper=arm.gripper.model if arm.gripper else '',
+        gripper=arm.gripper_model,
         moveit_enabled=machine.manipulators.moveit.enable,
         motions_file=bl.find('robot_machines', 'motions.yaml', subdir=machine.name),
     )

@@ -67,8 +67,8 @@ def write_gui_config_file(bl, gui_camera_pose):
 def arm(robot: str = 'kinova-link-6', gripper: str = '',
         headless: bool = False, mode: str = 'drag',
         world: str = 'farm'):
-    machine = load_machine(robot)
-    gripper = gripper or machine.arm.gripper
+    configured_arm = load_machine(robot).manipulators.arms[0]
+    gripper = gripper or configured_arm.gripper_model
     spawn_pose = ARM_SPAWN_POSES.get(world, {'x': 0.0, 'y': 0.0})
     spawn_x, spawn_y = spawn_pose['x'], spawn_pose['y']
     os.environ.pop('ZENOH_CONFIG_OVERRIDE', None)
@@ -91,7 +91,7 @@ def arm(robot: str = 'kinova-link-6', gripper: str = '',
     else:
         world_file = bl.find('robot_simulation', f'{world}.sdf', subdir='worlds')
     include(
-        machine.arm.bringup_package, 'link6_sim.launch.py',
+        configured_arm.packages.bringup, 'link6_sim.launch.py',
         gripper=gripper,
         gui='false',
         gz_args=f'-s -r -v 2 {world_file}',
@@ -111,7 +111,7 @@ def arm(robot: str = 'kinova-link-6', gripper: str = '',
     if mode == 'moveit':
         include(
             'robot_manipulation', 'kinova_link6_moveit.launch.py',
-            moveit_package=machine.arm.moveit_package,
+            moveit_package=configured_arm.packages.moveit,
             motions_file=bl.find('robot_machines', 'motions.yaml', subdir=robot),
             use_sim_time=True,
             rviz_enabled=not headless,
@@ -130,7 +130,7 @@ def arm(robot: str = 'kinova-link-6', gripper: str = '',
             target=set_view_control_sensitivity, daemon=True).start()
         if mode != 'moveit':
             bl.process(
-                ['rviz2', '-d', bl.find(machine.arm.control_package, 'link6_config.rviz'),
+                ['rviz2', '-d', bl.find(configured_arm.packages.control, 'link6_config.rviz'),
                  '--ros-args', '-p', 'use_sim_time:=true'],
                 name='rviz',
             )

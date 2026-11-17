@@ -43,17 +43,17 @@ def write_rendered_scene_file(bl):
 def arm_mujoco(
         robot: str = 'kinova-link-6', mode: str = 'moveit',
         headless: bool = False):
-    machine = load_machine(robot)
+    configured_arm = load_machine(robot).manipulators.arms[0]
     os.environ.pop('ZENOH_CONFIG_OVERRIDE', None)
     os.environ.pop('ZENOH_SESSION_CONFIG_URI', None)
 
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
     description = read_robot_description(
-        machine.arm.description_package,
-        f'{machine.arm.moveit_robot_name}.urdf.xacro',
+        configured_arm.packages.description,
+        f'{configured_arm.packages.moveit_robot_name}.urdf.xacro',
         xacro_args=[
-            f'gripper:={machine.arm.gripper}',
+            f'gripper:={configured_arm.gripper_model}',
             'sim_mujoco:=true',
             'use_fake_hardware:=true',
         ],
@@ -70,7 +70,7 @@ def arm_mujoco(
         name='mjcf_converter',
     )
     controller_parameters_file = bl.find(
-        machine.arm.control_package, 'kortex3_sim_controllers.yaml')
+        configured_arm.packages.control, 'kortex3_sim_controllers.yaml')
     bl.node(
         'controller_manager', 'ros2_control_node',
         name='controller_manager',
@@ -93,7 +93,7 @@ def arm_mujoco(
         )
         include(
             'robot_manipulation', 'kinova_link6_moveit.launch.py',
-            moveit_package=machine.arm.moveit_package,
+            moveit_package=configured_arm.packages.moveit,
             motions_file=bl.find('robot_machines', 'motions.yaml', subdir=robot),
             use_sim_time=True,
             capabilities='move_group/ExecuteTaskSolutionCapability',
@@ -101,7 +101,7 @@ def arm_mujoco(
         )
     elif not headless:
         bl.process(
-            ['rviz2', '-d', bl.find(machine.arm.control_package, 'link6_config.rviz'),
+            ['rviz2', '-d', bl.find(configured_arm.packages.control, 'link6_config.rviz'),
              '--ros-args', '-p', 'use_sim_time:=true'],
             name='rviz',
         )
