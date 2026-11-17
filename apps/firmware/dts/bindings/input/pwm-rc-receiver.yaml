@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: Apache-2.0
+
+include: base.yaml
+compatible: "pwm-rc-receiver"
+description: |
+  RC receiver with one PWM output per channel, read with PWM capture.
+
+  Each channel reports its pulse width in microseconds, followed by a sync event.
+  Reporting stops when the receiver loses signal.
+
+properties:
+  poll-period-ms:
+    type: int
+    default: 20
+    description: Reporting period in milliseconds.
+
+  signal-timeout-ms:
+    type: int
+    default: 100
+    description: Time without a valid pulse on any channel before signal counts as lost.
+
+child-binding:
+  description: RC channel to input-event-code binding
+  properties:
+    pwms:
+      type: phandle-array
+      required: true
+      description: PWM capture channel wired to this receiver output.
+
+    type:
+      type: int
+      required: true
+      enum:
+        - 3
+        - 4
+      description: Input event type, INPUT_EV_ABS (3) or INPUT_EV_MSC (4).
+
+    zephyr,code:
+      type: int
+      required: true
+      description: Code to emit.

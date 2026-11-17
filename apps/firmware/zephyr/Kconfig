@@ -1,4 +1,5 @@
 rsource "../networking/wireguard/Kconfig"
+rsource "../drivers/Kconfig"
 
 configdefault HAS_SEGGER_RTT
 	default y

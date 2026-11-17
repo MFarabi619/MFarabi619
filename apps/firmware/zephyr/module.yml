@@ -1,4 +1,5 @@
 build:
+  cmake: drivers
   kconfig: zephyr/Kconfig
   settings:
     board_root: .

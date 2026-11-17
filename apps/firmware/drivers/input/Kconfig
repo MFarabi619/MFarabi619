@@ -1,0 +1,3 @@
+if INPUT
+rsource "pwm_rc_receiver/Kconfig"
+endif # INPUT

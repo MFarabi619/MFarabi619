@@ -1,0 +1,8 @@
+config INPUT_PWM_RC_RECEIVER
+	bool "PWM RC receiver input driver"
+	default y
+	depends on DT_HAS_PWM_RC_RECEIVER_ENABLED
+	select PWM
+	select PWM_CAPTURE
+	help
+	  RC receiver with one PWM output per channel, read with PWM capture.

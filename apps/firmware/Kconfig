@@ -24,6 +24,9 @@ configdefault ESPTOOLPY_FLASH_MODE_AUTO_DETECT
 configdefault DEBUG_THREAD_INFO
 	default y
 
+configdefault INPUT
+	default y if $(dt_compat_enabled,pwm-rc-receiver)
+
 choice COMPILER_OPTIMIZATIONS
 	default DEBUG_OPTIMIZATIONS
 endchoice

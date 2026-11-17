@@ -1,0 +1,1 @@
+add_subdirectory_ifdef(CONFIG_INPUT_PWM_RC_RECEIVER pwm_rc_receiver)
