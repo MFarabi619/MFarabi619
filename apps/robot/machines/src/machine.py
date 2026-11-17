@@ -111,6 +111,7 @@ class Drivetrain(StrictRecord):
     counts_per_revolution: int | None = None
     control_mode: str | None = None
     full_scale_linear_velocity_meters_per_second: float | None = None
+    wheel_separation_multiplier: float = 1.0
     pwm_frequency_hz: float | None = None
     min_duty_fraction: float | None = None
     i2c_bus: int | None = None

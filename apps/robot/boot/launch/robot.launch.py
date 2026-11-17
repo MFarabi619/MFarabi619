@@ -212,6 +212,7 @@ def launch_platform(machine, drivetrain_model, urdf_path, depth_camera):
         'robot_boot', 'controller_manager.launch.py',
         wheel_separation=wheel_separation,
         wheel_radius=wheel_radius,
+        wheel_separation_multiplier=drivetrain.wheel_separation_multiplier,
         **motion_limits,
     )
 

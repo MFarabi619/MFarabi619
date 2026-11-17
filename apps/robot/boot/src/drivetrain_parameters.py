@@ -30,9 +30,10 @@ CONTROLLER_MANAGER_TIMEOUT_SECONDS = '60'
 
 
 def write_drivetrain_parameters_file(wheel_separation, wheel_radius, motion_limits,
-                                     wheel_names_by_side=None):
+                                     wheel_names_by_side=None, wheel_separation_multiplier=1.0):
     ros_parameters = {
         'wheel_separation': wheel_separation,
+        'wheel_separation_multiplier': wheel_separation_multiplier,
         'wheel_radius': wheel_radius,
     }
     if wheel_names_by_side:

@@ -25,6 +25,7 @@ from robot_boot.zenoh_router import ensure_zenoh_router
 def controller_manager(
     wheel_separation: float = 0.0,
     wheel_radius: float = 0.0,
+    wheel_separation_multiplier: float = 1.0,
     params_file: str = '',
     max_linear_velocity_meters_per_second: float = 0.0,
     max_angular_velocity_radians_per_second: float = 0.0,
@@ -46,7 +47,8 @@ def controller_manager(
             'max_angular_acceleration_radians_per_second_squared':
                 max_angular_acceleration_radians_per_second_squared,
             'max_angular_jerk_radians_per_second_cubed': max_angular_jerk_radians_per_second_cubed,
-        })
+        },
+        wheel_separation_multiplier=wheel_separation_multiplier)
 
     def spawn_controllers():
         if bl.is_shutdown:

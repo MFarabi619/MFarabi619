@@ -150,6 +150,7 @@
                 ],
                 "wheel_radius": 0.1749,
                 "wheel_separation": 1.1704,
+                "wheel_separation_multiplier": 1.0,
                 "wheels_per_side": 2
               }
             }
@@ -778,6 +779,7 @@
                 ],
                 "wheel_radius": 0.1749,
                 "wheel_separation": 0.5704,
+                "wheel_separation_multiplier": 1.0,
                 "wheels_per_side": 2
               }
             }

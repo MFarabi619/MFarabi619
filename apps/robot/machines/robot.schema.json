@@ -281,6 +281,11 @@
           "default": null,
           "title": "Full Scale Linear Velocity Meters Per Second"
         },
+        "wheel_separation_multiplier": {
+          "default": 1.0,
+          "title": "Wheel Separation Multiplier",
+          "type": "number"
+        },
         "pwm_frequency_hz": {
           "anyOf": [
             {
