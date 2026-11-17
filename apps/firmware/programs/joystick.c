@@ -22,6 +22,8 @@ LOG_MODULE_REGISTER(joystick, CONFIG_LOG_DEFAULT_LEVEL);
 #define SIGNAL_TIMEOUT_MILLISECONDS DT_INST_PROP(0, signal_timeout_ms)
 #define CENTER_DEADZONE DT_INST_PROP(0, center_deadzone)
 #define CENTER_TIMEOUT_MILLISECONDS DT_INST_PROP(0, center_timeout_ms)
+#define BUTTON_PRESSED_ABOVE DT_INST_PROP(0, button_pressed_above)
+#define BUTTON_CODE_COUNT DT_INST_PROP_LEN_OR(0, button_codes, 0)
 #define REPORT_PERIOD_MICROSECONDS DT_PROP(HID_DEVICE_NODE, in_polling_period_us)
 #define AXIS_SIZE_BITS 16
 #define BUTTON_SIZE_BITS 1
@@ -37,6 +39,8 @@ LOG_MODULE_REGISTER(joystick, CONFIG_LOG_DEFAULT_LEVEL);
 
 BUILD_ASSERT(DT_INST_CHILD_NUM_STATUS_OKAY(0) == JOYSTICK_AXIS_COUNT,
 	     "joystick needs exactly two axes");
+BUILD_ASSERT(BUTTON_CODE_COUNT < JOYSTICK_BUTTON_COUNT,
+	     "button-codes must leave button 0 for the commanding button");
 
 struct axis_config {
 	uint16_t zephyr_code;
@@ -62,7 +66,9 @@ DT_INST_FOREACH_CHILD_STATUS_OKAY(0, AXIS_RANGE_CHECK)
 static const struct axis_config axis_configs[JOYSTICK_AXIS_COUNT] = {
 	DT_INST_FOREACH_CHILD_STATUS_OKAY_SEP(0, AXIS_CONFIG, (,))};
 
+static const uint16_t button_codes[] = DT_INST_PROP_OR(0, button_codes, {});
 static atomic_t axis_inputs[JOYSTICK_AXIS_COUNT];
+static atomic_t button_inputs[BUTTON_CODE_COUNT];
 static atomic_t last_sync_milliseconds;
 static atomic_t last_off_center_milliseconds;
 
@@ -161,6 +167,21 @@ struct joystick_stick joystick_read_stick(void)
 	};
 }
 
+uint8_t joystick_read_buttons(void)
+{
+	uint8_t buttons = 0;
+
+	if (!has_signal()) {
+		return 0;
+	}
+	for (size_t index = 0; index < BUTTON_CODE_COUNT; index++) {
+		if (atomic_get(&button_inputs[index]) > BUTTON_PRESSED_ABOVE) {
+			buttons |= BIT(index + 1);
+		}
+	}
+	return buttons;
+}
+
 static bool is_off_center(struct joystick_stick stick)
 {
 	return MAX(abs(stick.rightward), abs(stick.backward)) > CENTER_DEADZONE;
@@ -171,6 +192,11 @@ static void on_input_event(struct input_event *event, void *user_data)
 	for (size_t index = 0; index < JOYSTICK_AXIS_COUNT; index++) {
 		if (event->type == INPUT_EV_ABS && event->code == axis_configs[index].zephyr_code) {
 			atomic_set(&axis_inputs[index], event->value);
+		}
+	}
+	for (size_t index = 0; index < BUTTON_CODE_COUNT; index++) {
+		if (event->type == INPUT_EV_ABS && event->code == button_codes[index]) {
+			atomic_set(&button_inputs[index], event->value);
 		}
 	}
 	if (!event->sync) {
@@ -186,18 +212,19 @@ static void on_input_event(struct input_event *event, void *user_data)
 
 INPUT_CALLBACK_DEFINE(DEVICE_DT_GET(DT_INST_PHANDLE(0, input)), on_input_event, NULL);
 
-static struct joystick_report report_from_stick(struct joystick_stick stick)
+static struct joystick_report report_from_stick(struct joystick_stick stick, uint8_t buttons)
 {
 	return (struct joystick_report){
 		.axes = {sys_cpu_to_le16(stick.rightward), sys_cpu_to_le16(stick.backward)},
-		.buttons = stick.is_commanding ? COMMANDING_BUTTON : 0,
+		.buttons = buttons | (stick.is_commanding ? COMMANDING_BUTTON : 0),
 	};
 }
 
 static int on_get_report(const struct device *dev, const uint8_t type, const uint8_t id,
 			 const uint16_t length, uint8_t *const buffer)
 {
-	struct joystick_report report = report_from_stick(joystick_read_stick());
+	struct joystick_report report =
+		report_from_stick(joystick_read_stick(), joystick_read_buttons());
 	uint16_t report_size = MIN(length, sizeof(report));
 
 	memcpy(buffer, &report, report_size);
@@ -248,7 +275,8 @@ static void joystick_usb_thread(void)
 		return;
 	}
 	while (true) {
-		struct joystick_report report = report_from_stick(joystick_read_stick());
+		struct joystick_report report =
+			report_from_stick(joystick_read_stick(), joystick_read_buttons());
 
 		memcpy(report_buffer, &report, sizeof(report));
 		if (hid_device_submit_report(hid_device, sizeof(report), report_buffer) != 0) {

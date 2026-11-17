@@ -41,6 +41,15 @@ properties:
     default: 1000
     description: Time the stick may stay at center before the commanding button turns off.
 
+  button-codes:
+    type: array
+    description: Input event codes read as buttons 1 onwards, in order.
+
+  button-pressed-above:
+    type: int
+    default: 1500
+    description: Input value above which a button counts as pressed.
+
   differential-drive:
     type: boolean
     description: The axes are the right and left wheel speeds of a differential drive, in that order.

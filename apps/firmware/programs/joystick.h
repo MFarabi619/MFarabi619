@@ -15,5 +15,6 @@ struct joystick_stick {
 };
 
 struct joystick_stick joystick_read_stick(void);
+uint8_t joystick_read_buttons(void);
 
 #endif /* JOYSTICK_H_ */
