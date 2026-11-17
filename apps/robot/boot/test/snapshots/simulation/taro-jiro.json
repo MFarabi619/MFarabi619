@@ -157,6 +157,10 @@
         },
         "--controller-manager-timeout",
         "60",
+        "--switch-timeout",
+        "30",
+        "--service-call-timeout",
+        "60",
         "--controller-ros-args",
         "-r ~/cmd_vel:=platform/cmd_vel -r ~/reference:=platform/cmd_vel -r /tf:=tf -r /tf_static:=tf_static"
       ],
@@ -779,6 +783,10 @@
           }
         },
         "--controller-manager-timeout",
+        "60",
+        "--switch-timeout",
+        "30",
+        "--service-call-timeout",
         "60",
         "--controller-ros-args",
         "-r ~/cmd_vel:=platform/cmd_vel -r ~/reference:=platform/cmd_vel -r /tf:=tf -r /tf_static:=tf_static"

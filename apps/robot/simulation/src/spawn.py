@@ -22,6 +22,10 @@ from robot_boot.launch_policy import TF_REMAPS
 from robot_boot.urdf import drive_wheel_joint_names, wheel_geometry
 from robot_simulation.gz_bridges import spawn_simulation_bridges
 
+# Switches wait for Gazebo's first step, which can take longer than the spawner's 5 s default.
+SWITCH_TIMEOUT_SECONDS = '30'
+SERVICE_CALL_TIMEOUT_SECONDS = '60'
+
 
 def spawn_robot(bl, machine, world, pose):
     urdf_path = bl.find('robot_description', 'robot.sim.urdf', subdir=f'urdf/{machine.name}')
@@ -62,6 +66,8 @@ def spawn_robot(bl, machine, world, pose):
                   '--param-file', control_parameters_file,
                   '--param-file', drivetrain_parameters_file,
                   '--controller-manager-timeout', CONTROLLER_MANAGER_TIMEOUT_SECONDS,
+                  '--switch-timeout', SWITCH_TIMEOUT_SECONDS,
+                  '--service-call-timeout', SERVICE_CALL_TIMEOUT_SECONDS,
                   '--controller-ros-args',
                   '-r ~/cmd_vel:=platform/cmd_vel -r ~/reference:=platform/cmd_vel'
                   ' -r /tf:=tf -r /tf_static:=tf_static'],
