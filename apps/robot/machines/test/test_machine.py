@@ -138,6 +138,7 @@ def test_arm_mounted_on_a_chassis_is_not_arm_only(tmp_path):
     assert machine.has_arm and not machine.is_arm_only
     assert (arm.parent, arm.xyz) == ('chassis', [0.35, 0.0, 0.114])
     assert arm.packages.description == 'link6_description'
+    assert arm.name == 'arm_0'
     assert not machine.manipulators.moveit.enable
 
 

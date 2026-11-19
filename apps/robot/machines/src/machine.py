@@ -269,6 +269,11 @@ class Arm(Mount):
     model: ArmModel
     launch_enabled: bool = True
     gripper: Gripper | None = None
+    _name: str = PrivateAttr('')
+
+    @property
+    def name(self):
+        return self._name
 
     @property
     def packages(self):
@@ -286,6 +291,12 @@ class MoveIt(StrictRecord):
 class Manipulators(StrictRecord):
     moveit: MoveIt = MoveIt()
     arms: list[Arm] = []
+
+    @model_validator(mode='after')
+    def name_arms_by_index(self):
+        for index, arm in enumerate(self.arms):
+            arm._name = f'arm_{index}'
+        return self
 
 
 class Home(StrictRecord):
