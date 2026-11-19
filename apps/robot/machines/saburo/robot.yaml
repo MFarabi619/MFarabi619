@@ -27,6 +27,15 @@ platform:
       is_reversed: false
       dac_i2c_address: 0x62
       dir_pin: 33
+manipulators:
+  arms:
+    - model: kinova_link6
+      launch_enabled: false
+      parent: chassis
+      xyz: [0.38, 0.0, 0.17]
+      rpy: [0.0, 0.0, 0.0]
+      gripper:
+        model: robotiq_2f_85
 sensors:
   camera:
     - model: stereolabs_zed
