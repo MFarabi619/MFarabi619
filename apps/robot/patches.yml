@@ -17,7 +17,7 @@ patches:
           launcher.py: is_shutdown true before children are signalled.
 
     - path: ros2-link6.patch
-      sha256sum: a8c808ba2fe18a6b9a5b1a3eb5921fc0ef97917a4f2caf35a9ef1d6a1ad6b289
+      sha256sum: e364e2032ca9b62278f5e59dce472fbe60ad2899fdf9b9dffda389d554822a1e
       module: vendor/ros2_link6
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
@@ -30,7 +30,8 @@ patches:
           position command interfaces in sim (gz also velocity); accessory
           visuals + collision box; brighter palette; spawn at SRDF home;
           gripper spawns open in sim; mesh URIs package:// instead of
-          file://$(find).
+          file://$(find). Tool frame, flange adapter and gripper moved
+          into a link6_end_effector macro so a mobile base can mount them.
           kortex3_sim_controllers.yaml: jtc [position], goal tolerances
           0.025, nonzero end velocity, gripper stall 0.01/0.5s,
           enforce_command_limits off.

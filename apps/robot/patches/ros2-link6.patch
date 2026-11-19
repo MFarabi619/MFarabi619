@@ -426,7 +426,7 @@ index a4920fe..08f323f 100644
            <xacro:if value="${use_internal_bus_gripper_comm}">
  
 diff --git a/link6_description/urdf/link6.urdf.xacro b/link6_description/urdf/link6.urdf.xacro
-index eeb5af4..82e46e6 100644
+index eeb5af4..5717302 100644
 --- a/link6_description/urdf/link6.urdf.xacro
 +++ b/link6_description/urdf/link6.urdf.xacro
 @@ -17,6 +17,8 @@
@@ -447,10 +447,44 @@ index eeb5af4..82e46e6 100644
          low_level_mode="$(arg low_level_mode)"
          safety_mode="$(arg safety_mode)"
          initial_positions_file="$(arg initial_positions_file)"
-@@ -74,12 +78,75 @@
-         </joint>
-     </xacro:if>
+@@ -60,32 +64,55 @@
+         <origin xyz="0 0 0" rpy="0 0 0" />  <!-- position robot in the world -->
+     </xacro:link6>
  
+-    <!-- Conditionally include gripper -->
+-    <xacro:property name="gripper" value="$(arg gripper)"/>
+-
+-    <!-- If no gripper, define tool frame here -->
+-    <xacro:if value="${not gripper}">
+-        <link name="$(arg prefix)tool_frame" />
+-        <joint name="$(arg prefix)tool_frame_joint" type="fixed">
+-            <origin xyz="0 0 0" rpy="0 0 0" />
+-            <parent link="$(arg prefix)end_effector_link" />
+-            <child link="$(arg prefix)tool_frame" />
+-            <axis xyz="0 0 0" />
+-        </joint>
+-    </xacro:if>
++    <xacro:include filename="$(find link6_description)/urdf/link6_end_effector.xacro" />
++    <xacro:link6_end_effector
++        prefix="$(arg prefix)"
++        gripper="$(arg gripper)"
++        sim_gazebo="$(arg sim_gazebo)"
++        use_fake_hardware="$(arg use_fake_hardware)"
++        mock_sensor_commands="$(arg mock_sensor_commands)"
++        use_internal_bus_gripper_comm="$(arg use_internal_bus_gripper_comm)" />
+ 
+-    <!-- Include and load the gripper if defined -->
+-    <xacro:unless value="${not gripper}">
+-        <xacro:include filename="$(find link6_description)/urdf/grippers/$(arg gripper)_macro.xacro" />
+-        <xacro:load_gripper
+-            prefix="$(arg prefix)"
+-            parent="$(arg prefix)end_effector_link"
+-            sim_gazebo="$(arg sim_gazebo)"
+-            use_fake_hardware="$(arg use_fake_hardware)"
+-            mock_sensor_commands="$(arg mock_sensor_commands)"
+-            use_internal_bus_gripper_comm="$(arg use_internal_bus_gripper_comm)">
+-        </xacro:load_gripper>
+-    </xacro:unless>
 +    <link name="$(arg prefix)controller_link">
 +        <visual>
 +            <origin xyz="-0.4466 0.08 0.2082" rpy="1.5708 0 0" />
@@ -491,10 +525,40 @@ index eeb5af4..82e46e6 100644
 +        <parent link="$(arg prefix)base_link" />
 +        <child link="$(arg prefix)controller_link" />
 +    </joint>
+ 
+ 
+     <xacro:if value="$(arg sim_gazebo)">
+diff --git a/link6_description/urdf/link6_end_effector.xacro b/link6_description/urdf/link6_end_effector.xacro
+new file mode 100644
+index 0000000..7dfc101
+--- /dev/null
++++ b/link6_description/urdf/link6_end_effector.xacro
+@@ -0,0 +1,60 @@
++<?xml version="1.0"?>
++<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 +
-     <!-- Include and load the gripper if defined -->
-     <xacro:unless value="${not gripper}">
-+        <link name="$(arg prefix)flange_adapter_link">
++  <xacro:macro name="link6_end_effector" params="
++    prefix
++    gripper
++    sim_gazebo:=false
++    use_fake_hardware:=false
++    mock_sensor_commands:=false
++    use_internal_bus_gripper_comm:=false">
++
++    <!-- If no gripper, define tool frame here -->
++    <xacro:if value="${not gripper}">
++        <link name="${prefix}tool_frame" />
++        <joint name="${prefix}tool_frame_joint" type="fixed">
++            <origin xyz="0 0 0" rpy="0 0 0" />
++            <parent link="${prefix}end_effector_link" />
++            <child link="${prefix}tool_frame" />
++            <axis xyz="0 0 0" />
++        </joint>
++    </xacro:if>
++
++    <!-- Include and load the gripper if defined -->
++    <xacro:unless value="${not gripper}">
++        <link name="${prefix}flange_adapter_link">
 +            <visual>
 +                <origin xyz="0 0 0.02311" rpy="0 -1.5708 0" />
 +                <geometry>
@@ -505,25 +569,31 @@ index eeb5af4..82e46e6 100644
 +                </material>
 +            </visual>
 +        </link>
-+        <joint name="$(arg prefix)flange_adapter_joint" type="fixed">
++        <joint name="${prefix}flange_adapter_joint" type="fixed">
 +            <origin xyz="0 0 0" rpy="0 0 0" />
-+            <parent link="$(arg prefix)end_effector_link" />
-+            <child link="$(arg prefix)flange_adapter_link" />
++            <parent link="${prefix}end_effector_link" />
++            <child link="${prefix}flange_adapter_link" />
 +        </joint>
-+        <link name="$(arg prefix)gripper_mount_link" />
-+        <joint name="$(arg prefix)gripper_mount_joint" type="fixed">
++        <link name="${prefix}gripper_mount_link" />
++        <joint name="${prefix}gripper_mount_joint" type="fixed">
 +            <origin xyz="0 0 0.0265" rpy="0 0 0" />
-+            <parent link="$(arg prefix)flange_adapter_link" />
-+            <child link="$(arg prefix)gripper_mount_link" />
++            <parent link="${prefix}flange_adapter_link" />
++            <child link="${prefix}gripper_mount_link" />
 +        </joint>
-         <xacro:include filename="$(find link6_description)/urdf/grippers/$(arg gripper)_macro.xacro" />
-         <xacro:load_gripper
-             prefix="$(arg prefix)"
--            parent="$(arg prefix)end_effector_link"
-+            parent="$(arg prefix)gripper_mount_link"
-             sim_gazebo="$(arg sim_gazebo)"
-             use_fake_hardware="$(arg use_fake_hardware)"
-             mock_sensor_commands="$(arg mock_sensor_commands)"
++        <xacro:include filename="$(find link6_description)/urdf/grippers/${gripper}_macro.xacro" />
++        <xacro:load_gripper
++            prefix="${prefix}"
++            parent="${prefix}gripper_mount_link"
++            sim_gazebo="${sim_gazebo}"
++            use_fake_hardware="${use_fake_hardware}"
++            mock_sensor_commands="${mock_sensor_commands}"
++            use_internal_bus_gripper_comm="${use_internal_bus_gripper_comm}">
++        </xacro:load_gripper>
++    </xacro:unless>
++
++  </xacro:macro>
++
++</robot>
 diff --git a/link6_description/urdf/link6_gz.urdf.xacro b/link6_description/urdf/link6_gz.urdf.xacro
 index 85266e9..f334fc0 100644
 --- a/link6_description/urdf/link6_gz.urdf.xacro
