@@ -139,6 +139,7 @@
             "/**/diff_drive_controller": {
               "ros__parameters": {
                 "angular.z.max_acceleration": 7.5,
+                "cmd_vel_timeout": 0.5,
                 "left_wheel_names": [
                   "rear_left_wheel_joint",
                   "front_left_wheel_joint"
@@ -766,6 +767,7 @@
                 "angular.z.max_acceleration": 10.0,
                 "angular.z.max_jerk": 70.0,
                 "angular.z.max_velocity": 3.0,
+                "cmd_vel_timeout": 0.5,
                 "left_wheel_names": [
                   "rear_left_wheel_joint",
                   "front_left_wheel_joint"

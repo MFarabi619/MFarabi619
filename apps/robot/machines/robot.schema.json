@@ -286,6 +286,11 @@
           "title": "Wheel Separation Multiplier",
           "type": "number"
         },
+        "cmd_vel_timeout_seconds": {
+          "default": 0.5,
+          "title": "Cmd Vel Timeout Seconds",
+          "type": "number"
+        },
         "pwm_frequency_hz": {
           "anyOf": [
             {

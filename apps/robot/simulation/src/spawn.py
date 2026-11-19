@@ -35,7 +35,8 @@ def spawn_robot(bl, machine, world, pose):
     drivetrain_parameters_file = write_drivetrain_parameters_file(
         *wheel_geometry(urdf_path), drivetrain.motion_limits(drivetrain.model),
         drive_wheel_joint_names(urdf_path),
-        wheel_separation_multiplier=drivetrain.wheel_separation_multiplier)
+        wheel_separation_multiplier=drivetrain.wheel_separation_multiplier,
+        cmd_vel_timeout_seconds=drivetrain.cmd_vel_timeout_seconds)
     robot_description = robot_description.replace(
         'package://robot_control/config/control.yaml', control_parameters_file)
 

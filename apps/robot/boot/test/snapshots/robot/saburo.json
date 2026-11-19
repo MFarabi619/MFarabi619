@@ -89,6 +89,7 @@
     },
     {
       "arguments": {
+        "cmd_vel_timeout_seconds": 0.5,
         "max_angular_acceleration_radians_per_second_squared": 7.5,
         "max_linear_acceleration_meters_per_second_squared": 5.0,
         "wheel_radius": 0.3,
@@ -116,6 +117,7 @@
             "/**/diff_drive_controller": {
               "ros__parameters": {
                 "angular.z.max_acceleration": 7.5,
+                "cmd_vel_timeout": 0.5,
                 "linear.x.max_acceleration": 5.0,
                 "wheel_radius": 0.3,
                 "wheel_separation": 1.13642,
@@ -143,6 +145,7 @@
             "/**/diff_drive_controller": {
               "ros__parameters": {
                 "angular.z.max_acceleration": 7.5,
+                "cmd_vel_timeout": 0.5,
                 "linear.x.max_acceleration": 5.0,
                 "wheel_radius": 0.3,
                 "wheel_separation": 1.13642,
