@@ -35,6 +35,8 @@ shapely = "*"
 requests = "*"
 pydantic = "*"
 pyserial = "*"
+yourdfpy = "*"
+scipy = "*"
 libopencv = "*"
 compilers = "*"
 pkg-config = "*"
@@ -48,6 +50,8 @@ rich = ">=15.0.0,<16"
 ros-lyrical-py-trees = "*"
 ros-lyrical-twist-mux = "*"
 ros-lyrical-topic-tools = "*"
+ros-lyrical-urdf-launch = "*"
+ros-lyrical-joint-state-publisher-gui = "*"
 ros-lyrical-nav2-msgs = "*"
 ros-lyrical-py-trees-ros = "*"
 colcon-common-extensions = "*"
@@ -190,6 +194,12 @@ python boot/launch/robot.launch.py \
 ] }
 
 zenoh-router = "python boot/launch/zenoh_router.launch.py"
+
+rviz = { cmd = "python boot/launch/rviz.launch.py --robot {{ robot }}", args = [
+    { arg = "robot", default = "taro" },
+], depends-on = [
+    "build",
+] }
 
 generate-robot-schema = { cmd = "python machines/src/schema.py", depends-on = [
     "build",
