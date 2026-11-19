@@ -1,0 +1,16 @@
+/**/joint_trajectory_controller:
+  ros__parameters:
+    type: joint_trajectory_controller/JointTrajectoryController
+    joints: [arm_0_joint_1, arm_0_joint_2, arm_0_joint_3, arm_0_joint_4, arm_0_joint_5, arm_0_joint_6]
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+    allow_nonzero_velocity_at_trajectory_end: true
+    constraints:
+      stopped_velocity_tolerance: 0.01
+      goal_time: 0.0
+      arm_0_joint_1: {goal: 0.025}
+      arm_0_joint_2: {goal: 0.025}
+      arm_0_joint_3: {goal: 0.025}
+      arm_0_joint_4: {goal: 0.025}
+      arm_0_joint_5: {goal: 0.025}
+      arm_0_joint_6: {goal: 0.025}

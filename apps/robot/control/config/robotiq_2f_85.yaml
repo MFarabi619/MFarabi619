@@ -1,0 +1,7 @@
+/**/robotiq_gripper_controller:
+  ros__parameters:
+    type: position_controllers/GripperActionController
+    joint: arm_0_robotiq_85_left_knuckle_joint
+    allow_stalling: true
+    stall_velocity_threshold: 0.01
+    stall_timeout: 0.5

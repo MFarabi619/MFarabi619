@@ -20,6 +20,8 @@ from robot_boot.drivetrain_parameters import (
     CONTROLLER_MANAGER_TIMEOUT_SECONDS, write_drivetrain_parameters_file)
 from robot_boot.launch_policy import TF_REMAPS
 from robot_boot.urdf import drive_wheel_joint_names, wheel_geometry
+from robot_simulation.arm_description import (
+    arm_controller_parameters_files, arm_controllers, write_urdf_file_with_arms)
 from robot_simulation.gz_bridges import spawn_simulation_bridges
 
 # Switches wait for Gazebo's first step, which can take longer than the spawner's 5 s default.
@@ -28,7 +30,9 @@ SERVICE_CALL_TIMEOUT_SECONDS = '60'
 
 
 def spawn_robot(bl, machine, world, pose):
-    urdf_path = bl.find('robot_description', 'robot.sim.urdf', subdir=f'urdf/{machine.name}')
+    arms = machine.manipulators.arms
+    urdf_path = write_urdf_file_with_arms(
+        bl.find('robot_description', 'robot.sim.urdf', subdir=f'urdf/{machine.name}'), arms)
     robot_description = read_robot_description(None, urdf_path)
     control_parameters_file = bl.find('robot_control', 'control.yaml')
     drivetrain = machine.platform.drivetrain
@@ -65,8 +69,12 @@ def spawn_robot(bl, machine, world, pose):
         executable='spawner',
         name='controller_spawner',
         cmd_args=['joint_state_broadcaster', 'diff_drive_controller',
+                  *[controller for arm in arms for controller in arm_controllers(arm)],
                   '--param-file', control_parameters_file,
                   '--param-file', drivetrain_parameters_file,
+                  *[argument for arm in arms
+                    for parameters_file in arm_controller_parameters_files(bl, arm)
+                    for argument in ('--param-file', parameters_file)],
                   '--controller-manager-timeout', CONTROLLER_MANAGER_TIMEOUT_SECONDS,
                   '--switch-timeout', SWITCH_TIMEOUT_SECONDS,
                   '--service-call-timeout', SERVICE_CALL_TIMEOUT_SECONDS,
