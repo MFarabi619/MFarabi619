@@ -32,6 +32,9 @@ PIXI_PATH = '/home/mfarabi/.pixi/bin/pixi'
 
 ROBOT_LOCAL_ENTRIES = ['.pixi', 'build', 'install', 'log']
 
+# The robot's pixi install needs the vendored wheels; the rest of assets/ stays on the Mac.
+ROBOT_ASSET_FILTERS = ['+ /assets/', '+ /assets/*.whl', 'H /assets/*']
+
 DEVELOPMENT_ONLY_ENTRIES = [
     '__pycache__', 'assets', '/simulation/downloads',
     '/simulation/models/area_xo', '/simulation/worlds/area_xo.sdf']
@@ -119,6 +122,7 @@ def mirror(mdns_hostname, machine):
         working_directory=REPO_ROOT)
     run('rsync', *RSYNC_FLAGS, '--delete',
         *[f'--exclude={entry}' for entry in ROBOT_LOCAL_ENTRIES],
+        *[f'--filter={rule}' for rule in ROBOT_ASSET_FILTERS],
         *[f'--filter=H {entry}' for entry in DEVELOPMENT_ONLY_ENTRIES],
         '-e', 'ssh -q', 'apps/robot/',
         f'{mdns_hostname}:{MIRROR_ROBOT_ROOT}/', working_directory=REPO_ROOT)

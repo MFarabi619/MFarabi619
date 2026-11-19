@@ -95,7 +95,7 @@ sherpa-onnx = ">=1.13"
 depthai = ">=2.24,<3"
 pymavlink = ">=2.4.50"
 better-launch = { path = "../../vendor/better_launch", editable = true }
-kortex-api = { url = "https://artifactory.kinovaapps.com/artifactory/generic-public/kortex/API/3.4.0/kortex_api-3.4.0.15-py3-none-any.whl" }
+kortex-api = { path = "assets/kortex_api-3.4.0.15-py3-none-any.whl" }
 
 [pypi-options.dependency-overrides]
 protobuf = ">=5.27.2"

@@ -1170,7 +1170,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-zstd-image-transport-6.2.6-np2py314h050b131_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-zstd-point-cloud-transport-6.2.0-np2py314h53a0733_30.conda
       - pypi: ../../vendor/better_launch
-      - pypi: direct+https://artifactory.kinovaapps.com/artifactory/generic-public/kortex/API/3.4.0/kortex_api-3.4.0.15-py3-none-any.whl
+      - pypi: ./assets/kortex_api-3.4.0.15-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/31/7d/164b7ffc8624fe9efb4221bf9af485d5c1e41b9ae118045d2b6dc5457d8b/click-8.5.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/54/6f/84908cad2d6aa5144abcf7b42709fe4fdb459bc640ec7ac5786e7693dabc/prompt_toolkit-3.0.53-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/72/1f/62eef605172bddc1017508469a12f75bc7c4194ece35c734f822795f53b1/sounddevice-0.5.6-py3-none-any.whl
@@ -2328,7 +2328,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-zstd-image-transport-6.2.6-np2py314hb992aa0_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-zstd-point-cloud-transport-6.2.0-np2py314h36e155a_30.conda
       - pypi: ../../vendor/better_launch
-      - pypi: direct+https://artifactory.kinovaapps.com/artifactory/generic-public/kortex/API/3.4.0/kortex_api-3.4.0.15-py3-none-any.whl
+      - pypi: ./assets/kortex_api-3.4.0.15-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1a/d9/a82e4d42549ddd28a338a012b8001492b44107fbc77839b8b162e7fab641/gpiod-2.6.0-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/28/b8/27e6312e86408a44fe16bd28ee12dd98608b39f7e7e57884a24e8f29b573/pyusb-1.3.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2d/c2/236d95be3dcbad8fb4bd6645427975d2024edb35cb60a62ce10990830b9a/pymavlink-2.4.50-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl
@@ -3496,7 +3496,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros2-zstd-image-transport-6.2.6-np2py314hd86628b_30.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros2-zstd-point-cloud-transport-6.2.0-np2py314h40712d6_30.conda
       - pypi: ../../vendor/better_launch
-      - pypi: direct+https://artifactory.kinovaapps.com/artifactory/generic-public/kortex/API/3.4.0/kortex_api-3.4.0.15-py3-none-any.whl
+      - pypi: ./assets/kortex_api-3.4.0.15-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/04/e9/dfdca30ca36c472de3e260406dee29fc108499ec590c63b3fe279887ee9d/wcwidth-0.9.4-cp310-abi3-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/07/86/f1f61b7a0701f9d1299e5293d083318019f91021a4d449f94d59dbe024e4/pycollada-0.9.3-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/07/98/b2b328c2d118b8a6674fd2d9b8b415129c3bd97a80a55ef80c81b42e2c4e/mujoco_core-4.0.0-cp314-cp314-macosx_11_0_arm64.whl
@@ -67436,7 +67436,7 @@ packages:
   - setproctitle
   - prompt-toolkit
   - psutil
-- pypi: direct+https://artifactory.kinovaapps.com/artifactory/generic-public/kortex/API/3.4.0/kortex_api-3.4.0.15-py3-none-any.whl
+- pypi: ./assets/kortex_api-3.4.0.15-py3-none-any.whl
   name: kortex-api
   version: 3.4.0.15
   requires_dist:
