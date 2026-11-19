@@ -32,7 +32,8 @@ def ground_offset_meters(urdf_path):
 
 def drive_wheel_joint_names(urdf_path):
     joint_names = [joint.get('name') for joint in
-                   ElementTree.parse(urdf_path).getroot().findall('ros2_control/joint')]
+                   ElementTree.parse(urdf_path).getroot().findall('ros2_control/joint')
+                   if joint.get('name').endswith('_wheel_joint')]
     return ([name for name in joint_names if '_left_' in name],
             [name for name in joint_names if '_right_' in name])
 
