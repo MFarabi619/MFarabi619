@@ -24,17 +24,19 @@ def rc_receiver_usb_joystick(
     device_name: str = 'RC Receiver Joystick',
     params_file: str = '',
     joy_node_enabled: bool = True,
+    overrides_file: str = '',
 ):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
     params_file = params_file or bl.find('robot_boot', 'rc_receiver_usb_joystick_teleop.yaml')
+    param_files = [params_file] + ([overrides_file] if overrides_file else [])
     if joy_node_enabled:
         bl.node(
             package='joy',
             executable='joy_node',
             name='rc_receiver_usb_joystick',
             params={'device_name': device_name},
-            param_files=[params_file],
+            param_files=param_files,
             remaps={'joy': 'joy_teleop/joy'},
             **RESPAWN,
         )
@@ -42,7 +44,7 @@ def rc_receiver_usb_joystick(
         package='teleop_twist_joy',
         executable='teleop_node',
         name='rc_receiver_teleop',
-        param_files=[params_file],
+        param_files=param_files,
         remaps={
             'joy': 'joy_teleop/joy',
             'cmd_vel': 'joy_teleop/cmd_vel',

@@ -77,7 +77,8 @@ def robot_stack(bl, machine, world, pose, target):
         include('robot_boot', 'twist_mux.launch.py')
         if machine.has_usb_joystick_rc_receiver:
             include(
-                'robot_drivers', 'rc_receiver_usb_joystick.launch.py', joy_node_enabled=False)
+                'robot_drivers', 'rc_receiver_usb_joystick.launch.py', joy_node_enabled=False,
+                overrides_file=overrides_file)
         if machine.behaviors.harvest_lane:
             include(
                 'robot_navigation', 'harvest_lane.launch.py',

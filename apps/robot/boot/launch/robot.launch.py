@@ -173,7 +173,9 @@ def launch_motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius
 
 def launch_rc_receiver(machine, rc_receiver):
     if rc_receiver.interface == USB_JOYSTICK_INTERFACE:
-        include('robot_drivers', 'rc_receiver_usb_joystick.launch.py')
+        include(
+            'robot_drivers', 'rc_receiver_usb_joystick.launch.py',
+            overrides_file=write_parameter_overrides_file(machine.ros_parameters))
         return
     pins = machine.board_pins
     channel_1_chip, channel_1_line = resolve_line(pins, rc_receiver.channel_1_pin)

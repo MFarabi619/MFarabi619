@@ -179,7 +179,61 @@
       "package": "controller_manager"
     },
     {
-      "arguments": {},
+      "arguments": {
+        "overrides_file": {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_column_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
+      },
       "kind": "include",
       "launchfile": "rc_receiver_usb_joystick.launch.py",
       "namespace": "/jiro",
@@ -194,7 +248,60 @@
       "namespace": "/jiro",
       "package": "joy",
       "param_files": [
-        "boot/config/rc_receiver_usb_joystick_teleop.yaml"
+        "boot/config/rc_receiver_usb_joystick_teleop.yaml",
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_column_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
       ],
       "params": {
         "device_name": "RC Receiver Joystick"
@@ -212,7 +319,60 @@
       "namespace": "/jiro",
       "package": "teleop_twist_joy",
       "param_files": [
-        "boot/config/rc_receiver_usb_joystick_teleop.yaml"
+        "boot/config/rc_receiver_usb_joystick_teleop.yaml",
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_column_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
       ],
       "remaps": {
         "cmd_vel": "joy_teleop/cmd_vel",
