@@ -872,8 +872,34 @@
     },
     {
       "arguments": {
+        "joy_node_enabled": false
+      },
+      "kind": "include",
+      "launchfile": "rc_receiver_usb_joystick.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_drivers",
+      "subdir": null
+    },
+    {
+      "executable": "teleop_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "rc_receiver_teleop",
+      "namespace": "/jiro",
+      "package": "teleop_twist_joy",
+      "param_files": [
+        "boot/config/rc_receiver_usb_joystick_teleop.yaml"
+      ],
+      "remaps": {
+        "cmd_vel": "joy_teleop/cmd_vel",
+        "joy": "joy_teleop/joy"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
         "detector": "person_detector",
-        "follow_button_enabled": false,
+        "follow_button_enabled": true,
         "image_topic": "sensors/camera_0/color/image_raw/compressed",
         "overrides_file": {
           "tempfile": {
@@ -1098,6 +1124,18 @@
       ],
       "params": {
         "start_enabled": false
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "follow_button",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "person_follow_button",
+      "namespace": "/jiro",
+      "package": "robot_navigation",
+      "params": {
+        "follow_node": "person_follow"
       },
       "respawn_delay": 2.0
     },

@@ -179,30 +179,25 @@
       "package": "controller_manager"
     },
     {
-      "arguments": {
-        "channel_1_line": 17,
-        "channel_2_line": 27,
-        "differential_drive": false,
-        "gpio_chip": 0
-      },
+      "arguments": {},
       "kind": "include",
-      "launchfile": "rc_receiver_joy.launch.py",
+      "launchfile": "rc_receiver_usb_joystick.launch.py",
       "namespace": "/jiro",
       "package": "robot_drivers",
       "subdir": null
     },
     {
-      "executable": "rc_receiver_joy",
+      "executable": "joy_node",
       "kind": "node",
       "max_respawns": -1,
-      "name": "rc_receiver_joy",
+      "name": "rc_receiver_usb_joystick",
       "namespace": "/jiro",
-      "package": "robot_drivers",
+      "package": "joy",
+      "param_files": [
+        "boot/config/rc_receiver_usb_joystick_teleop.yaml"
+      ],
       "params": {
-        "channel_1_line": 17,
-        "channel_2_line": 27,
-        "differential_drive": false,
-        "gpio_chip": 0
+        "device_name": "RC Receiver Joystick"
       },
       "remaps": {
         "joy": "joy_teleop/joy"
@@ -217,7 +212,7 @@
       "namespace": "/jiro",
       "package": "teleop_twist_joy",
       "param_files": [
-        "boot/config/rc_receiver_teleop.yaml"
+        "boot/config/rc_receiver_usb_joystick_teleop.yaml"
       ],
       "remaps": {
         "cmd_vel": "joy_teleop/cmd_vel",
@@ -501,7 +496,7 @@
     {
       "arguments": {
         "camera": "camera_0",
-        "follow_button_enabled": false,
+        "follow_button_enabled": true,
         "has_on_camera_detector": false,
         "image_topic": "sensors/camera_0/color/image_raw/compressed",
         "overrides_file": {
@@ -701,6 +696,18 @@
       ],
       "params": {
         "start_enabled": false
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "follow_button",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "person_follow_button",
+      "namespace": "/jiro",
+      "package": "robot_navigation",
+      "params": {
+        "follow_node": "person_follow"
       },
       "respawn_delay": 2.0
     },
