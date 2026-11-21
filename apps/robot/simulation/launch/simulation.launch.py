@@ -58,6 +58,8 @@ SIMULATION_ROS_PARAMETERS = {
 }
 DETECTOR_BY_TARGET = {'person': 'person_detector', 'cone': 'color_blob_detector'}
 AUTOSTARTED_TARGETS = ('cone',)
+GROUND_STATION_LISTEN_URL = 'udpin:0.0.0.0:14550'
+GROUND_STATION_LOCAL_URL = 'udpout:127.0.0.1:14550'
 
 
 def write_simulation_overrides_file(machine):
@@ -109,11 +111,12 @@ def runs_gps_navigation(machine):
         machine.behaviors.gps_navigation and machine.sensors.gps and machine.depth_camera)
 
 
-def gps_navigation_stack(machine):
+def gps_navigation_stack(machine, ground_station_url):
     gps_topic_prefix = f'sensors/{machine.sensors.gps[0].name}'
     include('robot_boot', 'robot_localization.launch.py', gps_topic_prefix=gps_topic_prefix)
     include(
         'robot_navigation', 'ground_station_bridge.launch.py',
+        ground_station_url=ground_station_url,
         system_id=machine.system.mavlink_system_id,
         gps_topic=f'{gps_topic_prefix}/fix',
     )
@@ -161,9 +164,11 @@ def simulation(world: str = 'farm', robots: str = 'taro,jiro', headless: bool = 
         target,
         bl.find('robot_simulation', 'model.sdf', subdir=f'models/{target}'), 'file',
         spawn_args=get_gazebo_axes_args(**target_pose))
+    ground_station_url = (
+        GROUND_STATION_LISTEN_URL if len(machines) == 1 else GROUND_STATION_LOCAL_URL)
     for machine in machines:
         if laserscan_enabled or runs_gps_navigation(machine):
             with bl.group(machine.name):
                 spawn_depth_laserscans(machine)
                 if runs_gps_navigation(machine):
-                    gps_navigation_stack(machine)
+                    gps_navigation_stack(machine, ground_station_url)

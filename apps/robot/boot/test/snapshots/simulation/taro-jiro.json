@@ -1220,6 +1220,7 @@
     {
       "arguments": {
         "gps_topic": "sensors/gps_0/fix",
+        "ground_station_url": "udpout:127.0.0.1:14550",
         "system_id": 1
       },
       "kind": "include",
@@ -1740,6 +1741,7 @@
     {
       "arguments": {
         "gps_topic": "sensors/gps_0/fix",
+        "ground_station_url": "udpout:127.0.0.1:14550",
         "system_id": 2
       },
       "kind": "include",
