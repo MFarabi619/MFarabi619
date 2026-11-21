@@ -925,6 +925,16 @@
                 "steer_gain": 2.0
               }
             },
+            "/**/rc_receiver_teleop": {
+              "ros__parameters": {
+                "scale_angular": {
+                  "yaw": 3.0
+                },
+                "scale_linear": {
+                  "x": 2.0
+                }
+              }
+            },
             "/**/sidewalk_follow": {
               "ros__parameters": {
                 "forward_speed_meters_per_second": 0.5,
@@ -1002,6 +1012,16 @@
                 "steer_gain": 2.0
               }
             },
+            "/**/rc_receiver_teleop": {
+              "ros__parameters": {
+                "scale_angular": {
+                  "yaw": 3.0
+                },
+                "scale_linear": {
+                  "x": 2.0
+                }
+              }
+            },
             "/**/sidewalk_follow": {
               "ros__parameters": {
                 "forward_speed_meters_per_second": 0.5,
@@ -1073,6 +1093,16 @@
                 "max_forward_speed_meters_per_second": 2.0,
                 "max_missing_frames": 8,
                 "steer_gain": 2.0
+              }
+            },
+            "/**/rc_receiver_teleop": {
+              "ros__parameters": {
+                "scale_angular": {
+                  "yaw": 3.0
+                },
+                "scale_linear": {
+                  "x": 2.0
+                }
               }
             },
             "/**/sidewalk_follow": {
@@ -1154,6 +1184,16 @@
                 "steer_gain": 2.0
               }
             },
+            "/**/rc_receiver_teleop": {
+              "ros__parameters": {
+                "scale_angular": {
+                  "yaw": 3.0
+                },
+                "scale_linear": {
+                  "x": 2.0
+                }
+              }
+            },
             "/**/sidewalk_follow": {
               "ros__parameters": {
                 "forward_speed_meters_per_second": 0.5,
@@ -1232,6 +1272,16 @@
                 "max_forward_speed_meters_per_second": 2.0,
                 "max_missing_frames": 8,
                 "steer_gain": 2.0
+              }
+            },
+            "/**/rc_receiver_teleop": {
+              "ros__parameters": {
+                "scale_angular": {
+                  "yaw": 3.0
+                },
+                "scale_linear": {
+                  "x": 2.0
+                }
               }
             },
             "/**/sidewalk_follow": {
@@ -1979,6 +2029,16 @@
                 "steer_gain": 2.0
               }
             },
+            "/**/rc_receiver_teleop": {
+              "ros__parameters": {
+                "scale_angular": {
+                  "yaw": 3.0
+                },
+                "scale_linear": {
+                  "x": 2.0
+                }
+              }
+            },
             "/**/sidewalk_follow": {
               "ros__parameters": {
                 "forward_speed_meters_per_second": 0.5,
@@ -2086,6 +2146,16 @@
                 "steer_gain": 2.0
               }
             },
+            "/**/rc_receiver_teleop": {
+              "ros__parameters": {
+                "scale_angular": {
+                  "yaw": 3.0
+                },
+                "scale_linear": {
+                  "x": 2.0
+                }
+              }
+            },
             "/**/sidewalk_follow": {
               "ros__parameters": {
                 "forward_speed_meters_per_second": 0.5,
@@ -2185,6 +2255,16 @@
                 "max_forward_speed_meters_per_second": 2.0,
                 "max_missing_frames": 8,
                 "steer_gain": 2.0
+              }
+            },
+            "/**/rc_receiver_teleop": {
+              "ros__parameters": {
+                "scale_angular": {
+                  "yaw": 3.0
+                },
+                "scale_linear": {
+                  "x": 2.0
+                }
               }
             },
             "/**/sidewalk_follow": {
@@ -2288,6 +2368,16 @@
                 "steer_gain": 2.0
               }
             },
+            "/**/rc_receiver_teleop": {
+              "ros__parameters": {
+                "scale_angular": {
+                  "yaw": 3.0
+                },
+                "scale_linear": {
+                  "x": 2.0
+                }
+              }
+            },
             "/**/sidewalk_follow": {
               "ros__parameters": {
                 "forward_speed_meters_per_second": 0.5,
@@ -2389,6 +2479,16 @@
                 "max_forward_speed_meters_per_second": 2.0,
                 "max_missing_frames": 8,
                 "steer_gain": 2.0
+              }
+            },
+            "/**/rc_receiver_teleop": {
+              "ros__parameters": {
+                "scale_angular": {
+                  "yaw": 3.0
+                },
+                "scale_linear": {
+                  "x": 2.0
+                }
               }
             },
             "/**/sidewalk_follow": {

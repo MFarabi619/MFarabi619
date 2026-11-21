@@ -68,6 +68,11 @@ behaviors:
   park_path_follow: true
   path_follow: true
 ros_parameters:
+  rc_receiver_teleop:
+    scale_linear:
+      x: 2.0
+    scale_angular:
+      yaw: 3.0
   person_detector:
     max_detections_per_second: 30.0
     model_path: ssd_mobilenet_v1_12_int8.onnx
