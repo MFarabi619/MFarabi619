@@ -26,10 +26,18 @@
         trusted = true;
         name = "osrf/simulation";
       }
+      {
+        trusted = true;
+        name = "PX4/px4";
+      }
       # "quickemu-project/quickemu"
     ];
 
     brews = [
+      "px4-dev"
+      "px4-sim-gazebo"
+    ]
+    ++ [
       "zig"
       "pixi"
       "rustup" # rustup toolchain link system "$(brew --prefix rust)"
