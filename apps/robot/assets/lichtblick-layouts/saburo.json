@@ -1,0 +1,549 @@
+{
+  "configById": {
+    "Image!3mnp456": {
+      "cameraState": {
+        "distance": 20,
+        "perspective": true,
+        "phi": 60,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOffset": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "thetaOffset": 45,
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "scene": {},
+      "transforms": {},
+      "topics": {
+        "/taro/perception/vision/scene": {
+          "visible": false
+        },
+        "/saburo/perception/vision/scene": {
+          "visible": false
+        }
+      },
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {
+        "imageTopic": "/saburo/sensors/camera_0/color/image_raw/compressed",
+        "annotations": {
+          "/taro/perception/vision/overlay": {
+            "visible": true
+          },
+          "/taro/perception/canopy/overlay": {
+            "visible": true
+          },
+          "/jiro/perception/vision/overlay": {
+            "visible": false
+          },
+          "/saburo/perception/vision/overlay": {
+            "visible": true
+          }
+        },
+        "calibrationTopic": "/saburo/sensors/camera_0/color/camera_info"
+      }
+    },
+    "map!4lcaf27": {
+      "center": {
+        "lat": 45.31902890325555,
+        "lon": -75.75591981410982
+      },
+      "customTileUrl": "",
+      "disabledTopics": [],
+      "followTopic": "/saburo/sensors/gps_0/fix",
+      "layer": "satellite",
+      "topicColors": {
+        "/taro/sensors/gps_0/fix": "#ff0000",
+        "/saburo/sensors/gps_0/fix": "#ff0000",
+        "/saburo/sensors/gps_0/filtered": "#e0f504"
+      },
+      "zoomLevel": 14,
+      "maxNativeZoom": 18
+    },
+    "DiagnosticSummary!163v0uz": {
+      "minLevel": 0,
+      "pinnedIds": [],
+      "hardwareIdFilter": "",
+      "topicToRender": "/diagnostics",
+      "sortByLevel": true
+    },
+    "RawMessages!3nj3nph": {
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "showFullMessageForDiff": false,
+      "topicPath": "/foxglove_bridge/sysinfo",
+      "expansion": "none"
+    },
+    "Plot!z7i990": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/foxglove_bridge/sysinfo.process_cpu_percent",
+          "enabled": true
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": false,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 240
+    },
+    "Image!2enw6xo": {
+      "cameraState": {
+        "distance": 20,
+        "perspective": true,
+        "phi": 60,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOffset": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "thetaOffset": 45,
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "scene": {},
+      "transforms": {},
+      "topics": {
+        "/taro/perception/vision/scene": {
+          "visible": false
+        }
+      },
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {
+        "imageTopic": "/saburo/sensors/camera_0/depth/image_view",
+        "annotations": {
+          "/taro/perception/vision/overlay": {
+            "visible": true
+          },
+          "/taro/perception/canopy/overlay": {
+            "visible": true
+          },
+          "/jiro/perception/vision/overlay": {
+            "visible": false
+          }
+        },
+        "calibrationTopic": "/saburo/sensors/camera_0/depth/camera_info"
+      }
+    },
+    "3D!2g5suuk": {
+      "cameraState": {
+        "perspective": true,
+        "distance": 3.321667679746364,
+        "phi": 63.86757936446932,
+        "thetaOffset": 134.83031201825753,
+        "targetOffset": [
+          0.5515040372420927,
+          -0.08890762246854919,
+          -0.029215865099203098
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "scene": {
+        "ignoreColladaUpAxis": false,
+        "meshUpAxis": "z_up"
+      },
+      "transforms": {
+        "frame:base_link": {
+          "visible": false
+        },
+        "frame:odom": {
+          "visible": false
+        },
+        "frame:rear_left_wheel_link": {
+          "visible": false
+        },
+        "frame:rear_left_motor_link": {
+          "visible": false
+        },
+        "frame:rear_right_wheel_link": {
+          "visible": false
+        },
+        "frame:rear_right_motor_link": {
+          "visible": false
+        },
+        "frame:base_footprint": {
+          "visible": false
+        },
+        "frame:front_left_caster_link": {
+          "visible": false
+        },
+        "frame:front_right_caster_link": {
+          "visible": false
+        },
+        "frame:chassis": {
+          "visible": false
+        },
+        "frame:rear_left_mount_link": {
+          "visible": false
+        },
+        "frame:rear_right_mount_link": {
+          "visible": false
+        },
+        "frame:inertial_link": {
+          "visible": false
+        },
+        "frame:camera_0_link": {
+          "visible": false
+        },
+        "frame:camera_0_color_optical_frame": {
+          "visible": false
+        },
+        "frame:gps_link": {
+          "visible": false
+        },
+        "frame:front_left_wheel_link": {
+          "visible": false
+        },
+        "frame:front_right_wheel_link": {
+          "visible": false
+        },
+        "frame:arm_base_link": {
+          "visible": false
+        },
+        "frame:arm_end_effector_link": {
+          "visible": false
+        },
+        "frame:arm_wrist_interface_link": {
+          "visible": false
+        },
+        "frame:arm_flange_adapter_link": {
+          "visible": false
+        },
+        "frame:arm_gripper_mount_link": {
+          "visible": false
+        },
+        "frame:arm_robotiq_85_base_link": {
+          "visible": false
+        },
+        "frame:arm_robotiq_85_left_finger_link": {
+          "visible": false
+        },
+        "frame:arm_robotiq_85_left_knuckle_link": {
+          "visible": false
+        },
+        "frame:arm_robotiq_85_right_finger_link": {
+          "visible": false
+        },
+        "frame:arm_robotiq_85_right_knuckle_link": {
+          "visible": false
+        },
+        "frame:arm_shoulder_link": {
+          "visible": false
+        },
+        "frame:arm_arm_link": {
+          "visible": false
+        },
+        "frame:arm_forearm_link": {
+          "visible": false
+        },
+        "frame:arm_lower_wrist_link": {
+          "visible": false
+        },
+        "frame:arm_upper_wrist_link": {
+          "visible": false
+        },
+        "frame:arm_robotiq_85_left_inner_knuckle_link": {
+          "visible": false
+        },
+        "frame:arm_robotiq_85_right_inner_knuckle_link": {
+          "visible": false
+        },
+        "frame:arm_robotiq_85_left_finger_tip_link": {
+          "visible": false
+        },
+        "frame:arm_robotiq_85_right_finger_tip_link": {
+          "visible": false
+        },
+        "frame:arm_0_base_link": {
+          "visible": false
+        },
+        "frame:arm_0_end_effector_link": {
+          "visible": false
+        },
+        "frame:arm_0_wrist_interface_link": {
+          "visible": false
+        },
+        "frame:arm_0_flange_adapter_link": {
+          "visible": false
+        },
+        "frame:arm_0_gripper_mount_link": {
+          "visible": false
+        },
+        "frame:arm_0_robotiq_85_base_link": {
+          "visible": false
+        },
+        "frame:arm_0_robotiq_85_left_finger_link": {
+          "visible": false
+        },
+        "frame:arm_0_robotiq_85_left_knuckle_link": {
+          "visible": false
+        },
+        "frame:arm_0_robotiq_85_right_finger_link": {
+          "visible": false
+        },
+        "frame:arm_0_robotiq_85_right_knuckle_link": {
+          "visible": false
+        },
+        "frame:arm_0_shoulder_link": {
+          "visible": false
+        },
+        "frame:arm_0_arm_link": {
+          "visible": false
+        },
+        "frame:arm_0_forearm_link": {
+          "visible": false
+        },
+        "frame:arm_0_lower_wrist_link": {
+          "visible": false
+        },
+        "frame:arm_0_upper_wrist_link": {
+          "visible": false
+        },
+        "frame:arm_0_robotiq_85_left_inner_knuckle_link": {
+          "visible": false
+        },
+        "frame:arm_0_robotiq_85_right_inner_knuckle_link": {
+          "visible": false
+        },
+        "frame:arm_0_robotiq_85_left_finger_tip_link": {
+          "visible": false
+        },
+        "frame:arm_0_robotiq_85_right_finger_tip_link": {
+          "visible": false
+        },
+        "frame:camera_0_left_camera_frame_optical": {
+          "visible": false
+        },
+        "frame:camera_0_baro_link": {
+          "visible": false
+        },
+        "frame:camera_0_camera_center": {
+          "visible": false
+        },
+        "frame:camera_0_camera_link": {
+          "visible": false
+        },
+        "frame:camera_0_left_camera_frame": {
+          "visible": false
+        },
+        "frame:camera_0_mag_link": {
+          "visible": false
+        },
+        "frame:camera_0_right_camera_frame": {
+          "visible": false
+        },
+        "frame:camera_0_right_camera_frame_optical": {
+          "visible": false
+        },
+        "frame:camera_0_temp_left_link": {
+          "visible": false
+        },
+        "frame:camera_0_temp_right_link": {
+          "visible": false
+        },
+        "frame:map": {
+          "visible": false
+        }
+      },
+      "topics": {
+        "/taro/sensors/camera_0/color/camera_info": {
+          "visible": true
+        },
+        "/taro/sensors/camera_0/color/image_raw/compressed": {
+          "visible": true,
+          "cameraInfoTopic": "/taro/sensors/camera_0/color/camera_info"
+        },
+        "/taro/perception/vision/scene": {
+          "visible": true
+        },
+        "/taro/sensors/camera_0/depth/camera_info": {
+          "visible": false
+        },
+        "/taro/perception/canopy/mask/compressed": {
+          "visible": false
+        },
+        "/jiro/sensors/camera_0/depth/camera_info": {
+          "visible": false
+        },
+        "/jiro/sensors/camera_0/depth/image_raw": {
+          "visible": false
+        },
+        "/jiro/sensors/camera_0/color/image_raw/compressed": {
+          "visible": true,
+          "cameraInfoTopic": "/jiro/sensors/camera_0/color/camera_info"
+        },
+        "/jiro/sensors/camera_0/color/camera_info": {
+          "visible": true
+        },
+        "/saburo/sensors/camera_0/color/camera_info": {
+          "visible": true
+        },
+        "/saburo/sensors/camera_0/color/image_raw/compressed": {
+          "visible": true,
+          "cameraInfoTopic": "/saburo/sensors/camera_0/color/camera_info"
+        }
+      },
+      "layers": {
+        "097e1ec8-946d-4cc6-a12b-cd417b41e767": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "URDF",
+          "instanceId": "097e1ec8-946d-4cc6-a12b-cd417b41e767",
+          "layerId": "foxglove.Urdf",
+          "sourceType": "topic",
+          "url": "",
+          "filePath": "",
+          "parameter": "",
+          "topic": "/saburo/robot_description",
+          "framePrefix": "",
+          "displayMode": "visual",
+          "fallbackColor": "#ffffff",
+          "order": 1
+        },
+        "4095fe7f-ebba-4c69-845e-888435bb2065": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "Grid",
+          "instanceId": "4095fe7f-ebba-4c69-845e-888435bb2065",
+          "layerId": "foxglove.Grid",
+          "size": 10,
+          "divisions": 10,
+          "lineWidth": 1,
+          "color": "#248eff",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "order": 2
+        }
+      },
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "foxglove-teleop-twist-keyboard.Teleop Twist!d15o77": {
+      "publishRate": 5,
+      "maxLinearSpeed": 2.3,
+      "maxAngularSpeed": 2,
+      "topic": "/saburo/platform/cmd_vel",
+      "messageSchema": "geometry_msgs/msg/TwistStamped"
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {},
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": {
+    "first": {
+      "first": "Image!3mnp456",
+      "second": {
+        "first": "map!4lcaf27",
+        "second": {
+          "first": "DiagnosticSummary!163v0uz",
+          "second": {
+            "first": "RawMessages!3nj3nph",
+            "second": "Plot!z7i990",
+            "direction": "row",
+            "splitPercentage": 51.985317063931305
+          },
+          "direction": "column"
+        },
+        "direction": "row",
+        "splitPercentage": 37.366769910232414
+      },
+      "direction": "row",
+      "splitPercentage": 44.61805555555556
+    },
+    "second": {
+      "first": {
+        "first": "Image!2enw6xo",
+        "second": "3D!2g5suuk",
+        "direction": "row",
+        "splitPercentage": 58.0521076268576
+      },
+      "second": "foxglove-teleop-twist-keyboard.Teleop Twist!d15o77",
+      "direction": "row",
+      "splitPercentage": 76.73611111111111
+    },
+    "direction": "column",
+    "splitPercentage": 60.68109368466262
+  }
+}
