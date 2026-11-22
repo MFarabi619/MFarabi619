@@ -102,7 +102,7 @@ patches:
           Logger .warn() -> .warning(); rclpy on lyrical dropped the alias.
 
     - path: lichtblick.patch
-      sha256sum: 680e75533978f05bbe3f21fcd2b31aa3cd19c777c3211ad9831c94714ffb2945
+      sha256sum: 70dcfca9bd85241696e7b73e68037aae1497e88899970998f3e4315485974d15
       module: vendor/lichtblick
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com

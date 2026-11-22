@@ -1,8 +1,8 @@
 diff --git a/.gitignore b/.gitignore
-index 532b6a058..a5760f57f 100644
+index 4437743cc..4fc134166 100644
 --- a/.gitignore
 +++ b/.gitignore
-@@ -33,3 +33,14 @@ test-results/*
+@@ -37,3 +37,14 @@ test-results/*
  .scannerwork
  eslint-report.json
  blob-report/*
@@ -3281,14 +3281,14 @@ index 000000000..68616a49c
 +  nixpkgs:
 +    url: github:cachix/devenv-nixpkgs/rolling
 diff --git a/package.json b/package.json
-index 1d14de7f1..6c7f7caf3 100644
+index ce57a83f6..5281bba0c 100644
 --- a/package.json
 +++ b/package.json
 @@ -20,6 +20,7 @@
      "node": ">=20"
    },
    "scripts": {
-+    "serve": "bunx serve web/.webpack -l tcp://0.0.0.0:3000",
++    "serve": "bunx serve web/.webpack -l tcp://0.0.0.0:3001",
      "clean": "bash ci/clean-build.sh",
      "build:packages": "tsc --build --verbose packages/*/tsconfig.json packages/*/src/*/tsconfig.json",
      "desktop:build:dev": "webpack --mode development --progress --config desktop/webpack.config.ts",
@@ -3297,12 +3297,12 @@ index 1d14de7f1..6c7f7caf3 100644
      "web:build:dev": "webpack --mode development --progress --config web/webpack.config.ts",
      "web:build:prod": "webpack --mode production --progress --config web/webpack.config.ts",
 -    "web:serve": "webpack serve --mode development --progress --config web/webpack.config.ts",
-+    "web:serve": "webpack serve --mode development --progress --config web/webpack.config.ts --host 0.0.0.0 --port 3000",
++    "web:serve": "webpack serve --mode development --progress --config web/webpack.config.ts --host 0.0.0.0 --port 3001",
      "benchmark:serve": "webpack serve --mode development --progress --config benchmark/webpack.config.ts",
      "benchmark:build:prod": "webpack --mode production --progress --config benchmark/webpack.config.ts",
-     "license-check": "ts-node ci/license-check.ts",
+     "benchmark:desktop:build:dev": "webpack --mode development --progress --config benchmark/webpack.desktop.config.ts",
 diff --git a/packages/suite-base/src/App.tsx b/packages/suite-base/src/App.tsx
-index 828b2a222..b7bfd58bd 100644
+index 910889415..f91c34105 100644
 --- a/packages/suite-base/src/App.tsx
 +++ b/packages/suite-base/src/App.tsx
 @@ -50,6 +50,7 @@ export type AppProps = CustomWindowControlsProps & {
@@ -3362,10 +3362,10 @@ index a4d4f092c..e7da6eed9 100644
        onAppBarDoubleClick,
      ],
 diff --git a/packages/suite-base/src/StudioApp.tsx b/packages/suite-base/src/StudioApp.tsx
-index 268dc8285..af118c00f 100644
+index 629099d4e..c849c383f 100644
 --- a/packages/suite-base/src/StudioApp.tsx
 +++ b/packages/suite-base/src/StudioApp.tsx
-@@ -51,6 +51,7 @@ export function StudioApp(): React.JSX.Element {
+@@ -53,6 +53,7 @@ export function StudioApp(): React.JSX.Element {
    const {
      dataSources,
      extensionLoaders,
@@ -3373,7 +3373,7 @@ index 268dc8285..af118c00f 100644
      nativeAppMenu,
      nativeWindow,
      deepLinks,
-@@ -66,7 +67,10 @@ export function StudioApp(): React.JSX.Element {
+@@ -68,7 +69,10 @@ export function StudioApp(): React.JSX.Element {
      /* eslint-disable react/jsx-key */
      <TimelineInteractionStateProvider />,
      <ExtensionMarketplaceProvider />,
@@ -6462,7 +6462,7 @@ index 2c7f9019b..2c8ff9d14 100644
    nativeWindow?: INativeWindow;
    enableLaunchPreferenceScreen?: boolean;
 diff --git a/packages/suite-base/src/i18n/en/openDialog.ts b/packages/suite-base/src/i18n/en/openDialog.ts
-index 2e6e01a38..72dca28ff 100644
+index 15c283370..91faa52f0 100644
 --- a/packages/suite-base/src/i18n/en/openDialog.ts
 +++ b/packages/suite-base/src/i18n/en/openDialog.ts
 @@ -17,7 +17,7 @@ export const openDialog = {
