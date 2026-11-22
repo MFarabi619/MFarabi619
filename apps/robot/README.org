@@ -4,6 +4,213 @@ WIP.
 
 Install [[https://pixi.prefix.dev/latest/][Pixi]].
 
+*** [[https://developer.nvidia.com/embedded/jetpack][NVIDIA Jetson Orin]] (JetPack 7.2.1, L4T R39.2.1, Ubuntu 24.04)
+
+| Module         | Module ID  | Recovery USB ID | Boot storage        | Flash target                    | Hostname           |
+|----------------+------------+-----------------+---------------------+---------------------------------+--------------------|
+| Orin Nano 8 GB | P3767-0005 | =0955:7523=     | microSD 64 GB+      | =jetson-orin-nano-devkit=       | =jetson-orin-nano= |
+| Orin NX 16 GB  | P3767-0000 | =0955:7323=     | NVMe M.2 2280 M-key | =jetson-orin-nano-devkit-super= | =jetson-orin-nx=   |
+
+Both on the P3768 carrier. The bootloader is in module QSPI; only a recovery-mode
+flash from x86_64 Linux writes it.
+
+**** Flash from framework-desktop
+
+Power off, seat the SD card or NVMe, jumper REC to GND on the button header,
+USB-C to framework-desktop, power on. =lsusb= shows the Recovery USB ID.
+
+#+BEGIN_SRC sh
+mkdir -p ~/workspace/jetson-flash/{tmp,images}
+curl -L -o ~/workspace/jetson-flash/Jetson_Linux_r39.2.1_aarch64.tbz2 \
+    https://developer.nvidia.com/downloads/embedded/l4t/r39_release_v2.1/release/Jetson_Linux_r39.2.1_aarch64.tbz2
+curl -L -o ~/workspace/jetson-flash/Tegra_Linux_Sample-Root-Filesystem_r39.2.1_aarch64.tbz2 \
+    https://developer.nvidia.com/downloads/embedded/l4t/r39_release_v2.1/release/Tegra_Linux_Sample-Root-Filesystem_r39.2.1_aarch64.tbz2
+#+END_SRC
+
+#+BEGIN_SRC dockerfile ~/workspace/jetson-flash/Dockerfile
+FROM ubuntu:22.04
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y sudo bzip2 ca-certificates
+COPY Jetson_Linux_r39.2.1_aarch64.tbz2 Tegra_Linux_Sample-Root-Filesystem_r39.2.1_aarch64.tbz2 /work/
+WORKDIR /work
+RUN tar xf Jetson_Linux_r39.2.1_aarch64.tbz2 \
+ && tar xpf Tegra_Linux_Sample-Root-Filesystem_r39.2.1_aarch64.tbz2 -C Linux_for_Tegra/rootfs/
+WORKDIR /work/Linux_for_Tegra
+RUN ./tools/l4t_flash_prerequisites.sh
+RUN mkdir -p rootfs/run/binfmt \
+ && cp /usr/bin/qemu-aarch64-static rootfs/run/binfmt/aarch64-linux \
+ && ./apply_binaries.sh \
+ && rm -rf rootfs/run/binfmt
+#+END_SRC
+
+#+BEGIN_SRC sh
+docker build -t jetson-flash ~/workspace/jetson-flash
+#+END_SRC
+
+Host temporaries, gone at reboot:
+
+#+BEGIN_SRC sh
+sudo modprobe nfsd
+sudo mkdir -p /run/udev/rules.d
+echo 'ACTION=="add", SUBSYSTEM=="net", ATTRS{idVendor}=="0955", ENV{NM_UNMANAGED}="1"' \
+    | sudo tee /run/udev/rules.d/90-jetson-flash-nm-unmanaged.rules
+sudo udevadm control --reload
+sudo iptables  -I INPUT 1 -s 192.168.55.0/24 -m comment --comment jetson-flash -j ACCEPT
+sudo ip6tables -I INPUT 1 -s fc00:1:1::/48  -m comment --comment jetson-flash -j ACCEPT
+sudo ip6tables -I INPUT 1 -s fe80::/10      -m comment --comment jetson-flash -j ACCEPT
+#+END_SRC
+
+Flash target from the table; the SD card adds =--external-device mmcblk0p1=:
+
+#+BEGIN_SRC sh
+docker run -it --rm --name jetson-flash-run --privileged --network host -e USER=root \
+    -v /dev/bus/usb:/dev/bus/usb -v /dev:/dev -v /run/rpcbind.sock:/run/rpcbind.sock \
+    -v ~/workspace/jetson-flash/tmp:/work/Linux_for_Tegra/tools/kernel_flash/tmp \
+    -v ~/workspace/jetson-flash/images:/work/Linux_for_Tegra/tools/kernel_flash/images \
+    jetson-flash bash -c 'mkdir -p rootfs/run/binfmt \
+      && cp /usr/bin/qemu-aarch64-static rootfs/run/binfmt/aarch64-linux \
+      && exec ./tools/kernel_flash/l4t_initrd_flash.sh --erase-all jetson-orin-nano-devkit-super internal'
+#+END_SRC
+
+Success ends with =Flash is successful= / =Reboot device=. On failure, power cycle
+with the jumper on and rerun.
+
+| Symptom                                         | Cause                                 | Fix                             |
+|-------------------------------------------------+---------------------------------------+---------------------------------|
+| =chroot: failed to run command 'dpkg'= / exit 255 | NixOS binfmt wrapper execs =/nix/store= | emulator copy in the Dockerfile |
+| =requires root privilege= as root                 | script checks =$USER=                   | =-e USER=root=                    |
+| =Not starting NFS kernel daemon: no support=      | =nfsd= not loaded                       | =modprobe nfsd=                   |
+| =does not support NFS export=                   | =exportfs= on an overlay path           | the two bind mounts             |
+| =RPC: Timed out= after =Formatting APP partition=   | NetworkManager reset the USB link     | the udev rule                   |
+| No display, no Linux, recovery works            | dead QSPI bootloader                  | this flash                      |
+
+**** First boot
+
+Jumper off, power cycle, DisplayPort monitor and USB keyboard. The Ubuntu wizard
+asks for the computer name: use the Hostname from the table, it becomes
+=<hostname>.local= on the LAN. If the wizard got another name:
+
+#+BEGIN_SRC sh
+sudo hostnamectl set-hostname jetson-orin-nx
+sudo sed -i 's/^127\.0\.1\.1\s\+.*$/127.0.1.1\tjetson-orin-nx/' /etc/hosts
+#+END_SRC
+
+#+BEGIN_SRC sh
+sudo apt update && sudo apt upgrade -y
+#+END_SRC
+
+=nvidia-l4t-bootloader= applies firmware on the next reboot. Finish Access first,
+then reboot once.
+
+**** Access
+
+#+BEGIN_SRC sh
+ip -br addr
+systemctl is-active ssh || sudo systemctl enable --now ssh
+#+END_SRC
+
+#+BEGIN_SRC sh
+ssh-copy-id mfarabi@jetson-orin-nx.local
+#+END_SRC
+
+Passwordless sudo, so =deploy= runs unattended:
+
+#+BEGIN_SRC sh
+echo 'mfarabi ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/010-mfarabi-nopasswd
+sudo chmod 0440 /etc/sudoers.d/010-mfarabi-nopasswd
+#+END_SRC
+
+
+#+BEGIN_SRC sh
+sudo usermod -aG dialout mfarabi # enable serial device access.
+#+END_SRC
+
+**** Verify JetPack + CUDA
+
+#+BEGIN_SRC sh
+head -1 /etc/nv_tegra_release
+dpkg-query -W -f '${Status}\n' nvidia-jetpack   # want: install ok installed
+test -x /usr/local/cuda/bin/nvcc && /usr/local/cuda/bin/nvcc --version
+#+END_SRC
+
+#+BEGIN_SRC sh
+sudo apt install nvidia-jetpack
+#+END_SRC
+
+**** Unlock MAXN_SUPER + grow swap
+
+| Module         | nvpmodel conf                    | Ships as default | MAXN_SUPER mode | Boot default |
+|----------------+----------------------------------+------------------+-----------------+--------------|
+| Orin Nano 8 GB | =nvpmodel_p3767_0003_super.conf= | no, symlink it   | 2               |              |
+| Orin NX 16 GB  | =nvpmodel_p3767_0000_super.conf= | yes              | 0               | 4 (40W)      |
+
+Orin Nano:
+
+#+BEGIN_SRC sh
+sudo ln -sf /etc/nvpmodel/nvpmodel_p3767_0003_super.conf /etc/nvpmodel.conf
+sudo nvpmodel -m 2
+#+END_SRC
+
+Orin NX:
+
+#+BEGIN_SRC sh
+sudo nvpmodel -m 0
+#+END_SRC
+
+Both:
+
+#+BEGIN_SRC sh
+sudo jetson_clocks   # optional, per-boot
+#+END_SRC
+
+#+BEGIN_SRC sh
+swapon --show | grep -q /swapfile && sudo swapoff /swapfile
+sudo fallocate -l 8G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+grep -q /swapfile /etc/fstab || echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+#+END_SRC
+
+**** Repo + toolchain
+
+#+BEGIN_SRC sh
+git clone https://github.com/MFarabi619/MFarabi619 ~/MFarabi619
+curl -fsSL https://pixi.sh/install.sh | bash
+source ~/.bashrc
+pixi global install west --with jsonschema
+#+END_SRC
+
+#+BEGIN_SRC sh
+cd ~/MFarabi619
+west update
+west pa
+pixi install -m apps/robot
+#+END_SRC
+
+**** Kinova Link 6 ethernet (arm at 192.168.1.10)
+
+#+BEGIN_SRC sh
+sudo nmcli con add type ethernet ifname enP8p1s0 con-name kinova-link-6 \
+    ipv4.method manual ipv4.addresses 192.168.1.11/24 ipv6.method disabled
+ping -c 2 192.168.1.10
+#+END_SRC
+
+**** Stereolabs ZED SDK
+
+=apt upgrade= moves JetPack to 7.2.2 (TensorRT 11); the L4T 39.2 ZED builds link
+TensorRT 10. Install the 10 runtime beside 11 first or the AI module is skipped:
+
+#+BEGIN_SRC sh
+sudo apt install libnvinfer10 libnvinfer-plugin10 libnvonnxparsers10 libnvinfer-dispatch10 libnvinfer-lean10
+#+END_SRC
+
+#+BEGIN_SRC sh
+curl -L -o ~/Downloads/zed-sdk-l4t39.2.run https://download.stereolabs.com/zedsdk/5.6/l4t39.2/jetsons
+chmod +x ~/Downloads/zed-sdk-l4t39.2.run
+~/Downloads/zed-sdk-l4t39.2.run -- silent
+#+END_SRC
+
 *** Remote GPIO
 
 **** [[https://www.beagleboard.org/boards/beagley-ai][BeagleY-AI]]
@@ -59,86 +266,4 @@ sudo apt install -y gpsd gpsd-clients
 #+BEGIN_SRC sh
 sudo systemctl enable --now gpsd.socket
 cgps
-#+END_SRC
-
-*** [[https://developer.nvidia.com/embedded/jetpack][NVIDIA Jetson Orin Nano]] (JetPack 7.2.1, L4T R39.2.1, Ubuntu 24.04)
-
-**** Access
-
-#+BEGIN_SRC sh
-ssh-copy-id mfarabi@jetson-orin-nano.local
-#+END_SRC
-
-Passwordless sudo, so =deploy= runs unattended:
-
-#+BEGIN_SRC sh
-echo 'mfarabi ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/010-mfarabi-nopasswd
-sudo chmod 0440 /etc/sudoers.d/010-mfarabi-nopasswd
-#+END_SRC
-
-Serial device access — Ubuntu does not add users to =dialout= (Raspberry Pi
-OS does), so without this the Roboteq driver crash-loops on =Permission denied=:
-
-#+BEGIN_SRC sh
-sudo usermod -aG dialout mfarabi
-#+END_SRC
-
-**** Verify JetPack + CUDA
-
-#+BEGIN_SRC sh
-head -1 /etc/nv_tegra_release
-dpkg-query -W -f '${Status}\n' nvidia-jetpack   # want: install ok installed
-test -x /usr/local/cuda/bin/nvcc && /usr/local/cuda/bin/nvcc --version
-#+END_SRC
-
-#+BEGIN_SRC sh
-sudo apt install nvidia-jetpack   # if missing; CUDA 13.2 + cuDNN + TensorRT
-#+END_SRC
-
-**** Unlock MAXN_SUPER + grow swap
-
-#+BEGIN_SRC sh
-sudo ln -sf /etc/nvpmodel/nvpmodel_p3767_0003_super.conf /etc/nvpmodel.conf
-sudo nvpmodel -m 2
-sudo jetson_clocks   # optional, per-boot
-#+END_SRC
-
-#+BEGIN_SRC sh
-sudo swapoff /swapfile
-sudo fallocate -l 8G /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
-#+END_SRC
-
-**** Repo + toolchain
-
-#+BEGIN_SRC sh
-git clone https://github.com/MFarabi619/MFarabi619 ~/MFarabi619
-curl -fsSL https://pixi.sh/install.sh | bash
-pixi global install west --with jsonschema
-#+END_SRC
-
-#+BEGIN_SRC sh
-cd ~/MFarabi619
-west update better_launch ros2_link6 cartesian_controllers ros2_robotiq_gripper picknik_controllers serial play_motion2 mujoco_ros2_control
-west update zephyr   # provides the `west patch` extension
-west pa
-pixi install -m apps/robot
-#+END_SRC
-
-**** Kinova Link 6 ethernet (arm at 192.168.1.10)
-
-#+BEGIN_SRC sh
-sudo nmcli con add type ethernet ifname enP8p1s0 con-name kinova-link-6 \
-    ipv4.method manual ipv4.addresses 192.168.1.11/24 ipv6.method disabled
-ping -c 2 192.168.1.10
-#+END_SRC
-
-**** ZED SDK (ZED 2 over USB 3)
-
-#+BEGIN_SRC sh
-curl -L -o ~/Downloads/ZED_SDK_Tegra_L4T39.2_v5.5.1.zstd.run \
-    https://download.stereolabs.com/zedsdk/5.5/l4t39.2/jetsons
-chmod +x ~/Downloads/ZED_SDK_Tegra_L4T39.2_v5.5.1.zstd.run
-./Downloads/ZED_SDK_Tegra_L4T39.2_v5.5.1.zstd.run   # AI module: yes
 #+END_SRC
