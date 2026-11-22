@@ -205,7 +205,7 @@ def provision(mdns_hostname, machine):
             f' || echo "{PWM_OVERLAY}" | sudo tee -a {FIRMWARE_CONFIG_PATH} >/dev/null')
         ssh(mdns_hostname, 'command -v uhubctl >/dev/null'
             ' || sudo apt-get install -y uhubctl')
-    if machine.board == 'jetson_orin_nano':
+    if machine.board in ('jetson_orin_nano', 'jetson_orin_nx'):
         ssh(mdns_hostname, f'grep -q "{USB_AUTOSUSPEND_OFF}" {EXTLINUX_CONFIG_PATH}'
             f' || sudo sed -i "/^      APPEND / s/$/ {USB_AUTOSUSPEND_OFF}/"'
             f' {EXTLINUX_CONFIG_PATH}')

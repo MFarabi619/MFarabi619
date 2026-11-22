@@ -1,0 +1,5 @@
+pins:
+  32: {gpio_chip: 0, line: 41, line_name: PG.06, pwm_chip: 3, pwm_channel: 0, pwm_name: 32e0000.pwm}
+  33: {gpio_chip: 0, line: 43, line_name: PH.00, pwm_chip: 2, pwm_channel: 0, pwm_name: 32c0000.pwm}
+  36: {gpio_chip: 0, line: 113, line_name: PR.05}
+  37: {gpio_chip: 0, line: 124, line_name: PY.02}
