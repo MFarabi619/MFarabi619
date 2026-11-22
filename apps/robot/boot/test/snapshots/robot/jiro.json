@@ -534,6 +534,10 @@
       "use_sim_time": null
     },
     {
+      "component_remaps": {
+        "/tf": "/jiro/tf",
+        "/tf_static": "/jiro/tf_static"
+      },
       "kind": "compose",
       "language": "cpp",
       "name": "zed_container",

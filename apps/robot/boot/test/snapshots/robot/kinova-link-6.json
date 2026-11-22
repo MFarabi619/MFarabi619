@@ -215,6 +215,10 @@
       "use_sim_time": null
     },
     {
+      "component_remaps": {
+        "/tf": "/tf",
+        "/tf_static": "/tf_static"
+      },
       "kind": "compose",
       "language": "cpp",
       "name": "zed_container",

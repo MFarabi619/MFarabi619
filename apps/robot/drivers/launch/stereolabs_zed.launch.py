@@ -78,7 +78,8 @@ def stereolabs_zed(
         'svo': {'svo_path': 'live'},
     })
     with bl.group(f'sensors/{camera}'):
-        with bl.compose('zed_container', variant='multithreading'):
+        with bl.compose(
+                'zed_container', variant='multithreading', component_remaps=robot_tf_remaps):
             bl.component(
                 'zed_components', 'stereolabs::ZedCamera', 'zed_node',
                 params=parameters,

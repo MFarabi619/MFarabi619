@@ -500,6 +500,10 @@
       "use_sim_time": null
     },
     {
+      "component_remaps": {
+        "/tf": "/saburo/tf",
+        "/tf_static": "/saburo/tf_static"
+      },
       "kind": "compose",
       "language": "cpp",
       "name": "zed_container",
