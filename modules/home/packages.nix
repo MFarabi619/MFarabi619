@@ -99,6 +99,7 @@
             jinja2
             pandas
             pyyaml
+            packaging
             dtc
             west
             tqdm
