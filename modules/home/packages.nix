@@ -94,6 +94,7 @@
           with package;
           [
             toml
+            empy
             dtc
             west
             tqdm
