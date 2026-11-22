@@ -98,6 +98,7 @@
             numpy
             jinja2
             pandas
+            pyyaml
             dtc
             west
             tqdm
