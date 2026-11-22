@@ -89,6 +89,11 @@ def stereolabs_zed(
                     '~/image/depth_image': 'depth/image_view',
                     '~/obj_det/objects': 'objects',
                     '~/imu/data': 'imu/data',
+                    '~/imu/mag': 'imu/mag',
+                    '~/atm_press': 'air_pressure',
+                    '~/temperature/imu': 'temperature/imu',
+                    '~/temperature/left': 'temperature/left',
+                    '~/temperature/right': 'temperature/right',
                 },
             )
     robot_state_publisher(

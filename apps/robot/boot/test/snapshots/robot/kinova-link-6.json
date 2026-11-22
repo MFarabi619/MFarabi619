@@ -469,12 +469,17 @@
       "remaps": {
         "/tf": "/tf",
         "/tf_static": "/tf_static",
+        "~/atm_press": "air_pressure",
         "~/depth/depth_registered": "depth/image_raw",
         "~/image/depth_image": "depth/image_view",
         "~/imu/data": "imu/data",
+        "~/imu/mag": "imu/mag",
         "~/obj_det/objects": "objects",
         "~/point_cloud/cloud_registered": "depth/points",
-        "~/rgb/color/rect/image": "color/image_raw"
+        "~/rgb/color/rect/image": "color/image_raw",
+        "~/temperature/imu": "temperature/imu",
+        "~/temperature/left": "temperature/left",
+        "~/temperature/right": "temperature/right"
       }
     },
     {

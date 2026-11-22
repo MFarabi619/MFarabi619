@@ -12,6 +12,7 @@
       - '(/[^/]+)?/sensors/camera_[0-9]+/depth/points$'
       - '(/[^/]+)?/sensors/camera_[0-9]+/scan$'
       - '(/[^/]+)?/sensors/camera_[0-9]+/imu/data$'
+      - '(/[^/]+)?/sensors/camera_[0-9]+/(imu/mag|air_pressure|temperature/(imu|left|right))$'
       - '(/[^/]+)?/sensors/(gps|imu)_[0-9]+/.*'
       - '(/[^/]+)?/perception/.*'
       - '(/[^/]+)?/platform/.*'
