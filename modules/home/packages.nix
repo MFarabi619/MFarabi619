@@ -93,6 +93,7 @@
           package:
           with package;
           [
+            toml
             dtc
             west
             tqdm
