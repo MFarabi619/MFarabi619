@@ -96,6 +96,7 @@
             toml
             empy
             numpy
+            jinja2
             dtc
             west
             tqdm
