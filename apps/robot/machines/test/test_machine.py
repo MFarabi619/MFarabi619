@@ -78,11 +78,18 @@ def test_sensors_are_named_by_index(tmp_path):
     assert [camera.name for camera in cameras] == ['camera_0', 'camera_1']
 
 
-def test_depth_camera_prefers_oak_then_orbbec_then_zed():
-    assert load_machine('jiro').depth_camera.model == 'luxonis_oak_d_pro_w_poe'
-    assert load_machine('taro').depth_camera.model == 'orbbec_gemini_335l'
-    assert load_machine('kinova-link-6').depth_camera.model == 'stereolabs_zed'
-    assert load_machine('pocketbeagle-2').depth_camera is None
+def test_depth_camera_prefers_oak_then_orbbec_then_zed(tmp_path):
+    zed = '    - {model: stereolabs_zed}\n'
+    orbbec = '    - {model: orbbec_gemini_335l, parameters: {enable_depth: true}}\n'
+    oak = '    - {model: luxonis_oak_d_pro_w_poe}\n'
+    write_machine(tmp_path, 'all', 'sensors:\n  camera:\n' + zed + orbbec + oak)
+    write_machine(tmp_path, 'no_oak', 'sensors:\n  camera:\n' + zed + orbbec)
+    write_machine(tmp_path, 'zed_only', 'sensors:\n  camera:\n' + zed)
+    write_machine(tmp_path, 'blind', 'sensors:\n  camera: []\n')
+    assert load_machine('all', tmp_path).depth_camera.model == 'luxonis_oak_d_pro_w_poe'
+    assert load_machine('no_oak', tmp_path).depth_camera.model == 'orbbec_gemini_335l'
+    assert load_machine('zed_only', tmp_path).depth_camera.model == 'stereolabs_zed'
+    assert load_machine('blind', tmp_path).depth_camera is None
 
 
 def test_has_on_camera_detector_follows_the_camera_model():

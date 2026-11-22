@@ -3,9 +3,12 @@ system:
   namespace: jiro
   mavlink_system_id: 2
   hosts:
-    - hostname: rpi5-16
-      ip: 0.0.0.0
-      board: rpi_5
+    # - hostname: rpi5-16
+    #   ip: 0.0.0.0
+    #   board: rpi_5
+    - hostname: jetson-orin-nx
+      ip: 10.0.0.57
+      board: jetson_orin_nx
 platform:
   collision_guarded: false
   rc_receiver:
@@ -31,36 +34,64 @@ platform:
       forward_level: false
 sensors:
   camera:
-    - model: luxonis_oak_d_pro_w_poe
-      detects_on_camera: false
+    # - model: luxonis_oak_d_pro_w_poe
+    #   detects_on_camera: false
+    #   parent: base_link
+    #   xyz: [0.35, 0.0, 0.36]
+    #   rpy: [0.0, 0.0, 0.0]
+    #   parameters:
+    #     ip: 169.254.1.222
+    #     depth_frames_per_second: 30.0
+    #     color_frames_per_second: 60.0
+    #     color_resolution_divisor: 2
+    #     depth_resolution_divisor: 4
+    - model: stereolabs_zed
+      urdf_enabled: false
       parent: base_link
       xyz: [0.35, 0.0, 0.36]
       rpy: [0.0, 0.0, 0.0]
       parameters:
-        ip: 169.254.1.222
-        depth_frames_per_second: 30.0
-        color_frames_per_second: 60.0
-        color_resolution_divisor: 2
-        depth_resolution_divisor: 4
+        general:
+          camera_model: zed2i
+          grab_resolution: HD720
+          grab_frame_rate: 30
+          pub_frame_rate: 30.0
+        depth:
+          depth_mode: NEURAL_PLUS
+          depth_stabilization: 0
+          openni_depth_mode: true
+          publish_depth_image: true
+          point_cloud_freq: 15.0
+        object_detection:
+          od_enabled: false
+        pos_tracking:
+          pos_tracking_enabled: false
+          publish_tf: false
+          publish_map_tf: false
+        sensors:
+          publish_imu_tf: false
+          publish_mag: true
+          publish_baro: true
+          publish_temp: true
     # - model: luxonis_oak_d_sr
     #   parent: base_link
     #   xyz: [0.575, 0.5, 0.31]
     #   rpy: [0.0, 0.0, 0.0]
-  gps:
-    - model: ublox_zed_f9p
-      parent: base_link
-      xyz: [0.0, 0.0, 0.30]
-      flash:
-        # Receiver flash asserted by ublox_flash at launch.
-        CFG_RATE_MEAS: 200  # milliseconds between measurements = 5 Hz
-        CFG_RATE_NAV: 1  # navigation solutions per measurement
-      parameters:
-        port: /dev/robot/gnss
-        baud_rate: 115200
-        frame_id: gps_link
-      ntrip:
-        mountpoint: OsgoodeFarms
-        username: farabi@tandemrobotics.ca
+  # gps:
+  #   - model: ublox_zed_f9p
+  #     parent: base_link
+  #     xyz: [0.0, 0.0, 0.30]
+  #     flash:
+  #       # Receiver flash asserted by ublox_flash at launch.
+  #       CFG_RATE_MEAS: 200  # milliseconds between measurements = 5 Hz
+  #       CFG_RATE_NAV: 1  # navigation solutions per measurement
+  #     parameters:
+  #       port: /dev/robot/gnss
+  #       baud_rate: 115200
+  #       frame_id: gps_link
+  #     ntrip:
+  #       mountpoint: OsgoodeFarms
+  #       username: farabi@tandemrobotics.ca
 behaviors:
   gps_navigation: true
   line_follow: true
