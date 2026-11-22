@@ -125,6 +125,25 @@ sudo chmod 0440 /etc/sudoers.d/010-mfarabi-nopasswd
 sudo usermod -aG dialout mfarabi # enable serial device access.
 #+END_SRC
 
+**** Wi-Fi
+
+| Profile          | SSID             | Priority | Retries | Power save |
+|------------------+------------------+----------+---------+------------|
+| =openws-hotspot= | =openws-hotspot= |      100 |       0 | off        |
+| =openws=         | =openws=         |       50 |       0 | off        |
+
+The field hotspot wins whenever it is in range; =openws= is the fallback.
+
+#+BEGIN_SRC sh
+sudo nmcli connection add type wifi ifname wlP1p1s0 con-name openws-hotspot \
+    ssid openws-hotspot wifi-sec.key-mgmt wpa-psk wifi-sec.psk '<password>' \
+    connection.autoconnect-priority 100 connection.autoconnect-retries 0 \
+    802-11-wireless.powersave disable
+sudo nmcli connection modify openws \
+    connection.autoconnect-priority 50 connection.autoconnect-retries 0 \
+    802-11-wireless.powersave disable
+#+END_SRC
+
 **** Verify JetPack + CUDA
 
 #+BEGIN_SRC sh
@@ -198,17 +217,29 @@ ping -c 2 192.168.1.10
 
 **** Stereolabs ZED SDK
 
-=apt upgrade= moves JetPack to 7.2.2 (TensorRT 11); the L4T 39.2 ZED builds link
-TensorRT 10. Install the 10 runtime beside 11 first or the AI module is skipped:
+=apt upgrade= moves JetPack to 7.2.2, which ships TensorRT 11, so use the
+=trt11= [[https://www.stereolabs.com/en-fr/developers/release#NVIDIAJetson][build]]; the plain =l4t39.2= one links TensorRT 10 and skips the AI module.
 
 #+BEGIN_SRC sh
-sudo apt install libnvinfer10 libnvinfer-plugin10 libnvonnxparsers10 libnvinfer-dispatch10 libnvinfer-lean10
+curl -L -o ~/Downloads/zed-sdk-l4t39.2-trt11.run https://download.stereolabs.com/zedsdk/5.6/l4t39.2_trt11/jetsons
+chmod +x ~/Downloads/zed-sdk-l4t39.2-trt11.run
+~/Downloads/zed-sdk-l4t39.2-trt11.run -- silent
 #+END_SRC
 
+**** 40-pin header for the =pwm_dir= drivetrain
+
+| Row             | Set to | Pins used            |
+|-----------------+--------+----------------------|
+| =pwm7=          | pwm    | 32, left motor PWM   |
+| =pwm5=          | pwm    | 33, right motor PWM  |
+| =uarta-cts/rts= | gpio   | 36, left direction   |
+| =spi3=          | gpio   | 37, right direction  |
+
+=Configure Jetson 40pin Header= → =Configure header pins manually=, set the rows
+above, then =Save pin changes= → =Save and reboot to reconfigure pins=:
+
 #+BEGIN_SRC sh
-curl -L -o ~/Downloads/zed-sdk-l4t39.2.run https://download.stereolabs.com/zedsdk/5.6/l4t39.2/jetsons
-chmod +x ~/Downloads/zed-sdk-l4t39.2.run
-~/Downloads/zed-sdk-l4t39.2.run -- silent
+sudo /opt/nvidia/jetson-io/jetson-io.py
 #+END_SRC
 
 *** Remote GPIO
