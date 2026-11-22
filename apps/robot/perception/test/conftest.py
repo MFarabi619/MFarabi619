@@ -117,6 +117,18 @@ def voice_speaker_node(voice_speaker_module):
     node.destroy_node()
 
 
+@pytest.fixture(scope='session')
+def stereolabs_zed_object_overlay_module():
+    return load_module('stereolabs_zed_object_overlay')
+
+
+@pytest.fixture
+def stereolabs_zed_object_overlay_node(stereolabs_zed_object_overlay_module):
+    node = stereolabs_zed_object_overlay_module.StereolabsZedObjectOverlay()
+    yield node
+    node.destroy_node()
+
+
 @pytest.fixture
 def canopy_detector_node():
     node = load_node_class('canopy_detector', 'CanopyDetector')()

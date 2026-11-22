@@ -123,8 +123,10 @@ def stereolabs_zed(
             name='stereolabs_zed_object_overlay',
             params={
                 'objects_topic': f'sensors/{camera}/objects',
+                'camera_info_topic': f'sensors/{camera}/color/camera_info',
                 'detections_topic': 'detections',
                 'overlay_topic': 'perception/vision/overlay',
+                'scene_topic': 'perception/vision/objects',
             },
             **RESPAWN,
         )

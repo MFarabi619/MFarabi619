@@ -548,9 +548,11 @@
       "namespace": "/",
       "package": "robot_perception",
       "params": {
+        "camera_info_topic": "sensors/camera_0/color/camera_info",
         "detections_topic": "detections",
         "objects_topic": "sensors/camera_0/objects",
-        "overlay_topic": "perception/vision/overlay"
+        "overlay_topic": "perception/vision/overlay",
+        "scene_topic": "perception/vision/objects"
       },
       "respawn_delay": 2.0
     },
