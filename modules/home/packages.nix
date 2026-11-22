@@ -97,6 +97,7 @@
             empy
             numpy
             jinja2
+            pandas
             dtc
             west
             tqdm
