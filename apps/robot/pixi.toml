@@ -483,6 +483,18 @@ python manipulation/src/kinova_link6_pick_hardware.py \
     { arg = "joint_speed", default = "30" },
 ] }
 
+arm-wave-hardware = { cmd = """
+python manipulation/src/kinova_link6_pick_hardware.py \
+    --wave \
+    --swings {{ swings }} \
+    --swing-speed {{ swing_speed }} \
+    --joint-speed {{ joint_speed }}\
+""", args = [
+    { arg = "swings", default = "3" },
+    { arg = "swing_speed", default = "200" },
+    { arg = "joint_speed", default = "90" },
+] }
+
 arm-deliver-hardware = { cmd = """
 python manipulation/src/kinova_link6_pick_hardware.py \
     --deliver \

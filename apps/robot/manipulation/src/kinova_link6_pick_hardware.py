@@ -112,7 +112,9 @@ class KinovaLink6Arm:
                 ModeSelection(operating_mode=operating_mode))
             time.sleep(MODE_SETTLE_SECONDS)
 
-    def move_through(self, waypoints_degrees):
+    def move_through(self, waypoints_degrees, joint_speed_degrees_per_second=None):
+        joint_speed_degrees_per_second = (
+            joint_speed_degrees_per_second or self.joint_speed_degrees_per_second)
         waypoint_list = Base_pb2.WaypointList()
         waypoint_list.use_optimal_blending = False
         for index, angles in enumerate(waypoints_degrees):
@@ -120,7 +122,7 @@ class KinovaLink6Arm:
             waypoint.name = f'waypoint_{index}'
             waypoint.angular_waypoint.angles.extend(angles)
             waypoint.angular_waypoint.maximum_velocities.extend(
-                [self.joint_speed_degrees_per_second] * JOINT_COUNT)
+                [joint_speed_degrees_per_second] * JOINT_COUNT)
             waypoint.angular_waypoint.blending = STOP_AT_WAYPOINT_BLENDING
         validation = self.base.ValidateWaypointList(waypoint_list)
         if validation.trajectory_error_report.trajectory_error_elements:
@@ -300,6 +302,19 @@ def run_tour(arm, stops, force, velocity):
     print('toured ' + ' -> '.join(stops))
 
 
+def run_wave(arm, swings, swing_speed_degrees_per_second):
+    poses = load_required_poses('home', 'wave_left', 'wave_right')
+    require_arm_at_home(arm, poses)
+    arm.ensure_operating_mode(OPERATING_MODE_AUTO)
+    arm.flush_stale_actions()
+    arm.move_through([poses['home'], poses['wave_left']])
+    arm.move_through(
+        [poses['wave_right'], poses['wave_left']] * swings,
+        joint_speed_degrees_per_second=swing_speed_degrees_per_second)
+    arm.move_through([poses['home']])
+    print('waved')
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--robot-ip', default='192.168.1.10')
@@ -311,6 +326,9 @@ def main():
     parser.add_argument('--grasp-pose', default='grasp')
     parser.add_argument('--destination', default='dropoff')
     parser.add_argument('--tour', nargs='+')
+    parser.add_argument('--wave', action='store_true')
+    parser.add_argument('--swings', type=int, default=3)
+    parser.add_argument('--swing-speed', type=float, default=60.0)
     parser.add_argument('--force', type=int, default=10)
     parser.add_argument('--velocity', type=int, default=50)
     parser.add_argument('--joint-speed', type=float,
@@ -324,6 +342,8 @@ def main():
             record(arm, arguments.record)
         elif arguments.place:
             run_place(arm, arguments.grasp_pose, arguments.velocity)
+        elif arguments.wave:
+            run_wave(arm, arguments.swings, arguments.swing_speed)
         elif arguments.tour:
             run_tour(arm, arguments.tour, arguments.force,
                      arguments.velocity)
