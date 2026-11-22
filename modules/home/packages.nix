@@ -100,6 +100,9 @@
             pandas
             pyyaml
             packaging
+            kconfiglib
+          ]
+          ++ [
             dtc
             west
             tqdm
