@@ -98,8 +98,3 @@ manifest:
           revision: 2492317f15bcf69787249060a6b16915170cc3a3 # 2026-07-28
           path: zephyrproject/apps
           url: https://github.com/apache/nuttx-apps
-
-        - name: lichtblick
-          revision: c3d6b2f845fbe5259f19e9eb2544b8b966448a6a # v1.28.0-284 (fork base)
-          path: zephyrproject/lichtblick
-          url: https://github.com/lichtblick-suite/lichtblick

@@ -498,11 +498,3 @@ patches:
           face-level thread pool; default false preserves upstream
           behavior). Ported to the 0.9.0 FFI layout from the pre-west
           ~/workspace/cadrum checkout; upstream still hardcodes false.
-
-    - path: lichtblick.patch
-      sha256sum: 680e75533978f05bbe3f21fcd2b31aa3cd19c777c3211ad9831c94714ffb2945
-      module: zephyrproject/lichtblick
-      author: Mumtahin Farabi
-      email: mfarabi619@gmail.com
-      date: 2026-08-01
-      upstreamable: false

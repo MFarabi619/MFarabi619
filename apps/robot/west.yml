@@ -69,3 +69,8 @@ manifest:
           revision: 78db625441e54c5b64efabeb0d886d020961665b # main 2024-01-23
           path: vendor/phenobench-baselines
           url: https://github.com/PRBonn/phenobench-baselines
+
+        - name: lichtblick
+          revision: c3d6b2f845fbe5259f19e9eb2544b8b966448a6a # v1.28.0-284 (fork base)
+          path: vendor/lichtblick
+          url: https://github.com/lichtblick-suite/lichtblick
