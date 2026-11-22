@@ -95,6 +95,7 @@
           [
             toml
             empy
+            numpy
             dtc
             west
             tqdm
