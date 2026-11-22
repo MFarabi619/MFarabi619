@@ -14,36 +14,41 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import xml.etree.ElementTree as ElementTree
+
 from robot_boot.launch_policy import write_tempfile
 import xacro
 
 ARM_CONTROLLERS = {'kinova_link6': ['joint_trajectory_controller']}
 GRIPPER_CONTROLLERS = {'robotiq_2f_85': ['robotiq_gripper_controller']}
+SIM_GAZEBO_BY_TARGET = {'gazebo': 'true', 'hardware': 'false'}
 
 
-def kinova_link6_xacro_fragment(arm):
+def kinova_link6_xacro_fragment(arm, sim_gazebo):
     xyz = ' '.join(str(value) for value in arm.xyz)
     rpy = ' '.join(str(value) for value in arm.rpy)
     return f'''
   <xacro:include filename="$(find link6_description)/urdf/link6_macro.xacro"/>
   <xacro:link6 parent="{arm.parent}" prefix="{arm.name}_" robot_ip="" gripper="{arm.gripper_model}"
-               sim_gazebo="true">
+               sim_gazebo="{sim_gazebo}">
     <origin xyz="{xyz}" rpy="{rpy}"/>
   </xacro:link6>
   <xacro:include filename="$(find link6_description)/urdf/link6_end_effector.xacro"/>
   <xacro:link6_end_effector prefix="{arm.name}_" gripper="{arm.gripper_model}"
-                            sim_gazebo="true"/>'''
+                            sim_gazebo="{sim_gazebo}"/>'''
 
 
 ARM_XACRO_FRAGMENTS = {'kinova_link6': kinova_link6_xacro_fragment}
 
 
-def write_urdf_file_with_arms(urdf_path, arms):
+def write_urdf_file_with_arms(urdf_path, arms, target):
     if not arms:
         return urdf_path
-    arm_xacro_fragments = ''.join(ARM_XACRO_FRAGMENTS[arm.model](arm) for arm in arms)
+    arm_xacro_fragments = ''.join(
+        ARM_XACRO_FRAGMENTS[arm.model](arm, SIM_GAZEBO_BY_TARGET[target]) for arm in arms)
+    robot_name = ElementTree.parse(urdf_path).getroot().get('name')
     wrapper_xacro = (
-        '<robot name="robot" xmlns:xacro="http://www.ros.org/wiki/xacro">\n'
+        f'<robot name="{robot_name}" xmlns:xacro="http://www.ros.org/wiki/xacro">\n'
         f'  <xacro:include filename="{urdf_path}"/>{arm_xacro_fragments}\n'
         '</robot>\n')
     document = xacro.parse(wrapper_xacro)

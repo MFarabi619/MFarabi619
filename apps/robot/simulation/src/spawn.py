@@ -16,12 +16,12 @@
 
 from better_launch.convenience import read_robot_description, robot_state_publisher
 from better_launch.gazebo import get_gazebo_axes_args, spawn_model
+from robot_boot.arm_description import (
+    arm_controller_parameters_files, arm_controllers, write_urdf_file_with_arms)
 from robot_boot.drivetrain_parameters import (
     CONTROLLER_MANAGER_TIMEOUT_SECONDS, write_drivetrain_parameters_file)
 from robot_boot.launch_policy import TF_REMAPS
 from robot_boot.urdf import drive_wheel_joint_names, wheel_geometry
-from robot_simulation.arm_description import (
-    arm_controller_parameters_files, arm_controllers, write_urdf_file_with_arms)
 from robot_simulation.gz_bridges import spawn_simulation_bridges
 
 # Switches wait for Gazebo's first step, which can take longer than the spawner's 5 s default.
@@ -32,7 +32,8 @@ SERVICE_CALL_TIMEOUT_SECONDS = '60'
 def spawn_robot(bl, machine, world, pose):
     arms = machine.manipulators.arms
     urdf_path = write_urdf_file_with_arms(
-        bl.find('robot_description', 'robot.sim.urdf', subdir=f'urdf/{machine.name}'), arms)
+        bl.find('robot_description', 'robot.sim.urdf', subdir=f'urdf/{machine.name}'), arms,
+        'gazebo')
     robot_description = read_robot_description(None, urdf_path)
     control_parameters_file = bl.find('robot_control', 'control.yaml')
     drivetrain = machine.platform.drivetrain

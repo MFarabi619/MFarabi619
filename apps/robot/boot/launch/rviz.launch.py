@@ -16,7 +16,9 @@
 
 from better_launch import BetterLaunch, launch_this
 from better_launch.convenience import read_robot_description, robot_state_publisher
+from robot_boot.arm_description import write_urdf_file_with_arms
 from robot_boot.zenoh_router import ensure_zenoh_router
+from robot_machines.machine import load_machine
 
 
 # Not urdf_launch's display.launch.py: it runs every URDF through xacro, whose banner pushes our
@@ -25,8 +27,11 @@ from robot_boot.zenoh_router import ensure_zenoh_router
 def rviz(robot: str = 'taro'):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
+    urdf_path = write_urdf_file_with_arms(
+        bl.find('robot_description', 'robot.urdf', subdir=f'urdf/{robot}'),
+        load_machine(robot).manipulators.arms, 'hardware')
     robot_state_publisher(
-        read_robot_description('robot_description', 'robot.urdf', subdir=f'urdf/{robot}'),
+        read_robot_description(None, urdf_path),
         node_name='robot_state_publisher',
         anonymous=False,
     )
