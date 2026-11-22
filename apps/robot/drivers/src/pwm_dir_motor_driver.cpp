@@ -74,8 +74,8 @@ public:
       }
       std::this_thread::sleep_for(PWM_EXPORT_RETRY_DELAY);
     }
-    write_sysfs(duty_path, "0");
     write_sysfs(channel_directory + "/period", std::to_string(period_nanoseconds));
+    write_sysfs(duty_path, "0");
     write_sysfs(channel_directory + "/enable", "1");
     duty_file = std::fopen(duty_path.c_str(), "w");
     if (duty_file == nullptr) {
