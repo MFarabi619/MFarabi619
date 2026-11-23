@@ -565,6 +565,7 @@
         },
         "depth": {
           "allow_depth_cuda_graph": false,
+          "depth_compute_device": "AUTO",
           "depth_confidence": 95,
           "depth_mode": "NEURAL_PLUS",
           "depth_precision": "FP16",
@@ -596,6 +597,7 @@
           "camera_name": "camera_0",
           "camera_timeout_sec": 5,
           "enable_image_validity_check": 1,
+          "exit_on_failure": false,
           "gpu_id": -1,
           "grab_compute_capping_fps": 0.0,
           "grab_frame_rate": 30,
@@ -610,6 +612,7 @@
           "sdk_use_monotonic_clock": false,
           "self_calib": true,
           "serial_number": 0,
+          "sync_pub_to_timestamp": false,
           "timestamp_reference": "IMAGE"
         },
         "gnss_fusion": {
@@ -664,6 +667,14 @@
             0.0
           ],
           "map_frame": "map",
+          "motion_prior": {
+            "enabled": false,
+            "measured_axes": "['TX','TY','RZ']",
+            "rejection_threshold": 3.0,
+            "rotation_std_per_rad": 0.02,
+            "topic": "/odometry/wheel",
+            "translation_std_per_m": 0.02
+          },
           "odometry_frame": "odom",
           "path_max_count": -1,
           "path_pub_rate": 2.0,
@@ -696,6 +707,9 @@
           "publish_roi_mask": false
         },
         "sensors": {
+          "imu_accelerometer_range": "DEFAULT",
+          "imu_gyroscope_range": "DEFAULT",
+          "imu_sampling_rate": "DEFAULT",
           "publish_baro": false,
           "publish_cam_imu_transf": false,
           "publish_imu": true,
@@ -707,6 +721,7 @@
           "sensors_pub_rate": 100.0
         },
         "simulation": {
+          "self_calib": false,
           "sim_address": "127.0.0.1",
           "sim_enabled": false,
           "sim_port": 30000

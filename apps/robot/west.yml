@@ -46,7 +46,7 @@ manifest:
           url: https://github.com/ros-controls/mujoco_ros2_control
 
         - name: zed-ros2-wrapper
-          revision: f134486a814111b1c737a41211113dee41921776 # master 2026-11-02
+          revision: 37ec24d3fa43f19f248fa8212ac5fd7f0f85ded9 # master 2026-11-20
           path: vendor/zed-ros2-wrapper
           url: https://github.com/stereolabs/zed-ros2-wrapper
 
