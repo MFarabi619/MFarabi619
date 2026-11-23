@@ -16,16 +16,13 @@
 
 from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import (
-    LIFECYCLE_ACTIVATION, RESPAWN, TF_REMAPS, write_parameter_overrides_file)
+    LIFECYCLE_ACTIVATION, NAV2_COSTMAPS, NAV2_SERVERS, RESPAWN, TF_REMAPS,
+    write_parameter_overrides_file)
 from robot_boot.zenoh_router import ensure_zenoh_router
 
-GPS_NAVIGATION_NAV2_SERVERS = (
-    ('nav2_controller', 'controller_server'),
-    ('nav2_planner', 'planner_server'),
-    ('nav2_bt_navigator', 'bt_navigator'),
+GPS_NAVIGATION_NAV2_SERVERS = NAV2_SERVERS + (
     ('nav2_waypoint_follower', 'waypoint_follower'),
 )
-COSTMAPS = ('local_costmap', 'global_costmap')
 FROM_LL_TIMEOUT_SECONDS = 120.0
 
 
@@ -43,7 +40,7 @@ def gps_navigation(
     behavior_tree_file = behavior_tree_file or bl.find('robot_navigation', 'navigate_to_pose.xml')
     scan_overrides_file = write_parameter_overrides_file({
         costmap: {'obstacle_layer': {'scan': {'topic': f'{robot_namespace}/{scan_topic}'}}}
-        for costmap in COSTMAPS
+        for costmap in NAV2_COSTMAPS
     })
     param_files = [params_file, scan_overrides_file] + ([overrides_file] if overrides_file else [])
     bl.wait_for_service(f'{robot_namespace}/fromLL', timeout=FROM_LL_TIMEOUT_SECONDS)

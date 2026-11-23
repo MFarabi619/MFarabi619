@@ -28,6 +28,12 @@ DIAGNOSTIC_AGGREGATOR_REMAPS = DIAGNOSTICS_REMAPS | {
     '/diagnostics_toplevel_state': 'diagnostics_toplevel_state',
 }
 DEFAULT_DEPTH_FRAMES_PER_SECOND = 15
+NAV2_SERVERS = (
+    ('nav2_controller', 'controller_server'),
+    ('nav2_planner', 'planner_server'),
+    ('nav2_bt_navigator', 'bt_navigator'),
+)
+NAV2_COSTMAPS = ('local_costmap', 'global_costmap')
 
 
 def include(package, launchfile, **arguments):
