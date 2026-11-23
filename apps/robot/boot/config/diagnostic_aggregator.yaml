@@ -22,3 +22,11 @@
           type: diagnostic_aggregator/GenericAnalyzer
           path: Motors
           contains: [ 'roboteq' ]
+    sensors:
+      type: diagnostic_aggregator/AnalyzerGroup
+      path: Sensors
+      analyzers:
+        cameras:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: Cameras
+          contains: [ 'zed_node' ]
