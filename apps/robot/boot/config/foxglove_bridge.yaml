@@ -1,6 +1,7 @@
 /**/foxglove_bridge:
   ros__parameters:
     max_qos_depth: 5
+    send_buffer_limit: 1000000
     asset_uri_allowlist:
       - '^package://(?:[-\w%]+/)*[-\w%.]+\.(?:dae|fbx|glb|gltf|jpeg|jpg|mtl|obj|png|stl|STL|tif|tiff|urdf|webp|xacro)$'
     best_effort_qos_topic_whitelist:
