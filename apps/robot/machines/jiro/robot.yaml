@@ -92,12 +92,12 @@ sensors:
   #     ntrip:
   #       mountpoint: OsgoodeFarms
   #       username: farabi@tandemrobotics.ca
-behaviors:
-  gps_navigation: true
-  line_follow: true
-  sidewalk_follow: true
-  park_path_follow: true
-  path_follow: true
+# behaviors:
+  # gps_navigation: true
+  # line_follow: true
+  # sidewalk_follow: true
+  # park_path_follow: true
+  # path_follow: true
 ros_parameters:
   rc_receiver_teleop:
     scale_linear:
