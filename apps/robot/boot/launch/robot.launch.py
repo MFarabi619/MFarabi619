@@ -402,7 +402,7 @@ def robot(robot: str = '', drivetrain_model: str = '', domain: str = ''):
                 launch_platform(machine, drivetrain_model, urdf_path, depth_camera)
             if machine.foxglove_enabled:
                 include('robot_boot', 'foxglove_bridge.launch.py')
-            include('robot_boot', 'diagnostic_aggregator.launch.py')
+            include('robot_boot', 'diagnostics.launch.py')
             if machine.sensors.gps:
                 include(
                     'robot_boot', 'robot_localization.launch.py',

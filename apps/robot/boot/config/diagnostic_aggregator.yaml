@@ -30,3 +30,7 @@
           type: diagnostic_aggregator/GenericAnalyzer
           path: Cameras
           contains: [ 'zed_node' ]
+    computer:
+      type: diagnostic_aggregator/GenericAnalyzer
+      path: Computer
+      contains: [ 'cpu_monitor', 'ram_monitor', 'hd_monitor' ]

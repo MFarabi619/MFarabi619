@@ -45,7 +45,7 @@
     {
       "arguments": {},
       "kind": "include",
-      "launchfile": "diagnostic_aggregator.launch.py",
+      "launchfile": "diagnostics.launch.py",
       "namespace": "/",
       "package": "robot_boot",
       "subdir": null
@@ -60,6 +60,33 @@
       "param_files": [
         "boot/config/diagnostic_aggregator.yaml"
       ],
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "cpu_monitor.py",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "cpu_monitor",
+      "namespace": "/",
+      "package": "diagnostic_common_diagnostics",
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "ram_monitor.py",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "ram_monitor",
+      "namespace": "/",
+      "package": "diagnostic_common_diagnostics",
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "hd_monitor.py",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "hd_monitor",
+      "namespace": "/",
+      "package": "diagnostic_common_diagnostics",
       "respawn_delay": 2.0
     },
     {

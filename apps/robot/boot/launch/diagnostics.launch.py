@@ -18,9 +18,11 @@ from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN
 from robot_boot.zenoh_router import ensure_zenoh_router
 
+COMPUTER_MONITORS = ('cpu_monitor', 'ram_monitor', 'hd_monitor')
+
 
 @launch_this
-def diagnostic_aggregator(params_file: str = ''):
+def diagnostics(params_file: str = ''):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
     params_file = params_file or bl.find('robot_boot', 'diagnostic_aggregator.yaml')
@@ -31,3 +33,10 @@ def diagnostic_aggregator(params_file: str = ''):
         param_files=[params_file],
         **RESPAWN,
     )
+    for monitor in COMPUTER_MONITORS:
+        bl.node(
+            package='diagnostic_common_diagnostics',
+            executable=f'{monitor}.py',
+            name=monitor,
+            **RESPAWN,
+        )

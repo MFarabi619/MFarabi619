@@ -90,6 +90,7 @@ ros-lyrical-geographic-msgs = "*"
 ros-lyrical-ros2-controllers = "*"
 ros-lyrical-pointcloud-to-laserscan = "*"
 ros-lyrical-diagnostic-aggregator = "*"
+ros-lyrical-diagnostic-common-diagnostics = "*"
 ros-lyrical-py-trees-ros-interfaces = "*"
 
 [pypi-dependencies]

@@ -651,6 +651,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-control-toolbox-6.4.0-hb0f4dca_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-desktop-full-0.13.0-hb0f4dca_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-diagnostic-aggregator-4.4.7-hb0f4dca_30.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-diagnostic-common-diagnostics-4.4.7-hb0f4dca_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-foxglove-bridge-3.6.0-hb0f4dca_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-foxglove-msgs-3.6.0-hb0f4dca_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-geographic-msgs-1.0.6-hb0f4dca_30.conda
@@ -774,6 +775,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-desktop-0.13.0-np2py314h53a0733_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-desktop-full-0.13.0-np2py314h53a0733_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-diagnostic-aggregator-4.4.7-np2py314h53a0733_30.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-diagnostic-common-diagnostics-4.4.7-np2py314h53a0733_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-diagnostic-msgs-5.9.3-np2py314h53a0733_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-diagnostic-updater-4.4.7-np2py314h53a0733_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-diff-drive-controller-6.9.0-np2py314h53a0733_30.conda
@@ -1820,6 +1822,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-depth-image-proc-7.1.7-he8cfe8b_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-desktop-full-0.13.0-he8cfe8b_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-diagnostic-aggregator-4.4.7-he8cfe8b_30.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-diagnostic-common-diagnostics-4.4.7-he8cfe8b_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-foxglove-bridge-3.6.0-he8cfe8b_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-foxglove-msgs-3.6.0-he8cfe8b_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-geographic-msgs-1.0.6-he8cfe8b_30.conda
@@ -1944,6 +1947,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-desktop-0.13.0-np2py314h36e155a_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-desktop-full-0.13.0-np2py314h36e155a_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-diagnostic-aggregator-4.4.7-np2py314h36e155a_30.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-diagnostic-common-diagnostics-4.4.7-np2py314h36e155a_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-diagnostic-msgs-5.9.3-np2py314h36e155a_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-diagnostic-updater-4.4.7-np2py314h36e155a_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-diff-drive-controller-6.9.0-np2py314h36e155a_30.conda
@@ -2994,6 +2998,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-control-toolbox-6.4.0-h60d57d3_30.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-desktop-full-0.13.0-h60d57d3_30.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-diagnostic-aggregator-4.4.7-h60d57d3_30.conda
+      - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-diagnostic-common-diagnostics-4.4.7-h60d57d3_30.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-foxglove-bridge-3.6.0-h60d57d3_30.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-foxglove-msgs-3.6.0-h60d57d3_30.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-geographic-msgs-1.0.6-h60d57d3_30.conda
@@ -3125,6 +3130,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros2-desktop-0.13.0-np2py314h40712d6_30.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros2-desktop-full-0.13.0-np2py314h40712d6_30.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros2-diagnostic-aggregator-4.4.7-np2py314h40712d6_30.conda
+      - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros2-diagnostic-common-diagnostics-4.4.7-np2py314h40712d6_30.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros2-diagnostic-msgs-5.9.3-np2py314h40712d6_30.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros2-diagnostic-updater-4.4.7-np2py314h40712d6_30.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros2-diff-drive-controller-6.9.0-np2py314h40712d6_30.conda
@@ -20835,7 +20841,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/distlib?source=compressed-mapping
+  - pkg:pypi/distlib?source=hash-mapping
   run_exports: {}
   size: 305245
   timestamp: 1792175759072
@@ -30112,6 +30118,16 @@ packages:
   run_exports: {}
   size: 2115
   timestamp: 1792758873560
+- conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-diagnostic-common-diagnostics-4.4.7-hb0f4dca_30.conda
+  sha256: 950a584b6fce0ac36305da147a2f8a4fbfd8688fcfff6db366d595f82c5b30bf
+  md5: 7f10f8326623cef62138ce00a67d0cb2
+  attestations_sha256: 47c9a10525aab8c82635dad4d3c2f266b7dd0c357e040301f6905f4254021d42
+  depends:
+  - ros2-diagnostic-common-diagnostics ==4.4.7
+  - ros2-distro-mutex 0.22.* lyrical_*
+  run_exports: {}
+  size: 2142
+  timestamp: 1792761016712
 - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-foxglove-bridge-3.6.0-hb0f4dca_30.conda
   sha256: c004544771b32fa5954bc6b40dac3215f5a70b1b6f4c730cb80b1c2dc9a6c3b6
   md5: 18c0e0f6de57c78ff4ab32af94e33aae
@@ -32469,6 +32485,27 @@ packages:
   run_exports: {}
   size: 463847
   timestamp: 1792758841035
+- conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-diagnostic-common-diagnostics-4.4.7-np2py314h53a0733_30.conda
+  sha256: 92d1cdc86eed609176569708c93989f60fccb1268830c2cefbbfaed35496ba39
+  md5: 0cd19dedceced5019908219798a8bdaf
+  attestations_sha256: be1e4095aadc5082bd79dd968343cdbc507085fbdf8096fd78f105ed5ca36724
+  depends:
+  - psutil
+  - python
+  - ros2-diagnostic-updater
+  - ros2-distro-mutex 0.22.* lyrical_*
+  - ros2-rclpy
+  - ros2-ros-workspace
+  - libstdcxx >=15
+  - libgcc >=15
+  - __glibc >=2.28,<3.0.a0
+  - numpy >=1.25,<3
+  - ros2-distro-mutex >=0.22.0,<0.23.0a0
+  - python_abi 3.14.* *_cp314
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 48577
+  timestamp: 1792761011225
 - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-diagnostic-msgs-5.9.3-np2py314h53a0733_30.conda
   sha256: 0f6f0e03d0af60cf6f1767f32fb01bf7cd7383713528a192b0b646ff45966069
   md5: c847a12805277d60f3a96149edf38e26
@@ -42914,6 +42951,16 @@ packages:
   run_exports: {}
   size: 2117
   timestamp: 1792758521503
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-diagnostic-common-diagnostics-4.4.7-he8cfe8b_30.conda
+  sha256: d080024ccd68a5b7369a4c4135145a739bbd1492641358dd7aa582c62271e8d6
+  md5: c2f25f6b0447d1fede43939d0c5e3b18
+  attestations_sha256: 9a27cbcc47cfd51cb5051e641adad2c599f48a850d001cd465176ca6e41616dc
+  depends:
+  - ros2-diagnostic-common-diagnostics ==4.4.7
+  - ros2-distro-mutex 0.22.* lyrical_*
+  run_exports: {}
+  size: 2150
+  timestamp: 1792760452877
 - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-foxglove-bridge-3.6.0-he8cfe8b_30.conda
   sha256: daa0018a609cf7b99bf0de1c0495132970b762fdb393b6eb7d11427dec760b00
   md5: ae0fbb432f3483c87826b33126fdaf4a
@@ -45281,6 +45328,27 @@ packages:
   run_exports: {}
   size: 463590
   timestamp: 1792758495545
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-diagnostic-common-diagnostics-4.4.7-np2py314h36e155a_30.conda
+  sha256: 38402c4a424eb98c437636e0a5e1b1ed53372cb7484049f5aba550385e4e07aa
+  md5: d5695328e3d46776afeaa36cb2e8b075
+  attestations_sha256: d62ca20eed7395c8f018b2f5656154cb11b5a7b3e1845762db307640e862d6f8
+  depends:
+  - psutil
+  - python
+  - ros2-diagnostic-updater
+  - ros2-distro-mutex 0.22.* lyrical_*
+  - ros2-rclpy
+  - ros2-ros-workspace
+  - libstdcxx >=15
+  - libgcc >=15
+  - __glibc >=2.28,<3.0.a0
+  - numpy >=1.25,<3
+  - python_abi 3.14.* *_cp314
+  - ros2-distro-mutex >=0.22.0,<0.23.0a0
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 48635
+  timestamp: 1792760448357
 - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-diagnostic-msgs-5.9.3-np2py314h36e155a_30.conda
   sha256: b3b381655b8173baed9a00fd93c2ed6e2179a22bbaab88f212c943e7ddecb197
   md5: 0ad440f9b7c5bcd647e5e5d521cb59db
@@ -55724,6 +55792,16 @@ packages:
   run_exports: {}
   size: 2096
   timestamp: 1792763240070
+- conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-diagnostic-common-diagnostics-4.4.7-h60d57d3_30.conda
+  sha256: cabd8e015bca416c610cf82b1a97ea4a8a7c9fce7f8554a2c08117775ae73e48
+  md5: dfbaee7589c9d0b1e70e3f87c03d920a
+  attestations_sha256: b3e649f369d449b7d75b8dc362f6df1f9a3c3622e9a845338ad75b89ac9cb938
+  depends:
+  - ros2-diagnostic-common-diagnostics ==4.4.7
+  - ros2-distro-mutex 0.22.* lyrical_*
+  run_exports: {}
+  size: 2129
+  timestamp: 1792765675810
 - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-foxglove-bridge-3.6.0-h60d57d3_30.conda
   sha256: 11b31bdae923fbab01eaedc13a79953a1da982030645c32916ab3f9e7964d3f5
   md5: a12772fd52dd3cabc56367eac35efc32
@@ -58061,6 +58139,26 @@ packages:
   run_exports: {}
   size: 329146
   timestamp: 1792763191041
+- conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros2-diagnostic-common-diagnostics-4.4.7-np2py314h40712d6_30.conda
+  sha256: bf455c4f31f1e333a4afd3b5156ec1d4ad5ec3a2c1f1033471f3fd9e3858a296
+  md5: 03084028f11ee2b7fdbf83db8ca721ec
+  attestations_sha256: db781668ffb235de33055e7d857beb5d3d4af9f384e981b9b5876f7aa52f065a
+  depends:
+  - psutil
+  - python
+  - ros2-diagnostic-updater
+  - ros2-distro-mutex 0.22.* lyrical_*
+  - ros2-rclpy
+  - ros2-ros-workspace
+  - __osx >=14.0
+  - libcxx >=21
+  - numpy >=1.25,<3
+  - ros2-distro-mutex >=0.22.0,<0.23.0a0
+  - python_abi 3.14.* *_cp314
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 50639
+  timestamp: 1792765659842
 - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros2-diagnostic-msgs-5.9.3-np2py314h40712d6_30.conda
   sha256: 803e1e140377f0ccfad0a1519e7428c7d3f9657243f44d094c4ce2a238abf810
   md5: e01eb2637b044098a9189592496a9903
