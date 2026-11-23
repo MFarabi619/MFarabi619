@@ -21,7 +21,7 @@
       - '(/[^/]+)?/joint_states$'
       - '(/[^/]+)?/tf(_static)?$'
       - '(/[^/]+)?/map$'
-      - '(/[^/]+)?/local_costmap/costmap$'
+      - '(/[^/]+)?/(local|global)_costmap/costmap$'
       - '(/[^/]+)?/plan$'
       - '(/[^/]+)?/slam_toolbox/.*'
       - '(/[^/]+)?/diagnostics.*'
