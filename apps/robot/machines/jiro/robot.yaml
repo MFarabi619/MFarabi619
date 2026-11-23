@@ -94,7 +94,8 @@ sensors:
   #     ntrip:
   #       mountpoint: OsgoodeFarms
   #       username: farabi@tandemrobotics.ca
-# behaviors:
+behaviors:
+  nav2_navigate_to_pose: true
   # gps_navigation: true
   # line_follow: true
   # sidewalk_follow: true

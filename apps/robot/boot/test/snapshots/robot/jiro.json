@@ -1264,6 +1264,138 @@
         "follow_node": "person_follow"
       },
       "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "scan_topic": "sensors/camera_0/scan"
+      },
+      "kind": "include",
+      "launchfile": "nav2_navigate_to_pose.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
+      "executable": "controller_server",
+      "kind": "node",
+      "lifecycle_waittime": 5.0,
+      "max_respawns": -1,
+      "name": "controller_server",
+      "namespace": "/jiro",
+      "package": "nav2_controller",
+      "param_files": [
+        "navigation/config/nav2_navigate_to_pose.yaml",
+        {
+          "tempfile": {
+            "/**/global_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/jiro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            },
+            "/**/local_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/jiro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "params": {},
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "planner_server",
+      "kind": "node",
+      "lifecycle_waittime": 5.0,
+      "max_respawns": -1,
+      "name": "planner_server",
+      "namespace": "/jiro",
+      "package": "nav2_planner",
+      "param_files": [
+        "navigation/config/nav2_navigate_to_pose.yaml",
+        {
+          "tempfile": {
+            "/**/global_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/jiro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            },
+            "/**/local_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/jiro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "params": {},
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "bt_navigator",
+      "kind": "node",
+      "lifecycle_waittime": 5.0,
+      "max_respawns": -1,
+      "name": "bt_navigator",
+      "namespace": "/jiro",
+      "package": "nav2_bt_navigator",
+      "param_files": [
+        "navigation/config/nav2_navigate_to_pose.yaml",
+        {
+          "tempfile": {
+            "/**/global_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/jiro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            },
+            "/**/local_costmap": {
+              "ros__parameters": {
+                "obstacle_layer": {
+                  "scan": {
+                    "topic": "/jiro/sensors/camera_0/scan"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "params": {
+        "default_nav_to_pose_bt_xml": "navigation/config/navigate_to_pose.xml"
+      },
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
     }
   ],
   "launch": {
