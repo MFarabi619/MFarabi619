@@ -462,12 +462,12 @@
       "namespace": "/taro",
       "package": "pointcloud_to_laserscan",
       "params": {
-        "max_height": 0.5,
-        "min_height": 0.1,
+        "max_height": 2.0,
+        "min_height": 0.15,
         "range_max": 8.0,
         "range_min": 0.25,
         "scan_time": 0.06666666666666667,
-        "target_frame": "base_link"
+        "target_frame": "base_footprint"
       },
       "remaps": {
         "/tf": "tf",

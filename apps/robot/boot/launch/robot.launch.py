@@ -33,8 +33,7 @@ ZENOH_ROUTER_SERVICE_RETRY_DELAY_SECONDS = 1.0
 STEREOLABS_ZED_DEFAULT_POINT_CLOUD_RATE_HZ = 10.0
 GROUND_STATION_LISTEN_URL = 'udpin:0.0.0.0:14550'
 FOLLOWED_SURFACES = ('sidewalk', 'park_path', 'path')
-LUXONIS_OAK_LASERSCAN_ARGUMENTS = {
-    'max_height': 0.6, 'range_min': 0.2, 'range_max': 3.0, 'scan_time': 0.05}
+LUXONIS_OAK_LASERSCAN_ARGUMENTS = {'range_min': 0.2, 'range_max': 3.0, 'scan_time': 0.05}
 
 
 def resolve_line(pins, pin):

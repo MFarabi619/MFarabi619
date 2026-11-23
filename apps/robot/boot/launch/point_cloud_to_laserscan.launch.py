@@ -22,9 +22,9 @@ from robot_boot.zenoh_router import ensure_zenoh_router
 @launch_this
 def point_cloud_to_laserscan(
     camera: str = 'camera_0',
-    target_frame: str = 'base_link',
-    min_height: float = 0.1,
-    max_height: float = 0.5,
+    target_frame: str = 'base_footprint',
+    min_height: float = 0.15,
+    max_height: float = 2.0,
     range_min: float = 0.25,
     range_max: float = 8.0,
     scan_time: float = 1.0 / DEFAULT_DEPTH_FRAMES_PER_SECOND,
