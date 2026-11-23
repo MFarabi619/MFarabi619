@@ -61,22 +61,27 @@ public:
   PwmChannel(int64_t chip, int64_t channel, int64_t period_nanoseconds)
   : period_nanoseconds(period_nanoseconds),
     channel_directory(
-      "/sys/class/pwm/pwmchip" + std::to_string(chip) + "/pwm" + std::to_string(channel))
+      "/sys/class/pwm/pwmchip" + std::to_string(chip) + "/pwm" + std::to_string(channel)),
+    enable_path(channel_directory + "/enable")
   {
+    const std::string period_path = channel_directory + "/period";
     const std::string duty_path = channel_directory + "/duty_cycle";
+    const auto is_writable = [](const std::string & path) {
+        return access(path.c_str(), W_OK) == 0;
+      };
     if (access(channel_directory.c_str(), F_OK) != 0) {
       write_sysfs(
         "/sys/class/pwm/pwmchip" + std::to_string(chip) + "/export", std::to_string(channel));
     }
     for (int attempt = 0; attempt < PWM_EXPORT_MAX_ATTEMPTS; ++attempt) {
-      if (access(duty_path.c_str(), W_OK) == 0) {
+      if (is_writable(period_path) && is_writable(duty_path) && is_writable(enable_path)) {
         break;
       }
       std::this_thread::sleep_for(PWM_EXPORT_RETRY_DELAY);
     }
-    write_sysfs(channel_directory + "/period", std::to_string(period_nanoseconds));
+    write_sysfs(period_path, std::to_string(period_nanoseconds));
     write_sysfs(duty_path, "0");
-    write_sysfs(channel_directory + "/enable", "1");
+    write_sysfs(enable_path, "1");
     duty_file = std::fopen(duty_path.c_str(), "w");
     if (duty_file == nullptr) {
       throw std::runtime_error("failed opening " + duty_path);
@@ -88,7 +93,7 @@ public:
     write_duty_nanoseconds(0);
     std::fclose(duty_file);
     try {
-      write_sysfs(channel_directory + "/enable", "0");
+      write_sysfs(enable_path, "0");
     } catch (const std::runtime_error &) {
     }
   }
@@ -108,6 +113,7 @@ public:
 
 private:
   const std::string channel_directory;
+  const std::string enable_path;
   std::FILE *duty_file;
   int64_t last_duty_nanoseconds = 0;
 };
