@@ -410,7 +410,7 @@ def robot(robot: str = '', drivetrain_model: str = '', domain: str = ''):
             include('robot_boot', 'diagnostics.launch.py')
             if machine.sensors.gps:
                 include(
-                    'robot_boot', 'robot_localization.launch.py',
+                    'robot_boot', 'global_odometry.launch.py',
                     gps_topic_prefix=f'sensors/{machine.sensors.gps[0].name}')
         if launches('manipulation'):
             for arm in machine.enabled_arms:

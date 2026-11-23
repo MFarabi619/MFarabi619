@@ -114,7 +114,7 @@ def runs_gps_navigation(machine):
 
 def gps_navigation_stack(machine, ground_station_url):
     gps_topic_prefix = f'sensors/{machine.sensors.gps[0].name}'
-    include('robot_boot', 'robot_localization.launch.py', gps_topic_prefix=gps_topic_prefix)
+    include('robot_boot', 'global_odometry.launch.py', gps_topic_prefix=gps_topic_prefix)
     include(
         'robot_navigation', 'ground_station_bridge.launch.py',
         ground_station_url=ground_station_url,

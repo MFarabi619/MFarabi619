@@ -20,7 +20,7 @@ from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
-def robot_localization(params_file: str = '', gps_topic_prefix: str = 'sensors/gps_0'):
+def global_odometry(params_file: str = '', gps_topic_prefix: str = 'sensors/gps_0'):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
     params_file = params_file or bl.find('robot_control', 'robot_localization.yaml')
@@ -29,7 +29,7 @@ def robot_localization(params_file: str = '', gps_topic_prefix: str = 'sensors/g
         executable='ekf_node',
         name='ekf_global',
         param_files=[params_file],
-        remaps=TF_REMAPS | DIAGNOSTICS_REMAPS,
+        remaps=TF_REMAPS | DIAGNOSTICS_REMAPS | {'odometry/filtered': 'odometry/global'},
         **RESPAWN,
     )
     bl.node(
@@ -38,6 +38,7 @@ def robot_localization(params_file: str = '', gps_topic_prefix: str = 'sensors/g
         name='navsat_transform',
         param_files=[params_file],
         remaps=TF_REMAPS | {
+            'odometry/filtered': 'odometry/global',
             'gps/fix': f'{gps_topic_prefix}/fix',
             'gps/filtered': f'{gps_topic_prefix}/filtered',
         },

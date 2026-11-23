@@ -298,7 +298,7 @@ class GroundStationBridge(Node):
             'ground_station_url', DEFAULT_GROUND_STATION_URL).value
         self.system_id = self.declare_parameter('system_id', 1).value
         gps_topic = self.declare_parameter('gps_topic', 'sensors/gps_0/fix').value
-        odometry_topic = self.declare_parameter('odometry_topic', 'odometry/filtered').value
+        odometry_topic = self.declare_parameter('odometry_topic', 'odometry/global').value
 
         self.boot_monotonic_seconds = time.monotonic()
         self.position = None

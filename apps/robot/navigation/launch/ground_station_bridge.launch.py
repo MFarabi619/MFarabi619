@@ -24,7 +24,7 @@ def ground_station_bridge(
     ground_station_url: str = 'udpout:127.0.0.1:14550',
     system_id: int = 1,
     gps_topic: str = 'sensors/gps_0/fix',
-    odometry_topic: str = 'odometry/filtered',
+    odometry_topic: str = 'odometry/global',
 ):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
