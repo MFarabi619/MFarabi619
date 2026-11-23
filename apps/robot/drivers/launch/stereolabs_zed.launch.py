@@ -23,6 +23,7 @@ from robot_boot.zenoh_router import ensure_zenoh_router
 import yaml
 
 ZED_SDK_ROOT = os.environ.get('ZED_SDK_ROOT', '/usr/local/zed')
+CAMERA_OPEN_ATTEMPTS = 24
 
 
 def zed_wrapper_defaults(bl, config_file):
@@ -73,6 +74,7 @@ def stereolabs_zed(
     camera_model = overrides.get('general', {}).get('camera_model', camera_model)
     parameters = zed_wrapper_defaults(bl, 'common_stereo.yaml')
     deep_merge(parameters, zed_wrapper_defaults(bl, f'{camera_model}.yaml'))
+    deep_merge(parameters, {'general': {'camera_max_reconnect': CAMERA_OPEN_ATTEMPTS}})
     deep_merge(parameters, overrides)
     deep_merge(parameters, {
         'general': {'camera_name': camera, 'camera_model': camera_model},

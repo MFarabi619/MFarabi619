@@ -708,7 +708,7 @@
           "async_image_retrieval": false,
           "buffer_backend": "cuda",
           "camera_flip": false,
-          "camera_max_reconnect": 5,
+          "camera_max_reconnect": 24,
           "camera_model": "zed2i",
           "camera_name": "camera_0",
           "camera_timeout_sec": 5,
