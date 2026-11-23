@@ -206,9 +206,10 @@ def provision(mdns_hostname, machine):
         ssh(mdns_hostname, 'command -v uhubctl >/dev/null'
             ' || sudo apt-get install -y uhubctl')
     if machine.board in ('jetson_orin_nano', 'jetson_orin_nx'):
-        ssh(mdns_hostname, f'grep -q "{USB_AUTOSUSPEND_OFF}" {EXTLINUX_CONFIG_PATH}'
-            f' || sudo sed -i "/^      APPEND / s/$/ {USB_AUTOSUSPEND_OFF}/"'
-            f' {EXTLINUX_CONFIG_PATH}')
+        ssh(mdns_hostname, shell_chain([
+            'sudo', 'sed', '-i',
+            f'/^[[:space:]]*APPEND /{{/{USB_AUTOSUSPEND_OFF}/!s/$/ {USB_AUTOSUSPEND_OFF}/;}}',
+            EXTLINUX_CONFIG_PATH]))
 
 
 def install_units(mdns_hostname, machine):
