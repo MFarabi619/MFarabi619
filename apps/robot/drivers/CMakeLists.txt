@@ -88,6 +88,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
 
   find_package(rclcpp_components REQUIRED)
   find_package(ament_index_cpp REQUIRED)
+  find_package(diagnostic_updater REQUIRED)
   find_package(sensor_msgs REQUIRED)
   find_package(OpenCV 5 REQUIRED COMPONENTS imgcodecs imgproc)
 
@@ -99,6 +100,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
   target_compile_options(pwm_dir_motor_driver PRIVATE "-idirafter${GPIOD_INCLUDE_DIR}")
   target_link_libraries(pwm_dir_motor_driver
     ${GPIOD_LIBRARY}
+    diagnostic_updater::diagnostic_updater
     rclcpp::rclcpp
     ${robot_platform_msgs_TARGETS})
   install(TARGETS pwm_dir_motor_driver DESTINATION lib/${PROJECT_NAME})

@@ -32,6 +32,7 @@
 #include <string>
 #include <thread>
 
+#include <diagnostic_updater/diagnostic_updater.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <robot_platform_msgs/msg/drive.hpp>
 #include <robot_platform_msgs/msg/feedback.hpp>
@@ -44,6 +45,7 @@ constexpr auto PWM_EXPORT_RETRY_DELAY = std::chrono::milliseconds(10);
 constexpr int64_t NANOSECONDS_PER_SECOND = 1'000'000'000;
 constexpr double FEEDBACK_RATE_HZ = 50.0;
 constexpr double COMMAND_TIMEOUT_SECONDS = 0.5;
+constexpr std::array<const char *, 2> SIDES = {"left", "right"};
 
 void write_sysfs(const std::string & path, const std::string & value)
 {
@@ -187,7 +189,7 @@ public:
     declare_parameter("pwm_frequency_hz", 20000.0);
     declare_parameter("max_wheel_speed", 1.0);
     declare_parameter("min_duty_fraction", 0.0);
-    for (const std::string side : {"left", "right"}) {
+    for (const std::string side : SIDES) {
       declare_parameter(side + "_pwm_chip", 0);
       declare_parameter(side + "_pwm_channel", 0);
       declare_parameter(side + "_dir_line", 0);
@@ -225,7 +227,7 @@ public:
     }
 
     for (size_t side_index = 0; side_index < wheels.size(); ++side_index) {
-      const std::string side = side_index == 0 ? "left" : "right";
+      const std::string side = SIDES[side_index];
       wheels[side_index] = std::make_unique<WheelDriver>(
         dir_request,
         get_parameter(side + "_pwm_chip").as_int(),
@@ -244,6 +246,8 @@ public:
       create_publisher<Feedback>("platform/motors/feedback", rclcpp::SensorDataQoS());
     feedback_timer = create_wall_timer(
       std::chrono::duration<double>(1.0 / FEEDBACK_RATE_HZ), [this]() {publish_feedback();});
+    diagnostics_updater.setHardwareID("pwm_dir");
+    diagnostics_updater.add("drive", this, &PwmDirMotorDriver::report_drive);
   }
 
   ~PwmDirMotorDriver() override
@@ -280,9 +284,9 @@ private:
   void publish_feedback()
   {
     const auto current_time = now();
-    const bool has_timed_out =
+    has_command_timed_out =
       (current_time - last_command_time).seconds() > COMMAND_TIMEOUT_SECONDS;
-    if (has_timed_out) {
+    if (has_command_timed_out) {
       for (auto & wheel : wheels) {
         wheel->halt();
       }
@@ -291,7 +295,7 @@ private:
     Feedback message;
     message.header.stamp = current_time;
     message.commanded_mode = commanded_mode;
-    message.actual_mode = has_timed_out ? Drive::MODE_NONE : commanded_mode;
+    message.actual_mode = has_command_timed_out ? Drive::MODE_NONE : commanded_mode;
     for (size_t side_index = 0; side_index < wheels.size(); ++side_index) {
       wheels[side_index]->travel_radians +=
         wheels[side_index]->velocity_radians_per_second / FEEDBACK_RATE_HZ;
@@ -303,12 +307,31 @@ private:
     feedback_publisher->publish(message);
   }
 
+  void report_drive(diagnostic_updater::DiagnosticStatusWrapper & status)
+  {
+    if (has_command_timed_out) {
+      status.summary(
+        diagnostic_msgs::msg::DiagnosticStatus::WARN, "Drive command timed out, wheels halted");
+    } else {
+      status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Receiving drive commands");
+    }
+    status.add("commanded_mode", static_cast<int>(commanded_mode));
+    for (size_t side_index = 0; side_index < wheels.size(); ++side_index) {
+      const std::string side = SIDES[side_index];
+      status.add(side + "_duty_fraction", wheels[side_index]->duty_fraction);
+      status.add(
+        side + "_velocity_radians_per_second", wheels[side_index]->velocity_radians_per_second);
+    }
+  }
+
   double max_wheel_speed;
   gpiod_chip *dir_chip = nullptr;
   gpiod_line_request *dir_request = nullptr;
   std::array<std::unique_ptr<WheelDriver>, 2> wheels;
   int8_t commanded_mode = Drive::MODE_NONE;
   rclcpp::Time last_command_time;
+  bool has_command_timed_out = false;
+  diagnostic_updater::Updater diagnostics_updater{this};
   rclcpp::Subscription<Drive>::SharedPtr drive_subscription;
   rclcpp::Publisher<Feedback>::SharedPtr feedback_publisher;
   rclcpp::TimerBase::SharedPtr feedback_timer;

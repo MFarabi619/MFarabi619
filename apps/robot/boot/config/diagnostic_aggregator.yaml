@@ -21,7 +21,7 @@
         motors:
           type: diagnostic_aggregator/GenericAnalyzer
           path: Motors
-          contains: [ 'roboteq' ]
+          contains: [ 'roboteq', 'pwm_dir_motor_driver' ]
     sensors:
       type: diagnostic_aggregator/AnalyzerGroup
       path: Sensors
