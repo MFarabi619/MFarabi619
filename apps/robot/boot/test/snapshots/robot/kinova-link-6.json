@@ -534,6 +534,7 @@
         "~/imu/data": "imu/data",
         "~/imu/mag": "imu/mag",
         "~/obj_det/objects": "objects",
+        "~/odom": "odom",
         "~/point_cloud/cloud_registered": "depth/points",
         "~/rgb/color/rect/image": "color/image_raw",
         "~/temperature/imu": "temperature/imu",

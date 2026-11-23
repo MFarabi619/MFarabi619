@@ -104,6 +104,7 @@
         "cmd_vel_timeout_seconds": 0.5,
         "max_angular_acceleration_radians_per_second_squared": 7.5,
         "max_linear_acceleration_meters_per_second_squared": 5.0,
+        "odometry_source": "wheels",
         "wheel_radius": 0.1749,
         "wheel_separation": 1.1704,
         "wheel_separation_multiplier": 1.0
@@ -130,6 +131,7 @@
               "ros__parameters": {
                 "angular.z.max_acceleration": 7.5,
                 "cmd_vel_timeout": 0.5,
+                "enable_odom_tf": true,
                 "linear.x.max_acceleration": 5.0,
                 "wheel_radius": 0.1749,
                 "wheel_separation": 1.1704,
@@ -159,6 +161,7 @@
               "ros__parameters": {
                 "angular.z.max_acceleration": 7.5,
                 "cmd_vel_timeout": 0.5,
+                "enable_odom_tf": true,
                 "linear.x.max_acceleration": 5.0,
                 "wheel_radius": 0.1749,
                 "wheel_separation": 1.1704,

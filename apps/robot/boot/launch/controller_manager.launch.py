@@ -19,6 +19,7 @@ from robot_boot.drivetrain_parameters import (
     CONTROLLER_MANAGER_TIMEOUT_SECONDS, write_drivetrain_parameters_file)
 from robot_boot.launch_policy import DIAGNOSTICS_REMAPS, RESPAWN
 from robot_boot.zenoh_router import ensure_zenoh_router
+from robot_machines.machine import WHEELS_ODOMETRY_SOURCE
 
 
 @launch_this
@@ -34,6 +35,7 @@ def controller_manager(
     max_linear_jerk_meters_per_second_cubed: float = 0.0,
     max_angular_acceleration_radians_per_second_squared: float = 0.0,
     max_angular_jerk_radians_per_second_cubed: float = 0.0,
+    odometry_source: str = WHEELS_ODOMETRY_SOURCE,
 ):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
@@ -50,7 +52,8 @@ def controller_manager(
             'max_angular_jerk_radians_per_second_cubed': max_angular_jerk_radians_per_second_cubed,
         },
         wheel_separation_multiplier=wheel_separation_multiplier,
-        cmd_vel_timeout_seconds=cmd_vel_timeout_seconds)
+        cmd_vel_timeout_seconds=cmd_vel_timeout_seconds,
+        odometry_source=odometry_source)
 
     def spawn_controllers():
         if bl.is_shutdown:

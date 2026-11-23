@@ -100,6 +100,7 @@
         "max_linear_acceleration_meters_per_second_squared": 8.0,
         "max_linear_jerk_meters_per_second_cubed": 60.0,
         "max_linear_velocity_meters_per_second": 2.0,
+        "odometry_source": "wheels",
         "wheel_radius": 0.1749,
         "wheel_separation": 1.1704,
         "wheel_separation_multiplier": 1.0
@@ -128,6 +129,7 @@
                 "angular.z.max_jerk": 70.0,
                 "angular.z.max_velocity": 3.0,
                 "cmd_vel_timeout": 0.5,
+                "enable_odom_tf": true,
                 "linear.x.max_acceleration": 8.0,
                 "linear.x.max_jerk": 60.0,
                 "linear.x.max_velocity": 2.0,
@@ -161,6 +163,7 @@
                 "angular.z.max_jerk": 70.0,
                 "angular.z.max_velocity": 3.0,
                 "cmd_vel_timeout": 0.5,
+                "enable_odom_tf": true,
                 "linear.x.max_acceleration": 8.0,
                 "linear.x.max_jerk": 60.0,
                 "linear.x.max_velocity": 2.0,

@@ -91,6 +91,7 @@ def stereolabs_zed(
                     '~/image/depth_image': 'depth/image_view',
                     '~/obj_det/objects': 'objects',
                     '~/imu/data': 'imu/data',
+                    '~/odom': 'odom',
                     '~/imu/mag': 'imu/mag',
                     '~/atm_press': 'air_pressure',
                     '~/temperature/imu': 'temperature/imu',

@@ -894,6 +894,15 @@
           "default": false,
           "title": "Collision Guarded",
           "type": "boolean"
+        },
+        "odometry_source": {
+          "default": "wheels",
+          "enum": [
+            "wheels",
+            "stereolabs_zed"
+          ],
+          "title": "Odometry Source",
+          "type": "string"
         }
       },
       "required": [

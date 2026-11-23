@@ -16,6 +16,7 @@
 
 import tempfile
 
+from robot_machines.machine import WHEELS_ODOMETRY_SOURCE
 import yaml
 
 CONTROLLER_PARAMETERS_BY_LIMIT = {
@@ -31,12 +32,14 @@ CONTROLLER_MANAGER_TIMEOUT_SECONDS = '60'
 
 def write_drivetrain_parameters_file(wheel_separation, wheel_radius, motion_limits,
                                      wheel_names_by_side=None, wheel_separation_multiplier=1.0,
-                                     cmd_vel_timeout_seconds=0.5):
+                                     cmd_vel_timeout_seconds=0.5,
+                                     odometry_source=WHEELS_ODOMETRY_SOURCE):
     ros_parameters = {
         'wheel_separation': wheel_separation,
         'wheel_separation_multiplier': wheel_separation_multiplier,
         'cmd_vel_timeout': cmd_vel_timeout_seconds,
         'wheel_radius': wheel_radius,
+        'enable_odom_tf': odometry_source == WHEELS_ODOMETRY_SOURCE,
     }
     if wheel_names_by_side:
         left_wheel_names, right_wheel_names = wheel_names_by_side

@@ -31,6 +31,7 @@ DrivetrainModel = Literal[
     'roboteq', 'analog_throttle', 'rc_pulse', 'pwm_dir', 'odrive_usb', 'svd48v', 'mock']
 ArmModel = Literal['kinova_link6']
 RcReceiverInterface = Literal['gpio', 'usb_joystick']
+OdometrySource = Literal['wheels', 'stereolabs_zed']
 GripperModel = Literal['robotiq_2f_85', 'robotiq_2f_140']
 CAMERA_MODELS = get_args(CameraModel)
 IMU_MODELS = get_args(ImuModel)
@@ -41,6 +42,7 @@ LUXONIS_OAK_D_PRO_W_POE_MODEL = 'luxonis_oak_d_pro_w_poe'
 LUXONIS_OAK_MODELS = ('luxonis_oak_d_sr', LUXONIS_OAK_D_PRO_W_POE_MODEL)
 GPIO_INTERFACE = 'gpio'
 USB_JOYSTICK_INTERFACE = 'usb_joystick'
+WHEELS_ODOMETRY_SOURCE = 'wheels'
 DEPTH_CAMERA_PRECEDENCE = (
     LUXONIS_OAK_MODELS, (ORBBEC_GEMINI_335L_MODEL,), (STEREOLABS_ZED_MODEL,))
 DRIVETRAIN_MODELS = get_args(DrivetrainModel)
@@ -164,6 +166,7 @@ class Platform(StrictRecord):
     drivetrain: Drivetrain
     rc_receiver: RcReceiver | None = None
     collision_guarded: bool = False
+    odometry_source: OdometrySource = WHEELS_ODOMETRY_SOURCE
 
 
 class Sensor(StrictRecord):
@@ -337,6 +340,15 @@ class Machine(StrictRecord):
     home: Home | None = None
     manipulation: dict = {}
 
+    @model_validator(mode='after')
+    def require_stereolabs_zed_for_stereolabs_zed_odometry(self):
+        if self.platform and self.platform.odometry_source == STEREOLABS_ZED_MODEL \
+                and self.odometry_camera is None:
+            raise ValueError(
+                f'odometry_source: {STEREOLABS_ZED_MODEL} needs an enabled '
+                f'{STEREOLABS_ZED_MODEL} camera')
+        return self
+
     @property
     def namespace(self):
         return self.system.namespace
@@ -384,6 +396,12 @@ class Machine(StrictRecord):
     def first_enabled_camera(self, *models):
         return next(
             (camera for camera in self.enabled_cameras if camera.model in models), None)
+
+    @property
+    def odometry_camera(self):
+        if self.platform is None or self.platform.odometry_source != STEREOLABS_ZED_MODEL:
+            return None
+        return self.first_enabled_camera(STEREOLABS_ZED_MODEL)
 
     @property
     def depth_camera(self):

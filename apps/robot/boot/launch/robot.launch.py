@@ -216,8 +216,13 @@ def launch_platform(machine, drivetrain_model, urdf_path, depth_camera):
         wheel_radius=wheel_radius,
         wheel_separation_multiplier=drivetrain.wheel_separation_multiplier,
         cmd_vel_timeout_seconds=drivetrain.cmd_vel_timeout_seconds,
+        odometry_source=machine.platform.odometry_source,
         **motion_limits,
     )
+    if machine.odometry_camera:
+        include(
+            'robot_boot', 'local_odometry.launch.py',
+            odometry_topic=f'sensors/{machine.odometry_camera.name}/odom')
 
     rc_receiver = machine.platform.rc_receiver
     if rc_receiver and rc_receiver.launch_enabled:
