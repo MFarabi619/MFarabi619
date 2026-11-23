@@ -144,6 +144,18 @@ sudo nmcli connection modify openws \
     802-11-wireless.powersave disable
 #+END_SRC
 
+The =rtl8822ce= driver manages its own regulatory domain and ignores =iw reg set=. With no
+country code it finds no 5 GHz networks and joins 2.4 GHz.
+Set the country on the driver and reboot:
+
+#+BEGIN_SRC sh
+echo 'options rtl8822ce rtw_country_code=CA' | sudo tee /etc/modprobe.d/rtl8822ce.conf
+sudo reboot
+#+END_SRC
+
+Verify with =cat /sys/module/rtl8822ce/parameters/rtw_country_code= (prints =CA=) and
+=nmcli dev wifi list --rescan yes= (lists 5 GHz networks).
+
 **** Verify JetPack + CUDA
 
 #+BEGIN_SRC sh
