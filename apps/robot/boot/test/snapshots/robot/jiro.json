@@ -576,7 +576,8 @@
                   "pub_frame_rate": 30.0
                 },
                 "object_detection": {
-                  "od_enabled": false
+                  "detection_model": "MULTI_CLASS_BOX_ACCURATE",
+                  "od_enabled": true
                 },
                 "pos_tracking": {
                   "pos_tracking_enabled": true,
@@ -758,11 +759,11 @@
         },
         "object_detection": {
           "allow_reduced_precision_inference": false,
-          "detection_model": "MULTI_CLASS_BOX_FAST",
+          "detection_model": "MULTI_CLASS_BOX_ACCURATE",
           "enable_tracking": true,
           "filtering_mode": "NMS3D",
           "max_range": 40.0,
-          "od_enabled": false,
+          "od_enabled": true,
           "prediction_timeout": 2.0
         },
         "pos_tracking": {
@@ -956,6 +957,22 @@
       "respawn_delay": 2.0
     },
     {
+      "executable": "stereolabs_zed_object_overlay",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "stereolabs_zed_object_overlay",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "params": {
+        "camera_info_topic": "sensors/camera_0/color/camera_info",
+        "detections_topic": "detections",
+        "objects_topic": "sensors/camera_0/objects",
+        "overlay_topic": "perception/vision/overlay",
+        "scene_topic": "perception/vision/objects"
+      },
+      "respawn_delay": 2.0
+    },
+    {
       "arguments": {
         "camera": "camera_0",
         "range_max": 4.0,
@@ -1022,7 +1039,7 @@
       "arguments": {
         "camera": "camera_0",
         "follow_button_enabled": true,
-        "has_on_camera_detector": false,
+        "has_on_camera_detector": true,
         "image_topic": "",
         "overrides_file": {
           "tempfile": {
@@ -1093,88 +1110,6 @@
       "namespace": "/jiro",
       "package": "robot_navigation",
       "subdir": null
-    },
-    {
-      "executable": "person_detector",
-      "kind": "node",
-      "max_respawns": -1,
-      "name": "person_detector",
-      "namespace": "/jiro",
-      "package": "robot_perception",
-      "param_files": [
-        "navigation/config/follow.yaml",
-        {
-          "tempfile": {
-            "/**/line_follow": {
-              "ros__parameters": {
-                "image_width_pixels": 640
-              }
-            },
-            "/**/park_path_detector": {
-              "ros__parameters": {
-                "min_column_fraction": 0.95,
-                "roi_top_fraction": 0.6
-              }
-            },
-            "/**/park_path_follow": {
-              "ros__parameters": {
-                "forward_speed_meters_per_second": 0.9,
-                "max_angular_speed_radians_per_second": 1.5,
-                "steer_gain": 1.5
-              }
-            },
-            "/**/path_follow": {
-              "ros__parameters": {
-                "forward_speed_meters_per_second": 0.9,
-                "lateral_offset_meters": 0.35,
-                "max_angular_speed_radians_per_second": 1.5,
-                "steer_gain": 1.5
-              }
-            },
-            "/**/person_detector": {
-              "ros__parameters": {
-                "max_detections_per_second": 30.0,
-                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
-              }
-            },
-            "/**/person_follow": {
-              "ros__parameters": {
-                "distance_deadband_meters": 0.25,
-                "distance_gain": 2.0,
-                "max_angular_speed_radians_per_second": 5.0,
-                "max_backward_speed_meters_per_second": 1.5,
-                "max_forward_speed_meters_per_second": 2.0,
-                "steer_gain": 2.0
-              }
-            },
-            "/**/rc_receiver_teleop": {
-              "ros__parameters": {
-                "scale_angular": {
-                  "yaw": 3.0
-                },
-                "scale_linear": {
-                  "x": 2.0
-                }
-              }
-            },
-            "/**/sidewalk_follow": {
-              "ros__parameters": {
-                "forward_speed_meters_per_second": 0.5,
-                "max_angular_speed_radians_per_second": 1.5,
-                "steer_gain": 1.5
-              }
-            }
-          }
-        }
-      ],
-      "params": {
-        "class_label": "person",
-        "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
-        "depth_topic": "sensors/camera_0/depth/image_raw",
-        "image_topic": "sensors/camera_0/color/image_raw",
-        "start_enabled": true
-      },
-      "respawn_delay": 2.0
     },
     {
       "executable": "follow",

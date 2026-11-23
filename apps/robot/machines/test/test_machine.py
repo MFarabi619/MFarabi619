@@ -102,7 +102,8 @@ def test_depth_camera_prefers_oak_then_orbbec_then_zed(tmp_path):
 
 def test_has_on_camera_detector_follows_the_camera_model():
     assert load_machine('kinova-link-6').depth_camera.has_on_camera_detector
-    assert not load_machine('jiro').depth_camera.has_on_camera_detector
+    assert load_machine('jiro').depth_camera.has_on_camera_detector
+    assert not load_machine('taro').depth_camera.has_on_camera_detector
 
 
 def test_committed_schema_matches_the_model():
