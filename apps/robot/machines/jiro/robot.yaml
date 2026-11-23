@@ -11,6 +11,7 @@ system:
       board: jetson_orin_nx
 platform:
   collision_guarded: false
+  odometry_source: stereolabs_zed
   rc_receiver:
     interface: usb_joystick
     # channel_1_pin: 11
@@ -65,7 +66,8 @@ sensors:
         object_detection:
           od_enabled: false
         pos_tracking:
-          pos_tracking_enabled: false
+          pos_tracking_enabled: true
+          two_d_mode: true
           publish_tf: false
           publish_map_tf: false
         sensors:
