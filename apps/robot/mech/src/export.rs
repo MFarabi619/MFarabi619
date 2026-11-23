@@ -1,4 +1,4 @@
-use std::{error::Error, fs::File, path::Path};
+use std::{error::Error, fs::File, io::BufWriter, path::Path};
 
 #[allow(unused_imports)]
 use cadrum::SceneOption;
@@ -6,8 +6,48 @@ use cadrum::{DVec3, Solid, Tessellation};
 use comfy_table::{modifiers, presets::UTF8_FULL, Attribute, Cell, Color, Table};
 
 use crate::{
-    gltf::write_shaded_glb, mass_properties::LinkSummary, material::Material, time_it, Link,
+    assembly::combined_bounds, cad_asset, collada::write_collada, gltf::write_shaded_glb,
+    mass_properties::LinkSummary, material::Material, time_it, Link, METERS_PER_MILLIMETER,
 };
+
+pub struct StepMesh {
+    pub robot_name: &'static str,
+    pub step_filename: &'static str,
+    pub mesh_filename: &'static str,
+}
+
+pub const STEP_MESHES: &[StepMesh] = &[
+    StepMesh {
+        robot_name: "saburo",
+        step_filename: "saburo_chassis_assembly.step",
+        mesh_filename: "chassis.dae",
+    },
+    StepMesh {
+        robot_name: "saburo",
+        step_filename: "saburo_wheel_assembly.step",
+        mesh_filename: "wheel.dae",
+    },
+    StepMesh {
+        robot_name: "saburo",
+        step_filename: "saburo_mounting_assembly.step",
+        mesh_filename: "mounting.dae",
+    },
+];
+
+pub fn write_step_collada(step_filename: &str, collada_path: &Path) -> Result<(), Box<dyn Error>> {
+    let solids: Vec<Solid> = Solid::read_step(&mut File::open(cad_asset(step_filename))?)?
+        .into_iter()
+        .map(|solid| solid.scale(DVec3::ZERO, METERS_PER_MILLIMETER))
+        .collect();
+    let mesh = time_it!(step_filename, Solid::mesh(&solids, TESSELLATION))?;
+    write_collada(&mesh, Material::pbr_for_rgb, &mut BufWriter::new(File::create(collada_path)?))?;
+    let [bounds_min, bounds_max] = combined_bounds(&solids);
+    println!(
+        "wrote {} bounds (meters): min {bounds_min:.4} max {bounds_max:.4}",
+        collada_path.display()
+    );
+    Ok(())
+}
 
 pub fn to_gltf_y_up(solid: Solid) -> Solid {
     solid.align_z(DVec3::Y, DVec3::X)

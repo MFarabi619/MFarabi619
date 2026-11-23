@@ -1,4 +1,4 @@
-use std::{error::Error, fs};
+use std::{error::Error, fs, path::Path};
 
 use glam::DVec3;
 use robot_description::{
@@ -6,7 +6,7 @@ use robot_description::{
     placement::joint_table,
 };
 use robot_description::{
-    assembly, config, export, mass_properties, mass_properties::LinkSummary, robot_root,
+    assembly, cad_asset, config, export, mass_properties, mass_properties::LinkSummary, robot_root,
     time_it, urdf, Link, METERS_PER_MILLIMETER,
 };
 
@@ -17,6 +17,28 @@ fn camera_center_millimeters(robot_config: &config::RobotConfig) -> Option<DVec3
         .iter()
         .find(|camera| camera.launch_enabled && camera.urdf_enabled)
         .map(|camera| DVec3::from_array(camera.xyz) / METERS_PER_MILLIMETER)
+}
+
+fn write_step_meshes(package_directory: &Path, robot_name: &str) -> Result<(), Box<dyn Error>> {
+    let meshes_directory = package_directory.join("meshes").join(robot_name);
+    fs::create_dir_all(&meshes_directory)?;
+    for step_mesh in export::STEP_MESHES
+        .iter()
+        .filter(|step_mesh| step_mesh.robot_name == robot_name)
+    {
+        if !cad_asset(step_mesh.step_filename).is_file() {
+            println!(
+                "skipped {}: {} not found",
+                step_mesh.mesh_filename, step_mesh.step_filename
+            );
+            continue;
+        }
+        export::write_step_collada(
+            step_mesh.step_filename,
+            &meshes_directory.join(step_mesh.mesh_filename),
+        )?;
+    }
+    Ok(())
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -61,7 +83,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             .join("robot.urdf");
         let robot_dimensions = match dimensions::for_robot(robot_name) {
             Some(dimensions) => dimensions,
-            None if vendor_urdf.is_file() => continue,
+            None if vendor_urdf.is_file() => {
+                write_step_meshes(&package_directory, robot_name)?;
+                continue;
+            }
             None => {
                 return Err(format!(
                     "machines/{robot_name} has no entry in mech/src/dimensions.rs"

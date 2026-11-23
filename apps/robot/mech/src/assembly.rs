@@ -605,7 +605,7 @@ fn gussets(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
         .collect())
 }
 
-fn combined_bounds(solids: &[Solid]) -> [DVec3; 2] {
+pub(crate) fn combined_bounds(solids: &[Solid]) -> [DVec3; 2] {
     let empty_bounds = [DVec3::splat(f64::INFINITY), DVec3::splat(f64::NEG_INFINITY)];
     solids
         .iter()
