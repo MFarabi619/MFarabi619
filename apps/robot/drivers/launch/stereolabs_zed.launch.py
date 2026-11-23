@@ -18,7 +18,7 @@ import os
 
 from better_launch import BetterLaunch, launch_this
 from better_launch.convenience import robot_state_publisher
-from robot_boot.launch_policy import RESPAWN, TF_REMAPS
+from robot_boot.launch_policy import DIAGNOSTICS_REMAPS, RESPAWN, TF_REMAPS
 from robot_boot.zenoh_router import ensure_zenoh_router
 import yaml
 
@@ -46,8 +46,8 @@ def deep_merge(base, overrides):
     return base
 
 
-def absolute_tf_remaps(namespace):
-    return {topic: f'{namespace.rstrip("/")}/{tf}' for topic, tf in TF_REMAPS.items()}
+def absolute_remaps(remaps, namespace):
+    return {topic: f'{namespace.rstrip("/")}/{target}' for topic, target in remaps.items()}
 
 
 @launch_this
@@ -67,7 +67,8 @@ def stereolabs_zed(
         raise RuntimeError(f'{ZED_SDK_ROOT} not found; install the ZED SDK')
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
-    robot_tf_remaps = absolute_tf_remaps(bl.group_tip.assemble_namespace())
+    robot_absolute_remaps = absolute_remaps(
+        TF_REMAPS | DIAGNOSTICS_REMAPS, bl.group_tip.assemble_namespace())
     overrides = node_overrides(overrides_file, camera)
     camera_model = overrides.get('general', {}).get('camera_model', camera_model)
     parameters = zed_wrapper_defaults(bl, 'common_stereo.yaml')
@@ -79,11 +80,11 @@ def stereolabs_zed(
     })
     with bl.group(f'sensors/{camera}'):
         with bl.compose(
-                'zed_container', variant='multithreading', component_remaps=robot_tf_remaps):
+                'zed_container', variant='multithreading', component_remaps=robot_absolute_remaps):
             bl.component(
                 'zed_components', 'stereolabs::ZedCamera', 'zed_node',
                 params=parameters,
-                remaps=robot_tf_remaps | {
+                remaps={
                     '~/rgb/color/rect/image': 'color/image_raw',
                     '~/depth/depth_registered': 'depth/image_raw',
                     '~/point_cloud/cloud_registered': 'depth/points',

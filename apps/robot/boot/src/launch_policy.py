@@ -22,6 +22,11 @@ import yaml
 RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 LIFECYCLE_ACTIVATION = {'lifecycle_waittime': 5.0}
 TF_REMAPS = {'/tf': 'tf', '/tf_static': 'tf_static'}
+DIAGNOSTICS_REMAPS = {'/diagnostics': 'diagnostics'}
+DIAGNOSTIC_AGGREGATOR_REMAPS = DIAGNOSTICS_REMAPS | {
+    '/diagnostics_agg': 'diagnostics_agg',
+    '/diagnostics_toplevel_state': 'diagnostics_toplevel_state',
+}
 DEFAULT_DEPTH_FRAMES_PER_SECOND = 15
 
 

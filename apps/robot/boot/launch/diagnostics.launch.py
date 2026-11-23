@@ -15,7 +15,8 @@
 
 
 from better_launch import BetterLaunch, launch_this
-from robot_boot.launch_policy import RESPAWN
+from robot_boot.launch_policy import (
+    DIAGNOSTIC_AGGREGATOR_REMAPS, DIAGNOSTICS_REMAPS, RESPAWN)
 from robot_boot.zenoh_router import ensure_zenoh_router
 
 COMPUTER_MONITORS = ('cpu_monitor', 'ram_monitor', 'hd_monitor')
@@ -31,6 +32,7 @@ def diagnostics(params_file: str = ''):
         executable='aggregator_node',
         name='diagnostic_aggregator',
         param_files=[params_file],
+        remaps=DIAGNOSTIC_AGGREGATOR_REMAPS,
         **RESPAWN,
     )
     for monitor in COMPUTER_MONITORS:
@@ -38,5 +40,6 @@ def diagnostics(params_file: str = ''):
             package='diagnostic_common_diagnostics',
             executable=f'{monitor}.py',
             name=monitor,
+            remaps=DIAGNOSTICS_REMAPS,
             **RESPAWN,
         )

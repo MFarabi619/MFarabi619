@@ -86,6 +86,9 @@
         "right_pwm_channel": 0,
         "right_pwm_chip": 2
       },
+      "remaps": {
+        "/diagnostics": "diagnostics"
+      },
       "respawn_delay": 2.0
     },
     {
@@ -138,6 +141,7 @@
       ],
       "remap_qualifier": "controller_manager",
       "remaps": {
+        "/diagnostics": "diagnostics",
         "~/robot_description": "robot_description"
       },
       "respawn_delay": 2.0
@@ -431,6 +435,7 @@
         "control/config/twist_mux.yaml"
       ],
       "remaps": {
+        "/diagnostics": "diagnostics",
         "cmd_vel_out": "platform/cmd_vel"
       },
       "respawn_delay": 2.0
@@ -473,6 +478,11 @@
       "param_files": [
         "boot/config/diagnostic_aggregator.yaml"
       ],
+      "remaps": {
+        "/diagnostics": "diagnostics",
+        "/diagnostics_agg": "diagnostics_agg",
+        "/diagnostics_toplevel_state": "diagnostics_toplevel_state"
+      },
       "respawn_delay": 2.0
     },
     {
@@ -482,6 +492,9 @@
       "name": "cpu_monitor",
       "namespace": "/jiro",
       "package": "diagnostic_common_diagnostics",
+      "remaps": {
+        "/diagnostics": "diagnostics"
+      },
       "respawn_delay": 2.0
     },
     {
@@ -491,6 +504,9 @@
       "name": "ram_monitor",
       "namespace": "/jiro",
       "package": "diagnostic_common_diagnostics",
+      "remaps": {
+        "/diagnostics": "diagnostics"
+      },
       "respawn_delay": 2.0
     },
     {
@@ -500,6 +516,9 @@
       "name": "hd_monitor",
       "namespace": "/jiro",
       "package": "diagnostic_common_diagnostics",
+      "remaps": {
+        "/diagnostics": "diagnostics"
+      },
       "respawn_delay": 2.0
     },
     {
@@ -562,6 +581,7 @@
     },
     {
       "component_remaps": {
+        "/diagnostics": "/jiro/diagnostics",
         "/tf": "/jiro/tf",
         "/tf_static": "/jiro/tf_static"
       },
@@ -832,8 +852,6 @@
       },
       "plugin": "stereolabs::ZedCamera",
       "remaps": {
-        "/tf": "/jiro/tf",
-        "/tf_static": "/jiro/tf_static",
         "~/atm_press": "air_pressure",
         "~/depth/depth_registered": "depth/image_raw",
         "~/image/depth_image": "depth/image_view",

@@ -87,7 +87,7 @@
       "minLevel": 0,
       "pinnedIds": [],
       "hardwareIdFilter": "",
-      "topicToRender": "/diagnostics",
+      "topicToRender": "/saburo/diagnostics",
       "sortByLevel": true
     },
     "RawMessages!3nj3nph": {

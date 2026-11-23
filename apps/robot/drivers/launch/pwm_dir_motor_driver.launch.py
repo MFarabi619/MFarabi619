@@ -15,7 +15,7 @@
 
 
 from better_launch import BetterLaunch, launch_this
-from robot_boot.launch_policy import RESPAWN
+from robot_boot.launch_policy import DIAGNOSTICS_REMAPS, RESPAWN
 from robot_boot.zenoh_router import ensure_zenoh_router
 
 
@@ -53,5 +53,6 @@ def pwm_dir_motor_driver(
             'right_dir_line': right_dir_line,
             'right_forward_level': right_forward_level,
         },
+        remaps=DIAGNOSTICS_REMAPS,
         **RESPAWN,
     )

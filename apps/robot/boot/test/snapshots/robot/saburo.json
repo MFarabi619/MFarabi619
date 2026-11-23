@@ -129,6 +129,7 @@
       ],
       "remap_qualifier": "controller_manager",
       "remaps": {
+        "/diagnostics": "diagnostics",
         "~/robot_description": "robot_description"
       },
       "respawn_delay": 2.0
@@ -298,6 +299,7 @@
         "control/config/twist_mux.yaml"
       ],
       "remaps": {
+        "/diagnostics": "diagnostics",
         "cmd_vel_out": "platform/cmd_vel"
       },
       "respawn_delay": 2.0
@@ -340,6 +342,11 @@
       "param_files": [
         "boot/config/diagnostic_aggregator.yaml"
       ],
+      "remaps": {
+        "/diagnostics": "diagnostics",
+        "/diagnostics_agg": "diagnostics_agg",
+        "/diagnostics_toplevel_state": "diagnostics_toplevel_state"
+      },
       "respawn_delay": 2.0
     },
     {
@@ -349,6 +356,9 @@
       "name": "cpu_monitor",
       "namespace": "/saburo",
       "package": "diagnostic_common_diagnostics",
+      "remaps": {
+        "/diagnostics": "diagnostics"
+      },
       "respawn_delay": 2.0
     },
     {
@@ -358,6 +368,9 @@
       "name": "ram_monitor",
       "namespace": "/saburo",
       "package": "diagnostic_common_diagnostics",
+      "remaps": {
+        "/diagnostics": "diagnostics"
+      },
       "respawn_delay": 2.0
     },
     {
@@ -367,6 +380,9 @@
       "name": "hd_monitor",
       "namespace": "/saburo",
       "package": "diagnostic_common_diagnostics",
+      "remaps": {
+        "/diagnostics": "diagnostics"
+      },
       "respawn_delay": 2.0
     },
     {
@@ -390,6 +406,7 @@
         "control/config/robot_localization.yaml"
       ],
       "remaps": {
+        "/diagnostics": "diagnostics",
         "/tf": "tf",
         "/tf_static": "tf_static"
       },
@@ -528,6 +545,7 @@
     },
     {
       "component_remaps": {
+        "/diagnostics": "/saburo/diagnostics",
         "/tf": "/saburo/tf",
         "/tf_static": "/saburo/tf_static"
       },
@@ -798,8 +816,6 @@
       },
       "plugin": "stereolabs::ZedCamera",
       "remaps": {
-        "/tf": "/saburo/tf",
-        "/tf_static": "/saburo/tf_static",
         "~/atm_press": "air_pressure",
         "~/depth/depth_registered": "depth/image_raw",
         "~/image/depth_image": "depth/image_view",

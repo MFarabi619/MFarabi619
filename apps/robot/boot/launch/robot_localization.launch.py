@@ -15,7 +15,7 @@
 
 
 from better_launch import BetterLaunch, launch_this
-from robot_boot.launch_policy import RESPAWN, TF_REMAPS
+from robot_boot.launch_policy import DIAGNOSTICS_REMAPS, RESPAWN, TF_REMAPS
 from robot_boot.zenoh_router import ensure_zenoh_router
 
 
@@ -29,7 +29,7 @@ def robot_localization(params_file: str = '', gps_topic_prefix: str = 'sensors/g
         executable='ekf_node',
         name='ekf_global',
         param_files=[params_file],
-        remaps=TF_REMAPS,
+        remaps=TF_REMAPS | DIAGNOSTICS_REMAPS,
         **RESPAWN,
     )
     bl.node(

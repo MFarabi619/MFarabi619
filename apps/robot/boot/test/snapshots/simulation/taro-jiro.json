@@ -279,6 +279,7 @@
         "control/config/twist_mux.yaml"
       ],
       "remaps": {
+        "/diagnostics": "diagnostics",
         "cmd_vel_out": "platform/cmd_vel"
       },
       "respawn_delay": 2.0
@@ -911,6 +912,7 @@
         "control/config/twist_mux.yaml"
       ],
       "remaps": {
+        "/diagnostics": "diagnostics",
         "cmd_vel_out": "platform/cmd_vel"
       },
       "respawn_delay": 2.0
@@ -1449,6 +1451,7 @@
         "control/config/robot_localization.yaml"
       ],
       "remaps": {
+        "/diagnostics": "diagnostics",
         "/tf": "tf",
         "/tf_static": "tf_static"
       },

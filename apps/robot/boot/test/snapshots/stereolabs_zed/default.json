@@ -27,6 +27,7 @@
     },
     {
       "component_remaps": {
+        "/diagnostics": "/diagnostics",
         "/tf": "/tf",
         "/tf_static": "/tf_static"
       },
@@ -297,8 +298,6 @@
       },
       "plugin": "stereolabs::ZedCamera",
       "remaps": {
-        "/tf": "/tf",
-        "/tf_static": "/tf_static",
         "~/atm_press": "air_pressure",
         "~/depth/depth_registered": "depth/image_raw",
         "~/image/depth_image": "depth/image_view",

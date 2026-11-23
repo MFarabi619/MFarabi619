@@ -15,7 +15,7 @@
 
 
 from better_launch import BetterLaunch, launch_this
-from robot_boot.launch_policy import RESPAWN
+from robot_boot.launch_policy import DIAGNOSTICS_REMAPS, RESPAWN
 from robot_boot.zenoh_router import ensure_zenoh_router
 
 
@@ -28,7 +28,7 @@ def twist_mux(params_file: str = '', cmd_vel_out: str = 'platform/cmd_vel'):
         package='twist_mux',
         executable='twist_mux',
         name='twist_mux',
-        remaps={'cmd_vel_out': cmd_vel_out},
+        remaps=DIAGNOSTICS_REMAPS | {'cmd_vel_out': cmd_vel_out},
         param_files=[params_file],
         **RESPAWN,
     )

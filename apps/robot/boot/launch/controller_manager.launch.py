@@ -17,7 +17,7 @@
 from better_launch import BetterLaunch, launch_this
 from robot_boot.drivetrain_parameters import (
     CONTROLLER_MANAGER_TIMEOUT_SECONDS, write_drivetrain_parameters_file)
-from robot_boot.launch_policy import RESPAWN
+from robot_boot.launch_policy import DIAGNOSTICS_REMAPS, RESPAWN
 from robot_boot.zenoh_router import ensure_zenoh_router
 
 
@@ -73,7 +73,7 @@ def controller_manager(
         package='controller_manager',
         executable='ros2_control_node',
         name='controller_manager',
-        remaps={'~/robot_description': 'robot_description'},
+        remaps=DIAGNOSTICS_REMAPS | {'~/robot_description': 'robot_description'},
         param_files=[params_file, drivetrain_parameters_file],
         remap_qualifier='controller_manager',
         **RESPAWN,
