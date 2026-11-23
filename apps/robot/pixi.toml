@@ -278,6 +278,10 @@ waypoints = { cmd = "python navigation/src/waypoints.py --robot {{ robot }}", ar
     { arg = "robot", default = "taro" },
 ] }
 
+navigate-to-pose = { cmd = "python navigation/src/navigate_to_pose.py --robot {{ robot }}", args = [
+    { arg = "robot", default = "jiro" },
+] }
+
 slam = { cmd = "python navigation/launch/slam.launch.py --robot {{ robot }}", args = [
     { arg = "robot", default = "jiro" },
 ] }
