@@ -470,7 +470,7 @@ python manipulation/src/kinova_link6_pick_hardware.py \
     --velocity {{ velocity }} \
     --joint-speed {{ joint_speed }}\
 """, args = [
-    { arg = "grasp_pose", default = "grasp" },
+    { arg = "grasp_pose", default = "grasp-2" },
     { arg = "force", default = "10" },
     { arg = "velocity", default = "50" },
     { arg = "joint_speed", default = "30" },
@@ -483,7 +483,7 @@ python manipulation/src/kinova_link6_pick_hardware.py \
     --velocity {{ velocity }} \
     --joint-speed {{ joint_speed }}\
 """, args = [
-    { arg = "grasp_pose", default = "grasp" },
+    { arg = "grasp_pose", default = "grasp-2" },
     { arg = "velocity", default = "50" },
     { arg = "joint_speed", default = "30" },
 ] }
