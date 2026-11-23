@@ -34,6 +34,7 @@ STEREOLABS_ZED_DEFAULT_POINT_CLOUD_RATE_HZ = 10.0
 GROUND_STATION_LISTEN_URL = 'udpin:0.0.0.0:14550'
 FOLLOWED_SURFACES = ('sidewalk', 'park_path', 'path')
 LUXONIS_OAK_LASERSCAN_ARGUMENTS = {'range_min': 0.2, 'range_max': 3.0, 'scan_time': 0.05}
+STEREOLABS_ZED_LASERSCAN_ARGUMENTS = {'range_max': 4.0}
 
 
 def resolve_line(pins, pin):
@@ -280,7 +281,7 @@ def laserscan_arguments(camera):
     if camera.model == STEREOLABS_ZED_MODEL:
         point_cloud_freq = camera.parameters.get('depth', {}).get(
             'point_cloud_freq', STEREOLABS_ZED_DEFAULT_POINT_CLOUD_RATE_HZ)
-        return {'scan_time': 1.0 / point_cloud_freq}
+        return {**STEREOLABS_ZED_LASERSCAN_ARGUMENTS, 'scan_time': 1.0 / point_cloud_freq}
     return {'scan_time': 1.0 / camera.parameters['depth_frames_per_second']}
 
 

@@ -958,6 +958,7 @@
     {
       "arguments": {
         "camera": "camera_0",
+        "range_max": 4.0,
         "scan_time": 0.06666666666666667
       },
       "kind": "include",
@@ -976,7 +977,7 @@
       "params": {
         "max_height": 2.0,
         "min_height": 0.15,
-        "range_max": 8.0,
+        "range_max": 4.0,
         "range_min": 0.25,
         "scan_time": 0.06666666666666667,
         "target_frame": "base_footprint"
