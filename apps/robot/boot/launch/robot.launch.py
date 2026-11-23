@@ -357,6 +357,11 @@ def launch_perception(machine, depth_camera, camera_height_meters, overrides_fil
 def launch_navigation(machine, depth_camera, overrides_file):
     if machine.behaviors.nav2_person_follow:
         include('robot_boot', 'nav2_person_follow.launch.py')
+    if machine.behaviors.nav2_navigate_to_pose and depth_camera:
+        include(
+            'robot_boot', 'nav2_navigate_to_pose.launch.py',
+            scan_topic=f'sensors/{depth_camera.name}/scan',
+        )
     if machine.behaviors.gps_navigation and machine.sensors.gps and depth_camera:
         include(
             'robot_navigation', 'ground_station_bridge.launch.py',

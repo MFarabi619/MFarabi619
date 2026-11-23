@@ -1,0 +1,69 @@
+/**/controller_server:
+  ros__parameters:
+    odom_topic: odometry/local
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.5
+    min_theta_velocity_threshold: 0.001
+    failure_tolerance: 0.3
+    FollowPath:
+      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+      max_linear_vel: 0.5
+      rotate_to_heading_angular_vel: 0.8
+
+/**/local_costmap:
+  ros__parameters:
+    publish_frequency: 2.0
+    global_frame: odom
+    rolling_window: true
+    width: 6
+    height: 6
+    resolution: 0.05
+    footprint: "[[0.38, 0.35], [0.38, -0.35], [-0.46, -0.35], [-0.46, 0.35]]"
+    footprint_padding: 0.05
+    plugins: ["obstacle_layer", "inflation_layer"]
+    obstacle_layer:
+      plugin: "nav2_costmap_2d::ObstacleLayer"
+      observation_sources: scan
+      scan:
+        max_obstacle_height: 2.0
+        clearing: True
+    inflation_layer:
+      plugin: "nav2_costmap_2d::InflationLayer"
+      cost_scaling_factor: 3.0
+      inflation_radius: 0.30
+    always_send_full_costmap: True
+
+/**/planner_server:
+  ros__parameters:
+    expected_planner_frequency: 20.0
+
+/**/global_costmap:
+  ros__parameters:
+    update_frequency: 2.0
+    global_frame: odom
+    rolling_window: true
+    width: 20
+    height: 20
+    resolution: 0.05
+    footprint: "[[0.38, 0.35], [0.38, -0.35], [-0.46, -0.35], [-0.46, 0.35]]"
+    footprint_padding: 0.05
+    plugins: ["obstacle_layer", "inflation_layer"]
+    obstacle_layer:
+      plugin: "nav2_costmap_2d::ObstacleLayer"
+      observation_sources: scan
+      scan:
+        max_obstacle_height: 2.0
+        clearing: True
+    inflation_layer:
+      plugin: "nav2_costmap_2d::InflationLayer"
+      cost_scaling_factor: 3.0
+      inflation_radius: 0.30
+    always_send_full_costmap: True
+
+/**/bt_navigator:
+  ros__parameters:
+    global_frame: odom
+    odom_topic: odometry/local
+    navigators: ["navigate_to_pose"]
+    navigate_to_pose:
+      plugin: "nav2_bt_navigator::NavigateToPoseNavigator"

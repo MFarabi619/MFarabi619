@@ -47,6 +47,7 @@ DEPTH_CAMERA_PRECEDENCE = (
     LUXONIS_OAK_MODELS, (ORBBEC_GEMINI_335L_MODEL,), (STEREOLABS_ZED_MODEL,))
 DRIVETRAIN_MODELS = get_args(DrivetrainModel)
 DOMAINS = ('platform', 'sensors', 'perception', 'navigation', 'manipulation')
+NAV2_OWNER_BEHAVIORS = ('nav2_person_follow', 'nav2_navigate_to_pose', 'gps_navigation')
 MIN_MAVLINK_SYSTEM_ID = 1
 MAX_MAVLINK_SYSTEM_ID = 255
 MOTION_LIMIT_KEYS = (
@@ -311,6 +312,7 @@ class Behaviors(StrictRecord):
     hand_gesture_teleop: bool = False
     weeding: bool = False
     nav2_person_follow: bool = False
+    nav2_navigate_to_pose: bool = False
     gps_navigation: bool = False
     harvest_lane: bool = False
     line_follow: bool = False
@@ -318,11 +320,15 @@ class Behaviors(StrictRecord):
     park_path_follow: bool = False
     path_follow: bool = False
 
+    @property
+    def nav2_owners(self):
+        return [behavior for behavior in NAV2_OWNER_BEHAVIORS if getattr(self, behavior)]
+
     @model_validator(mode='after')
-    def refuse_two_nav2_owners(self):
-        if self.nav2_person_follow and self.gps_navigation:
+    def refuse_multiple_nav2_owners(self):
+        if len(self.nav2_owners) > 1:
             raise ValueError(
-                'nav2_person_follow and gps_navigation both start the nav2 servers; enable one')
+                f'{" and ".join(self.nav2_owners)} each start the nav2 servers; enable one')
         return self
 
 
@@ -418,7 +424,7 @@ class Machine(StrictRecord):
             'platform': self.platform is not None,
             'sensors': bool(self.enabled_cameras or sensors.imu or sensors.gps),
             'perception': self.depth_camera is not None,
-            'navigation': self.behaviors.nav2_person_follow or self.behaviors.gps_navigation,
+            'navigation': bool(self.behaviors.nav2_owners),
             'manipulation': bool(self.enabled_arms),
         }
         return tuple(domain for domain in DOMAINS if present[domain])

@@ -50,10 +50,18 @@ def test_missing_machine_file_is_named(tmp_path):
         load_machine('ghost', tmp_path)
 
 
-def test_two_nav2_owners_are_refused(tmp_path):
+def test_nav2_person_follow_and_gps_navigation_are_refused(tmp_path):
     write_machine(
         tmp_path, 'twice',
         'platform: {}\nbehaviors: {nav2_person_follow: true, gps_navigation: true}\n')
+    with pytest.raises(MachineError, match='enable one'):
+        load_machine('twice', tmp_path)
+
+
+def test_nav2_person_follow_and_nav2_navigate_to_pose_are_refused(tmp_path):
+    write_machine(
+        tmp_path, 'twice',
+        'platform: {}\nbehaviors: {nav2_person_follow: true, nav2_navigate_to_pose: true}\n')
     with pytest.raises(MachineError, match='enable one'):
         load_machine('twice', tmp_path)
 

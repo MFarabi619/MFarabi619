@@ -79,6 +79,11 @@
           "title": "Nav2 Person Follow",
           "type": "boolean"
         },
+        "nav2_navigate_to_pose": {
+          "default": false,
+          "title": "Nav2 Navigate To Pose",
+          "type": "boolean"
+        },
         "gps_navigation": {
           "default": false,
           "title": "Gps Navigation",
@@ -1076,6 +1081,7 @@
         "hand_gesture_teleop": false,
         "weeding": false,
         "nav2_person_follow": false,
+        "nav2_navigate_to_pose": false,
         "gps_navigation": false,
         "harvest_lane": false,
         "line_follow": false,
