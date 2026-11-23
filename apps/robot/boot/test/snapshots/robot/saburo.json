@@ -46,7 +46,7 @@
     },
     {
       "arguments": {
-        "full_scale_wheel_speed": 6.666666666666667,
+        "full_scale_wheel_speed": 6.635700066357001,
         "gpio_chip": 0,
         "i2c_bus": 7,
         "left_dac_i2c_address": 99,
@@ -73,7 +73,7 @@
       "package": "robot_drivers",
       "params": {
         "dac_supply_volts": 5.0,
-        "full_scale_wheel_speed": 6.666666666666667,
+        "full_scale_wheel_speed": 6.635700066357001,
         "gpio_chip": 0,
         "i2c_bus": 7,
         "left_dac_i2c_address": 99,
@@ -92,8 +92,8 @@
         "cmd_vel_timeout_seconds": 0.5,
         "max_angular_acceleration_radians_per_second_squared": 7.5,
         "max_linear_acceleration_meters_per_second_squared": 5.0,
-        "wheel_radius": 0.3,
-        "wheel_separation": 1.13642,
+        "wheel_radius": 0.3014,
+        "wheel_separation": 1.05,
         "wheel_separation_multiplier": 1.5
       },
       "kind": "include",
@@ -119,8 +119,8 @@
                 "angular.z.max_acceleration": 7.5,
                 "cmd_vel_timeout": 0.5,
                 "linear.x.max_acceleration": 5.0,
-                "wheel_radius": 0.3,
-                "wheel_separation": 1.13642,
+                "wheel_radius": 0.3014,
+                "wheel_separation": 1.05,
                 "wheel_separation_multiplier": 1.5
               }
             }
@@ -147,8 +147,8 @@
                 "angular.z.max_acceleration": 7.5,
                 "cmd_vel_timeout": 0.5,
                 "linear.x.max_acceleration": 5.0,
-                "wheel_radius": 0.3,
-                "wheel_separation": 1.13642,
+                "wheel_radius": 0.3014,
+                "wheel_separation": 1.05,
                 "wheel_separation_multiplier": 1.5
               }
             }
