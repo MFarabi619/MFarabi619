@@ -15,7 +15,7 @@
       "openws.org" = {
         domain = "openws.org";
         dnsProvider = "cloudflare";
-        dnsPropagationCheck = true;
+        # dnsPropagationCheck = true;
         dnsResolver = "1.1.1.1:53";
         extraDomainNames = [ "*.openws.org" ];
         group = config.services.caddy.group;
